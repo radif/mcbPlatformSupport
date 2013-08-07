@@ -1,0 +1,235 @@
+//
+//  PlatformSupport.cpp
+//  SoundSurfer
+//
+//  Created by Radif Sharafullin on 6/8/13.
+//
+//
+
+#include "mcbPlatformSupport.h"
+#include "mcbNumber.h"
+
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+
+
+/*
+ *To compile this file using gcc you can type
+ *gcc `xml2-config --cflags --libs` -o xmlexample libxml2-example.c
+ */
+
+/**
+ * print_element_names:
+ * @a_node: the initial xml node to consider.
+ *
+ * Prints the names of the all the xml elements
+ * that are siblings or children of a given xml node.
+ */
+
+
+
+
+using namespace cocos2d;
+
+namespace mcb{namespace PlatformSupport{
+    static cocos2d::CCRect _visibleScreenRect=cocos2d::CCRectZero;
+    static std::string _deviceIdiom;
+    static std::string _sharedBundlePath;
+    static float _screenScaleRatio=1.0f;
+    static DeviceType _devType=DeviceTypeUnknown;
+
+    
+    void setVisibleScreenRect(const cocos2d::CCRect & rect){_visibleScreenRect=rect;}
+    cocos2d::CCRect getVisibleScreenRect(){
+        if (!_visibleScreenRect.size.width && !_visibleScreenRect.size.height){
+            _visibleScreenRect=cocos2d::CCRectZero;
+            _visibleScreenRect.size=cocos2d::CCDirector::sharedDirector()->getWinSize();
+        }
+        return _visibleScreenRect;
+    }
+    
+    
+    float getScreenScaleRatio(){return _screenScaleRatio;}
+    void setScreenScaleRatio(float screenScaleRatio){_screenScaleRatio=screenScaleRatio;}
+    
+    
+    
+    void setDeviceIdiom(const std::string & newDeviceIdiom){_deviceIdiom=newDeviceIdiom;}
+    std::string getDeviceIdiom(){
+        if (_deviceIdiom=="") {
+            TargetPlatform tp(CCApplication::sharedApplication()->getTargetPlatform());
+            switch (tp) {
+                case kTargetIpad:
+                    _deviceIdiom="iPad";
+                    break;
+                case kTargetIphone:
+                    _deviceIdiom="iPhone";
+                    break;
+                case kTargetAndroid:
+                    _deviceIdiom="Android";
+                    break;
+                    
+                    //TODO: more logic
+                default:
+                    break;
+            }
+        }
+        return _deviceIdiom;
+    }
+    
+    void setDeviceType(const DeviceType & devType){_devType=devType;}
+    DeviceType getDeviceType(){
+        
+        if (_devType==DeviceTypeUnknown) {
+            TargetPlatform tp(CCApplication::sharedApplication()->getTargetPlatform());
+            switch (tp) {
+                case kTargetIpad:
+                    _devType=DeviceTypeTablet;
+                    break;
+                case kTargetIphone:
+                    _devType=DeviceTypeHandheld;
+                    break;
+                    
+                    //TODO: more logic
+                default:
+                    break;
+            }
+        }
+        return _devType;
+        
+    }
+    std::string getDeviceSuffix(){return _devType==DeviceTypeHandheld?"-hh":"-tb";}
+    
+    cocos2d::CCPoint getScreenCenter(){return {_visibleScreenRect.origin.x+_visibleScreenRect.size.width*.5f, _visibleScreenRect.origin.y+_visibleScreenRect.size.height*.5f};}
+    
+    
+    
+    void setSharedBundlePath(const std::string & shpath){_sharedBundlePath=resolvePath(shpath);}
+    std::string getSharedBundlePath(){return _sharedBundlePath;}
+    
+    void iterateArray(cocos2d::CCArray * arr, std::function<void(cocos2d::CCObject *item, unsigned idx, bool & stop)>block){
+        if (!block)
+            return;
+        const unsigned count(arr->count());
+        bool stop(false);
+        for (int index(0); index<count; ++index) {
+            block(arr->objectAtIndex(index),index, stop);
+            if (stop)
+                break;
+        }
+    }
+    
+#pragma mark -
+#pragma mark parsing
+    
+    static cocos2d::CCObject *allocValueForNode(xmlNode *n)
+    {
+        cocos2d::CCObject *retVal(0);
+        
+        CCAssert(n->type==XML_ELEMENT_NODE, "Plist may not be valid!");
+        
+        const char *name = (const char *)n->name;
+        const char *content = (n->children) ? (const char *)n->children->content : 0;
+        
+        
+        if (strcmp(name, "true") == 0) {
+            retVal = new Number(1);
+        }else if (strcmp(name, "false") == 0) {
+            retVal = new Number(0);
+        }else if (strcmp(name, "string") == 0) {
+            if (!content) content = "";
+            retVal = new cocos2d::CCString(content);
+        }else if (strcmp(name, "real") == 0) {
+            retVal = new Number(atof(content));
+        }else if (strcmp(name, "integer") == 0) {
+            retVal = new Number(atoi(content));
+        }else if (strcmp(name, "dict") == 0) {
+            cocos2d::CCDictionary *d = new cocos2d::CCDictionary();
+            xmlNode *curr = n->children;
+            while (curr) {
+                if (strcmp((const char *)curr->name, "key") == 0) {
+                    std::string key = std::string(reinterpret_cast<const char *>(curr->children->content));
+                    curr = curr->next;
+                    cocos2d::CCObject *obj = allocValueForNode(curr);
+                    d->setObject(obj, key);
+                    obj->release();
+                    curr = curr->next;
+                }
+            }
+            retVal = d;
+        }else if (strcmp(name, "array") == 0) {
+            cocos2d::CCArray *a = new cocos2d::CCArray();
+            a->init();
+            xmlNode *curr = n->children;
+            while (curr) {
+                cocos2d::CCObject *obj = allocValueForNode(curr);
+                curr = curr->next;
+                a->addObject(obj);
+                obj->release();
+            }
+            retVal = a;
+        }
+        
+        assert(retVal);
+        return retVal;
+    }
+    
+    static void
+    print_element_names(xmlNode * a_node, std::string indentation)
+    {
+        xmlNode *cur_node(0);
+        for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
+            if (cur_node->type == XML_ELEMENT_NODE) {
+                printf("%snode type: Element, name: %s\n", indentation.c_str(), cur_node->name);
+            } else if (cur_node->type == XML_TEXT_NODE) {
+                printf("%snode type: Text, content: %s(%lu)\n", indentation.c_str(), cur_node->content, strlen((const char *)cur_node->content));
+            }
+            print_element_names(cur_node->children, indentation+"\t");
+        }
+    }
+    
+    cocos2d::CCDictionary *dictionaryFromPlist(const char *pFileName){
+        xmlDoc *doc(0);
+        xmlNode *root_element(0);
+        
+        /*
+         * this initialize the library and check potential ABI mismatches
+         * between the version it was compiled for and the actual shared
+         * library used.
+         */
+        LIBXML_TEST_VERSION
+        
+        /*parse the file and get the DOM */
+        
+        // on android i seem to have to go through ccfileutils to get the data, may as well always do it
+        
+        
+        
+        unsigned long  uSize(0);
+        xmlChar * xmlBuff(cocos2d::CCFileUtils::sharedFileUtils()->getFileData(pFileName, "r", &uSize));
+        if (uSize)
+            doc = xmlReadMemory((const char *)xmlBuff, uSize, "", 0, XML_PARSE_NOBLANKS);
+        
+        CC_SAFE_DELETE_ARRAY(xmlBuff);
+        
+        //could not parse the file pFileName!
+        assert(doc);
+        
+        /*Get the root element node */
+        root_element = xmlDocGetRootElement(doc);
+        //  print_element_names(root_element, "");
+        cocos2d::CCDictionary *d = (cocos2d::CCDictionary *) allocValueForNode(root_element->children);
+        d->autorelease();
+        
+        /*free the document */
+        xmlFreeDoc(doc);
+        /*
+         *Free the global variables that may
+         *have been allocated by the parser.
+         */
+        xmlCleanupParser();
+        
+        return d;
+    }
+    
+}}
