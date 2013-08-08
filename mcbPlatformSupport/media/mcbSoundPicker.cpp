@@ -6,7 +6,7 @@
 //
 //
 
-#include "SoundPicker.h"
+#include "mcbSoundPicker.h"
 #include "mcbPlatformSupport.h"
 
 namespace mcb{namespace PlatformSupport{namespace SoundPicker{
