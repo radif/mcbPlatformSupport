@@ -114,7 +114,10 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         return retVal;
     }
     
-    
+    cocos2d::CCSize sizeForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCSize defaultVal){
+        CCPoint sizePoint(pointForObjectKey(dict, key, {defaultVal.width, defaultVal.height}));
+        return {sizePoint.x, sizePoint.y};
+    }
     cocos2d::CCPoint pointForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCPoint defaultVal){
         CCPoint retVal(defaultVal);
         CCObject * obj(dict->objectForKey(key.c_str()));

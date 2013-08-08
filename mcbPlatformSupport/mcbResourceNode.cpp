@@ -27,79 +27,10 @@ namespace mcb{namespace PlatformSupport{
 #pragma mark lifecycle
     ResourceNode::ResourceNode(){
         
-        _generators["label-ttf"]=[=](CCDictionary * data)->cocos2d::CCNode *{
-            std::string text(Functions::stringForObjectKey(data, "text"));
-            CCPoint pos(Functions::pointForObjectKey(data, "position", getScreenCenter()));
-            float rotation(Functions::floatForObjectKey(data, "rotation"));
-            std::string fontName(Functions::stringForObjectKey(data, "font_name", "Georgia"));
-            float fontSize(Functions::floatForObjectKey(data, "font_size", 24));
-            
-            ccColor3B color(Functions::colorForObjectKey(data, "text_color"));
-            color=Functions::webColorForObjectKey(data, "text_webColor", color);
-            CCTextAlignment hAlignment(Functions::textAlignmentForObjectKey(data, "alignment"));
-            
-            CCLabelTTF * letterLabel(CCLabelTTF::create(text.c_str(), fontName.c_str(), fontSize, CCSizeZero, hAlignment));
-            letterLabel->setRotation(rotation);
-            letterLabel->setPosition(pos);
-            letterLabel->setColor(color);
-            return letterLabel;
-        };
-
-        _generators["label-bmf"]=[=](CCDictionary * data)->cocos2d::CCNode *{
-            std::string text(Functions::stringForObjectKey(data, "text"));
-            CCPoint pos(Functions::pointForObjectKey(data, "position", getScreenCenter()));
-            float rotation(Functions::floatForObjectKey(data, "rotation"));
-            std::string fontPath(mcbPath(Functions::stringForObjectKey(data, "font_path")));
-            assert(fontPath.length());
-            
-            CCTextAlignment hAlignment(Functions::textAlignmentForObjectKey(data, "alignment"));
-            float width(Functions::floatForObjectKey(data, "width"));
-            CCPoint imageOffset(Functions::pointForObjectKey(data, "imageOffset"));
-            
-            CCLabelBMFont * letterLabel(CCLabelBMFont::create(text.c_str(), fontPath.c_str(), width, hAlignment, imageOffset));
-            letterLabel->setRotation(rotation);
-            letterLabel->setPosition(pos);
-            if (data->objectForKey("text_color"))
-                letterLabel->setColor(Functions::colorForObjectKey(data, "text_color"));
-            else if(data->objectForKey("text_webColor"))
-                letterLabel->setColor(Functions::webColorForObjectKey(data, "text_webColor"));
-            
-            return letterLabel;
-        };
-
-        _generators["menu-item-text"]=[=](CCDictionary * data)->cocos2d::CCNode *{
-            
-            std::string text(Functions::stringForObjectKey(data, "text"));
-            CCPoint pos(Functions::pointForObjectKey(data, "position", getScreenCenter()));
-            float rotation(Functions::floatForObjectKey(data, "rotation"));
-            std::string fontName(Functions::stringForObjectKey(data, "font_name", "Georgia"));            
-            float fontSize(Functions::floatForObjectKey(data, "font_size", 24));
-            ccColor3B color(Functions::colorForObjectKey(data, "text_color"));
-            color=Functions::webColorForObjectKey(data, "text_webColor",color);
-            //CCTextAlignment hAlignment(textAlignmentForObjectKeyL(data, "alignment"));
-            
-            CCMenuItemFont * item=CCMenuItemFont::create(text.c_str());
-            item->setTarget(this, menu_selector(ResourceNode::_buttonWithTagPressed));
-            Number * tag=(Number *)data->objectForKey("tag");
-            if (tag)
-                item->setTag(*tag);
-            item->setColor(color);
-            item->setFontName(fontName.c_str());
-            item->setFontSize(fontSize);
-            
-            CCMenu*m(CCMenu::createWithItem(item));
-            m->setPosition(pos);
-            m->setRotation(rotation);
-            return m;
-            
-            
-        };
         
-        _generators["sprite"]=[=](CCDictionary * data)->CCNode *{
-            std::string imagePath(Functions::stringForObjectKey(data, "image"));
-            assert(imagePath.length());
-            imagePath=mcbPath(imagePath);
-            CCPoint pos(Functions::pointForObjectKey(data, "position", getScreenCenter()));
+        auto setNodePropertiesL([](cocos2d::CCNode * node, CCDictionary * data){
+        
+            CCPoint pos(Functions::pointForObjectKey(data, "position"));
             float rotation(Functions::floatForObjectKey(data, "rotation"));
             
             //scale
@@ -125,22 +56,95 @@ namespace mcb{namespace PlatformSupport{
                 
             }
             
+            if (data->objectForKey("anchorPoint"))
+                node->setAnchorPoint(Functions::pointForObjectKey(data, "anchorPoint", {.5f,.5f}));
             
-            CCPoint anchorPoint(Functions::pointForObjectKey(data, "anchorPoint", {.5f,.5f}));
-                        
-            cocos2d::CCSprite * spr(cocos2d::CCSprite::create(imagePath.c_str()));
-            spr->setAnchorPoint(anchorPoint);
-            spr->setPosition(pos);
+            if (data->objectForKey("contentSize"))
+                node->setContentSize(Functions::sizeForObjectKey(data, "contentSize", {0.f,0.f}));
+
+            node->setPosition(pos);
             
             if (useScaleXY){
-                spr->setScaleX(scaleX);
-                spr->setScaleY(scaleY);
+                node->setScaleX(scaleX);
+                node->setScaleY(scaleY);
             }else
-                spr->setScale(scale);
+                node->setScale(scale);
             
-            spr->setRotation(rotation);
+            node->setRotation(rotation);
+        });
+        
+        _generators["node"]=[=](CCDictionary * data)->CCNode *{
+            cocos2d::CCNode * node(cocos2d::CCNode::create());
+            setNodePropertiesL(node, data);
+            return node;
+            
+        };
+
+        
+        _generators["label-ttf"]=[=](CCDictionary * data)->cocos2d::CCNode *{
+            std::string text(Functions::stringForObjectKey(data, "text"));
+            std::string fontName(Functions::stringForObjectKey(data, "font_name", "Georgia"));
+            float fontSize(Functions::floatForObjectKey(data, "font_size", 24));
+            
+            ccColor3B color(Functions::colorForObjectKey(data, "text_color"));
+            color=Functions::webColorForObjectKey(data, "text_webColor", color);
+            CCTextAlignment hAlignment(Functions::textAlignmentForObjectKey(data, "alignment"));
+            
+            CCLabelTTF * letterLabel(CCLabelTTF::create(text.c_str(), fontName.c_str(), fontSize, CCSizeZero, hAlignment));
+            setNodePropertiesL(letterLabel, data);
+            letterLabel->setColor(color);
+            return letterLabel;
+        };
+
+        _generators["label-bmf"]=[=](CCDictionary * data)->cocos2d::CCNode *{
+            std::string text(Functions::stringForObjectKey(data, "text"));
+            std::string fontPath(mcbPath(Functions::stringForObjectKey(data, "font_path")));
+            assert(fontPath.length());
+            
+            CCTextAlignment hAlignment(Functions::textAlignmentForObjectKey(data, "alignment"));
+            float width(Functions::floatForObjectKey(data, "width"));
+            CCPoint imageOffset(Functions::pointForObjectKey(data, "imageOffset"));
+            
+            CCLabelBMFont * letterLabel(CCLabelBMFont::create(text.c_str(), fontPath.c_str(), width, hAlignment, imageOffset));
+            setNodePropertiesL(letterLabel, data);
+            if (data->objectForKey("text_color"))
+                letterLabel->setColor(Functions::colorForObjectKey(data, "text_color"));
+            else if(data->objectForKey("text_webColor"))
+                letterLabel->setColor(Functions::webColorForObjectKey(data, "text_webColor"));
+            
+            return letterLabel;
+        };
+
+        _generators["menu-item-text"]=[=](CCDictionary * data)->cocos2d::CCNode *{
+            std::string text(Functions::stringForObjectKey(data, "text"));
+            std::string fontName(Functions::stringForObjectKey(data, "font_name", "Georgia"));            
+            float fontSize(Functions::floatForObjectKey(data, "font_size", 24));
+            ccColor3B color(Functions::colorForObjectKey(data, "text_color"));
+            color=Functions::webColorForObjectKey(data, "text_webColor",color);
+            //CCTextAlignment hAlignment(textAlignmentForObjectKeyL(data, "alignment"));
+            
+            CCMenuItemFont * item=CCMenuItemFont::create(text.c_str());
+            item->setTarget(this, menu_selector(ResourceNode::_buttonWithTagPressed));
+            Number * tag=(Number *)data->objectForKey("tag");
+            if (tag)
+                item->setTag(*tag);
+            item->setColor(color);
+            item->setFontName(fontName.c_str());
+            item->setFontSize(fontSize);
+            
+            CCMenu*m(CCMenu::createWithItem(item));
+            setNodePropertiesL(m, data);
+            return m;
             
             
+        };
+        
+        _generators["sprite"]=[=](CCDictionary * data)->CCNode *{
+            std::string imagePath(Functions::stringForObjectKey(data, "image"));
+            assert(imagePath.length());
+            imagePath=mcbPath(imagePath);
+            cocos2d::CCSprite * spr(cocos2d::CCSprite::create(imagePath.c_str()));
+            setNodePropertiesL(spr, data);
             return spr;
             
         };
@@ -155,8 +159,6 @@ namespace mcb{namespace PlatformSupport{
             assert(str1.length());
             
             //position
-            CCPoint position(Functions::pointForObjectKey(data, "position", getScreenCenter()));
-            float rotation(Functions::floatForObjectKey(data, "rotation"));
             CCPoint anchorPoint(Functions::pointForObjectKey(data, "anchorPoint", {.5f,.5f}));
 
             
@@ -167,8 +169,7 @@ namespace mcb{namespace PlatformSupport{
             item->setTag(Functions::floatForObjectKey(data, "tag"));
             
             CCMenu*m(CCMenu::createWithItem(item));
-            m->setPosition(position);
-            m->setRotation(rotation);
+            setNodePropertiesL(m, data);
             return m;
         };
         
