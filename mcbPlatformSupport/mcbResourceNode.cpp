@@ -158,14 +158,8 @@ namespace mcb{namespace PlatformSupport{
             assert(str.length());
             assert(str1.length());
             
-            //position
-            CCPoint anchorPoint(Functions::pointForObjectKey(data, "anchorPoint", {.5f,.5f}));
-
-            
             CCMenuItemImage * item=CCMenuItemImage::create(str.c_str(), str1.c_str());
-            item->setAnchorPoint(anchorPoint);
             item->setTarget(this, menu_selector(ResourceNode::_buttonWithTagPressed));
-            
             item->setTag(Functions::floatForObjectKey(data, "tag"));
             
             CCMenu*m(CCMenu::createWithItem(item));
