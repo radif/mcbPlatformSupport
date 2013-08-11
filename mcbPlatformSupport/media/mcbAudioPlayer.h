@@ -11,6 +11,8 @@
 
 #include <string>
 #include <functional>
+#include <vector>
+
 namespace mcb{namespace PlatformSupport{
     
     class AudioPlayer{
@@ -105,5 +107,17 @@ namespace mcb{namespace PlatformSupport{
     typedef std::shared_ptr<AudioPlayer> pAudioPlayer;
     typedef std::weak_ptr<AudioPlayer> pWeakAudioPlayer;
 
+    
+    class EffectPlayer{
+        std::vector<pAudioPlayer> _players;
+        pAudioPlayer createPlayer();
+    public:
+        const std::string m_filePath;
+        EffectPlayer(const std::string filePath, unsigned capacity=3);
+        virtual ~EffectPlayer();
+        void play();
+    };
+    typedef std::shared_ptr<EffectPlayer> pEffectPlayer;
+    
 }}
 #endif /* defined(__mcb__AudioPlayer__) */

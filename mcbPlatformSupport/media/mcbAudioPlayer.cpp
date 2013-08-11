@@ -71,4 +71,41 @@ namespace mcb{namespace PlatformSupport{
         }
         
     }
+    
+#pragma mark -
+#pragma mark EffectPlayer
+    
+    EffectPlayer::EffectPlayer(const std::string filePath, unsigned capacity): m_filePath(filePath){
+        for (int i(0); i<capacity; ++i)
+            _players.push_back(createPlayer());
+        
+    }
+    EffectPlayer::~EffectPlayer(){
+        for (auto player : _players) {
+            player->m_playerCompletion=nullptr;
+            player->stop();
+        }
+    }
+    void EffectPlayer::play(){
+        pAudioPlayer player(nullptr);
+        if (_players.empty())
+            player=createPlayer();
+        else{
+            player=_players.back();
+            _players.pop_back();
+        }
+        
+        player->play();
+        player->m_playerCompletion=[=](AudioPlayer *p){
+            _players.push_back(player);
+            player->m_playerFinishedHandle=nullptr;
+        };
+    }
+    
+    pAudioPlayer EffectPlayer::createPlayer(){
+        pAudioPlayer player(std::make_shared<AudioPlayer>(m_filePath));
+        player->prepareToPlay();
+        return player;
+    }
+    
 }}
