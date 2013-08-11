@@ -57,10 +57,10 @@ namespace mcb{namespace PlatformSupport{
             }
             
             if (data->objectForKey("anchorPoint"))
-                node->setAnchorPoint(Functions::pointForObjectKey(data, "anchorPoint", {.5f,.5f}));
+                node->setAnchorPoint(Functions::pointForObjectKey(data, "anchorPoint", node->getAnchorPoint()));
             
             if (data->objectForKey("contentSize"))
-                node->setContentSize(Functions::sizeForObjectKey(data, "contentSize", {0.f,0.f}));
+                node->setContentSize(Functions::sizeForObjectKey(data, "contentSize", node->getContentSize()));
 
             node->setPosition(pos);
             
@@ -71,6 +71,10 @@ namespace mcb{namespace PlatformSupport{
                 node->setScale(scale);
             
             node->setRotation(rotation);
+            
+            if (data->objectForKey("visible"))
+                node->setVisible(Functions::boolForObjectKey(data, "visible", node->isVisible()));
+            
         });
         
         _generators["node"]=[=](CCDictionary * data)->CCNode *{
