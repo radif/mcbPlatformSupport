@@ -16,7 +16,7 @@ namespace cocos2d{
 namespace mcb{namespace PlatformSupport{namespace SoundPicker{
     void pickItemFromMusicLibrary(std::function<void(const std::string & itemFileCopyPath)> completion);
     std::string localPlaybackPath();
-    void metadataForMediaFile(const std::string & filePath, const std::function<void(cocos2d::CCTexture2D * tex, const::std::string & songTitle, const::std::string & albumTitle)>);
+    void metadataForMediaFile(const std::string & filePath, const std::function<void(cocos2d::CCTexture2D * tex, const::std::string & songTitle, const::std::string & albumTitle, const::std::string & artistName)> completion);
 }}}
 
 #endif /* defined(__mcb__SoundPicker__) */

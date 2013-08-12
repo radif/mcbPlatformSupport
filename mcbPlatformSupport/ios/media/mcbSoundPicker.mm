@@ -117,7 +117,7 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
     void pickItemFromMusicLibrary(std::function<void(const std::string & itemFileCopyPath)> completion){
         [mcbMedaiPickerHandler pickItemFromMusicLibrary:completion];
     }
-    void metadataForMediaFile(const std::string & filePath, const std::function<void(cocos2d::CCTexture2D * tex, const::std::string & songTitle, const::std::string & albumTitle)> completion){
+    void metadataForMediaFile(const std::string & filePath, const std::function<void(cocos2d::CCTexture2D * tex, const::std::string & songTitle, const::std::string & albumTitle, const::std::string & artistName)> completion){
         
         if (!completion)
             return;
@@ -164,7 +164,7 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
             });
             
             cocos2d::CCTexture2D * tex(nullptr);
-            std::string songTitile, albumTitle;
+            std::string songTitile, albumTitle, artistName;
             
             for (AVMetadataItem *item in artworks) {
                 @autoreleasepool {
@@ -188,12 +188,16 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
                         NSString * album([item.value copyWithZone:nil]);
                         [album autorelease];
                         albumTitle=[album UTF8String];
+                    }else if ([item.keySpace isEqualToString:AVMetadataiTunesMetadataKeyArtist]){
+                        NSString * artist([item.value copyWithZone:nil]);
+                        [artist autorelease];
+                        artistName=[artist UTF8String];
                     }
                 }
             }
             
             if (completion)
-                completion(tex,songTitile,albumTitle);
+                completion(tex,songTitile,albumTitle, artistName);
             
         }];
         
