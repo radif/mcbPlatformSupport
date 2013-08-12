@@ -10,6 +10,8 @@
 #import <MediaPlayer/MPMediaPickerController.h>
 #import <AVFoundation/AVFoundation.h>
 #import "TSLibraryImport.h"
+#include "CCTexture2D.h"
+#include "CCImage.h"
 
 @interface mcbMedaiPickerHandler : NSObject <MPMediaPickerControllerDelegate>
 +(void)pickItemFromMusicLibrary:(std::function<void(const std::string & itemFileCopyPath)>) completion;
@@ -59,7 +61,7 @@
 -(void)mediaPicker:(MPMediaPickerController *) mediaPicker didPickMediaItems:(MPMediaItemCollection *)collection {
     
     [mediaPicker dismissViewControllerAnimated:TRUE completion:NULL];
-
+    
     
     MPMediaItem *item = [[collection items] objectAtIndex:0];
     
@@ -69,7 +71,7 @@
     if (assetURL) {
         // create destination URL
         std::string localPath(mcb::PlatformSupport::SoundPicker::localPlaybackPath());
-
+        
         NSURL* outURL = [NSURL fileURLWithPath:@(localPath.c_str())];
         // we're responsible for making sure the destination url doesn't already exist
         [[NSFileManager defaultManager] removeItemAtURL:outURL error:nil];
@@ -102,7 +104,7 @@
             });
         }];
     }else{
-    //drm?
+        //drm?
     }
 }
 
@@ -114,5 +116,124 @@
 namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
     void pickItemFromMusicLibrary(std::function<void(const std::string & itemFileCopyPath)> completion){
         [mcbMedaiPickerHandler pickItemFromMusicLibrary:completion];
+    }
+    void metadataForMediaFile(const std::string & filePath, const std::function<void(cocos2d::CCTexture2D * tex, const::std::string & songTitle, const::std::string & albumTitle)> completion){
+        
+        if (!completion)
+            return;
+        
+        NSURL *fileURL = [NSURL fileURLWithPath:@(filePath.c_str())];
+        AVAsset *asset = [AVURLAsset URLAssetWithURL:fileURL options:nil];
+        
+        NSArray *keys = [NSArray arrayWithObjects:@"commonMetadata", nil];
+        [asset loadValuesAsynchronouslyForKeys:keys completionHandler:^{
+            NSArray *artworks = [AVMetadataItem metadataItemsFromArray:asset.commonMetadata withKey:AVMetadataCommonKeyArtwork keySpace:AVMetadataKeySpaceCommon];
+            
+            
+            auto textureFromData([](NSData * data)->cocos2d::CCTexture2D *{
+                cocos2d::CCTexture2D * retVal(nullptr);
+                if (data) {
+                    void * buffer;
+                    [data getBytes:buffer];
+                    cocos2d::CCImage * image(new cocos2d::CCImage);
+                    if(image && image->initWithImageData(buffer, data.length))
+                        image->autorelease();
+                    else{
+                        CC_SAFE_DELETE(image);
+                        image=nullptr;
+                    }
+                    
+                    if (image) {
+                        retVal=new cocos2d::CCTexture2D;
+                        
+                        if (retVal && retVal->initWithImage(image))
+                            retVal->autorelease();
+                        else{
+                            CC_SAFE_DELETE(retVal);
+                            retVal=nullptr;
+                        }
+                        
+                        
+                    }
+                    
+                    
+                    
+                }
+                
+                return retVal;
+            });
+            
+            cocos2d::CCTexture2D * tex(nullptr);
+            std::string songTitile, albumTitle;
+            
+            for (AVMetadataItem *item in artworks) {
+                @autoreleasepool {
+                    if ([item.keySpace isEqualToString:AVMetadataKeySpaceID3]) {
+                        NSDictionary *dict = [item.value copyWithZone:nil];//leaking? do we need autorelease
+                        [dict autorelease];
+                        NSData * dt([dict objectForKey:@"data"]);
+                        if (dt)
+                            tex=textureFromData(dt);
+                        
+                    }else if ([item.keySpace isEqualToString:AVMetadataKeySpaceiTunes]) {
+                        NSData * dt([item.value copyWithZone:nil]);
+                        [dt autorelease];
+                        if (dt)
+                            tex=textureFromData(dt);
+                    }else if ([item.keySpace isEqualToString:AVMetadataiTunesMetadataKeySongName]){
+                        NSString * song([item.value copyWithZone:nil]);
+                        [song autorelease];
+                        songTitile=[song UTF8String];
+                    }else if ([item.keySpace isEqualToString:AVMetadataiTunesMetadataKeyAlbum]){
+                        NSString * album([item.value copyWithZone:nil]);
+                        [album autorelease];
+                        albumTitle=[album UTF8String];
+                    }
+                }
+            }
+            
+            if (completion)
+                completion(tex,songTitile,albumTitle);
+            
+        }];
+        
+        
+        /*
+         extAFReachedEOF = NO;
+         OSStatus err;
+         CFURLRef inpUrl = (CFURLRef)audioURL;
+         err = ExtAudioFileOpenURL(inpUrl, &extAFRef);
+         if(err != noErr) {
+         [self status:ERROR message:@"Cannot open audio file"];
+         return;
+         }
+         
+         AudioFileID afid;
+         AudioFileOpenURL(inpUrl, kAudioFileReadPermission, 0, &afid);
+         UInt32 size = 0;
+         UInt32 writable;
+         OSStatus error = AudioFileGetPropertyInfo(afid, kAudioFilePropertyInfoDictionary, &size, &writable);
+         if ( error == noErr ) {
+         CFDictionaryRef info = NULL;
+         error = AudioFileGetProperty(afid, kAudioFilePropertyInfoDictionary, &size, &info);
+         if ( error == noErr ) {
+         NSLog(@"file properties: %@", (NSDictionary *)info);
+         NSDictionary *dict = (NSDictionary *)info;
+         NSString *idTitle = [dict valueForKey:@"title"];
+         NSString *idArtist = [dict valueForKey:@"artist"];
+         if(idTitle != nil && idArtist != nil) {
+         [_title release];
+         _title = [[NSString stringWithFormat:@"%@ - %@",idArtist, idTitle]retain];
+         } else if(idTitle != nil) {
+         [_title release];
+         _title = [idTitle copy];
+         }
+         }
+         if(info) CFRelease(info);
+         } else {
+         NSLog(@"Error reading tags");
+         }
+         AudioFileClose(afid);
+         */
     }
 }}}
