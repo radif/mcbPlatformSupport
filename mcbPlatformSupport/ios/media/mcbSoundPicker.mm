@@ -12,6 +12,7 @@
 #import "TSLibraryImport.h"
 #include "CCTexture2D.h"
 #include "CCImage.h"
+#include <AudioToolbox/AudioToolbox.h>
 
 @interface mcbMedaiPickerHandler : NSObject <MPMediaPickerControllerDelegate>
 +(void)pickItemFromMusicLibrary:(std::function<void(const std::string & itemFileCopyPath)>) completion;
@@ -166,6 +167,45 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
             cocos2d::CCTexture2D * tex(nullptr);
             std::string songTitile, albumTitle, artistName;
             
+            
+            ExtAudioFileRef extAFRef;
+            
+            OSStatus err;
+            CFURLRef inpUrl = (CFURLRef)fileURL;
+            err = ExtAudioFileOpenURL(inpUrl, &extAFRef);
+            if(err == noErr) {
+                AudioFileID afid;
+                AudioFileOpenURL(inpUrl, kAudioFileReadPermission, 0, &afid);
+                UInt32 size = 0;
+                UInt32 writable;
+                OSStatus error = AudioFileGetPropertyInfo(afid, kAudioFilePropertyInfoDictionary, &size, &writable);
+                if ( error == noErr ) {
+                    CFDictionaryRef info = NULL;
+                    error = AudioFileGetProperty(afid, kAudioFilePropertyInfoDictionary, &size, &info);
+                    if ( error == noErr ) {
+                        NSLog(@"file properties: %@", (NSDictionary *)info);
+                        NSDictionary *dict = (NSDictionary *)info;
+                        NSString *idTitle = [dict valueForKey:@"title"];
+                        NSString *idArtist = [dict valueForKey:@"artist"];
+                        if (idTitle)
+                            songTitile=[idTitle UTF8String];
+
+                        if (idArtist)
+                            artistName=[idArtist UTF8String];
+
+                    }
+                    if(info) CFRelease(info);
+                } else {
+                    NSLog(@"Error reading tags");
+                }
+                AudioFileClose(afid);
+            }
+            
+           
+            
+            
+            
+            //TODO: artowrks?
             for (AVMetadataItem *item in artworks) {
                 @autoreleasepool {
                     if ([item.keySpace isEqualToString:AVMetadataKeySpaceID3]) {
