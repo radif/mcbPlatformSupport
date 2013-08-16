@@ -34,6 +34,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     cocos2d::ccColor3B colorForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::ccColor3B defaultVal={0,0,0});
     cocos2d::ccColor3B webColorForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::ccColor3B defaultVal={0,0,0});
     cocos2d::CCTextAlignment textAlignmentForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCTextAlignment defaultVal=cocos2d::kCCTextAlignmentCenter);
+    void setNodeProperties(cocos2d::CCNode * node, cocos2d::CCDictionary * data);
     
     cocos2d::ccColor3B parseWebRGB(const std::string webColor);
     

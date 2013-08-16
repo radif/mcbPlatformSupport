@@ -159,6 +159,56 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         return retVal;
     }
     
+    void setNodeProperties(cocos2d::CCNode * node, CCDictionary * data){
+        
+        CCPoint pos(Functions::pointForObjectKey(data, "position"));
+        float rotation(Functions::floatForObjectKey(data, "rotation"));
+        
+        //scale
+        bool useScaleXY(false);
+        float scaleX(1.f);
+        float scaleY(1.f);
+        
+        float scale(1.f);
+        Number * num((Number *)data->objectForKey("scale"));
+        if (num)
+            scale=*num;
+        else{
+            Number * pScaleX((Number *)data->objectForKey("scaleX"));
+            Number * pScaleY((Number *)data->objectForKey("scaleY"));
+            
+            if (pScaleX || pScaleY) {
+                useScaleXY=true;
+                if (pScaleX)
+                    scaleX=*pScaleX;
+                if (pScaleY)
+                    scaleY=*pScaleY;
+            }
+            
+        }
+        
+        if (data->objectForKey("anchorPoint"))
+            node->setAnchorPoint(Functions::pointForObjectKey(data, "anchorPoint", node->getAnchorPoint()));
+        
+        if (data->objectForKey("contentSize"))
+            node->setContentSize(Functions::sizeForObjectKey(data, "contentSize", node->getContentSize()));
+        
+        node->setPosition(pos);
+        
+        if (useScaleXY){
+            node->setScaleX(scaleX);
+            node->setScaleY(scaleY);
+        }else
+            node->setScale(scale);
+        
+        node->setRotation(rotation);
+        
+        if (data->objectForKey("visible"))
+            node->setVisible(Functions::boolForObjectKey(data, "visible", node->isVisible()));
+        
+    }
+
+    
     //color
     unsigned int _parseHex(const char *pszValue){
         unsigned int uiValue = 0;

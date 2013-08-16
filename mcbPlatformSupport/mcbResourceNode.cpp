@@ -26,60 +26,10 @@ namespace mcb{namespace PlatformSupport{
 
 #pragma mark lifecycle
     ResourceNode::ResourceNode(){
-        
-        
-        auto setNodePropertiesL([](cocos2d::CCNode * node, CCDictionary * data){
-        
-            CCPoint pos(Functions::pointForObjectKey(data, "position"));
-            float rotation(Functions::floatForObjectKey(data, "rotation"));
-            
-            //scale
-            bool useScaleXY(false);
-            float scaleX(1.f);
-            float scaleY(1.f);
-            
-            float scale(1.f);
-            Number * num((Number *)data->objectForKey("scale"));
-            if (num)
-                scale=*num;
-            else{
-                Number * pScaleX((Number *)data->objectForKey("scaleX"));
-                Number * pScaleY((Number *)data->objectForKey("scaleY"));
                 
-                if (pScaleX || pScaleY) {
-                    useScaleXY=true;
-                    if (pScaleX)
-                        scaleX=*pScaleX;
-                    if (pScaleY)
-                        scaleY=*pScaleY;
-                }
-                
-            }
-            
-            if (data->objectForKey("anchorPoint"))
-                node->setAnchorPoint(Functions::pointForObjectKey(data, "anchorPoint", node->getAnchorPoint()));
-            
-            if (data->objectForKey("contentSize"))
-                node->setContentSize(Functions::sizeForObjectKey(data, "contentSize", node->getContentSize()));
-
-            node->setPosition(pos);
-            
-            if (useScaleXY){
-                node->setScaleX(scaleX);
-                node->setScaleY(scaleY);
-            }else
-                node->setScale(scale);
-            
-            node->setRotation(rotation);
-            
-            if (data->objectForKey("visible"))
-                node->setVisible(Functions::boolForObjectKey(data, "visible", node->isVisible()));
-            
-        });
-        
         _generators["node"]=[=](CCDictionary * data)->CCNode *{
             cocos2d::CCNode * node(cocos2d::CCNode::create());
-            setNodePropertiesL(node, data);
+            Functions::setNodeProperties(node, data);
             return node;
             
         };
@@ -95,7 +45,7 @@ namespace mcb{namespace PlatformSupport{
             CCTextAlignment hAlignment(Functions::textAlignmentForObjectKey(data, "alignment"));
             
             CCLabelTTF * letterLabel(CCLabelTTF::create(text.c_str(), fontName.c_str(), fontSize, CCSizeZero, hAlignment));
-            setNodePropertiesL(letterLabel, data);
+            Functions::setNodeProperties(letterLabel, data);
             letterLabel->setColor(color);
             return letterLabel;
         };
@@ -110,7 +60,7 @@ namespace mcb{namespace PlatformSupport{
             CCPoint imageOffset(Functions::pointForObjectKey(data, "imageOffset"));
             
             CCLabelBMFont * letterLabel(CCLabelBMFont::create(text.c_str(), fontPath.c_str(), width, hAlignment, imageOffset));
-            setNodePropertiesL(letterLabel, data);
+            Functions::setNodeProperties(letterLabel, data);
             if (data->objectForKey("text_color"))
                 letterLabel->setColor(Functions::colorForObjectKey(data, "text_color"));
             else if(data->objectForKey("text_webColor"))
@@ -137,7 +87,7 @@ namespace mcb{namespace PlatformSupport{
             item->setFontSize(fontSize);
             
             CCMenu*m(CCMenu::createWithItem(item));
-            setNodePropertiesL(m, data);
+            Functions::setNodeProperties(m, data);
             return m;
             
             
@@ -148,7 +98,7 @@ namespace mcb{namespace PlatformSupport{
             assert(imagePath.length());
             imagePath=mcbPath(imagePath);
             cocos2d::CCSprite * spr(cocos2d::CCSprite::create(imagePath.c_str()));
-            setNodePropertiesL(spr, data);
+            Functions::setNodeProperties(spr, data);
             return spr;
             
         };
@@ -167,7 +117,7 @@ namespace mcb{namespace PlatformSupport{
             item->setTag(Functions::floatForObjectKey(data, "tag"));
             
             CCMenu*m(CCMenu::createWithItem(item));
-            setNodePropertiesL(m, data);
+            Functions::setNodeProperties(m, data);
             return m;
         };
         
