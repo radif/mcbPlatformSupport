@@ -134,8 +134,8 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
             auto textureFromData([](NSData * data)->cocos2d::CCTexture2D *{
                 cocos2d::CCTexture2D * retVal(nullptr);
                 if (data) {
-                    void * buffer;
-                    [data getBytes:buffer];
+                    unsigned char * buffer;
+                    [data getBytes:buffer length:data.length];
                     cocos2d::CCImage * image(new cocos2d::CCImage);
                     if(image && image->initWithImageData(buffer, data.length))
                         image->autorelease();
