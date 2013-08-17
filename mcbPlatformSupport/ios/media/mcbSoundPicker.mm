@@ -7,12 +7,15 @@
 //
 
 #include "mcbSoundPicker.h"
-#import <MediaPlayer/MPMediaPickerController.h>
+#import <MediaPlayer/MediaPlayer.h>
 #import <AVFoundation/AVFoundation.h>
 #import "TSLibraryImport.h"
 #include "CCTexture2D.h"
 #include "CCImage.h"
 #include <AudioToolbox/AudioToolbox.h>
+#include "CCNotificationCenter.h"
+
+const char * kMediaLibraryUpdatedNotification="kMediaLibraryUpdatedNotification";
 
 @interface mcbMedaiPickerHandler : NSObject <MPMediaPickerControllerDelegate>
 +(void)pickItemFromMusicLibrary:(std::function<void(const std::string & itemFileCopyPath)>) completion;
@@ -112,9 +115,248 @@
 -(void)mediaPickerDidCancel:(MPMediaPickerController *)mediaPicker{
     [mediaPicker dismissViewControllerAnimated:TRUE completion:NULL];
 }
+
+@end
+
+
+
+@interface MediaQueryHandler : NSObject
++(instancetype)sharedInstance;
+@property(nonatomic, assign) std::function<void()> mediaLibraryUpdatedHandler;
+-(mcb::PlatformSupport::SoundPicker::pMediaItems)queryMediaItems;
+@end
+@implementation MediaQueryHandler
+static MediaQueryHandler * _sharedMediaHandler=nil;
++(instancetype)sharedInstance{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _sharedMediaHandler=[self new];
+    });
+    return _sharedMediaHandler;
+}
+-(instancetype)init{
+    self=[super init];
+    if (self) {
+        _mediaLibraryUpdatedHandler=nullptr;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mediaLibraryUpdated:) name:MPMediaLibraryDidChangeNotification object:nil];
+        [[MPMediaLibrary defaultMediaLibrary] beginGeneratingLibraryChangeNotifications];
+    }
+    return self;
+}
+-(void)dealloc{
+    [[MPMediaLibrary defaultMediaLibrary] endGeneratingLibraryChangeNotifications];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [super dealloc];
+}
+- (void)mediaLibraryUpdated:(NSNotification *)notification {
+    cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kMediaLibraryUpdatedNotification);
+    if (_mediaLibraryUpdatedHandler)
+        _mediaLibraryUpdatedHandler();
+}
+-(mcb::PlatformSupport::SoundPicker::pMediaItems)queryMediaItems{
+    auto retVal(std::make_shared<mcb::PlatformSupport::SoundPicker::MediaItems>());
+    
+    MPMediaQuery * songsQuery([MPMediaQuery songsQuery]);
+    NSArray * items([songsQuery items]);
+    
+    retVal->reserve(items.count);
+    for (MPMediaItem * mediaItem in items) {
+        mcb::PlatformSupport::SoundPicker::pMediaItem pItem(std::make_shared<mcb::PlatformSupport::SoundPicker::MediaItem>());
+        pItem->_nativeHandle=[mediaItem retain];
+        retVal->push_back(pItem);
+    }
+    
+    /*
+    
+    MPMediaItemCollection *selectedMediaItemCollection = items[itemIndex];
+    
+    MPMediaItem *selectedMediaItem = [selectedMediaItemCollection representativeItem];
+    
+    NSMutableArray *songsArray = [NSMutableArray arrayWithCapacity:selectedMediaItemCollection.count];
+    for (MPMediaItemCollection *mediaItemCollection in [self items]) {
+        [songsArray addObject:[mediaItemCollection representativeItem]];
+    }
+    MPMediaItemCollection *mediaItemCollection = [MPMediaItemCollection collectionWithItems:songsArray];
+    [self.delegate jgMediaQueryViewController:self didPickMediaItems:mediaItemCollection selectedItem:selectedMediaItem];
+    
+    */
+    
+    
+    
+    
+    return retVal;
+}
 @end
 
 namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
+    inline std::string stringFromNSString(NSString *s){return s? [s UTF8String]: "";}
+    inline float floatFromNSNumber(NSNumber *n){return n? [n floatValue]: 0.f;}
+
+#define nativeMediaItem static_cast<MPMediaItem *>(_nativeHandle)
+    
+    std::string MediaItem::persistentID() const{
+        NSNumber * n([nativeMediaItem valueForProperty:MPMediaItemPropertyPersistentID]);
+        if (n)
+            return [[n stringValue] UTF8String];
+        return "";
+    }
+    std::string MediaItem::assetURL() const{
+        NSURL * url([nativeMediaItem valueForProperty:MPMediaItemPropertyAssetURL]);
+        if (url)
+            return [[url absoluteString] UTF8String];
+        return "";
+    }
+    
+    std::string MediaItem::title() const{
+        return stringFromNSString([nativeMediaItem valueForProperty:MPMediaItemPropertyTitle]);
+    }
+    std::string MediaItem::albumTitle() const{
+        return stringFromNSString([nativeMediaItem valueForProperty:MPMediaItemPropertyAlbumTitle]);
+    }
+    std::string MediaItem::artist() const{
+        return stringFromNSString([nativeMediaItem valueForProperty:MPMediaItemPropertyArtist]);
+    }
+    std::string MediaItem::albumArtist() const{
+        return stringFromNSString([nativeMediaItem valueForProperty:MPMediaItemPropertyAlbumArtist]);
+    }
+    
+    cocos2d::CCTexture2D * MediaItem::artwork() const{
+        if (_artwork)
+            return _artwork;
+        
+        UIImage *image(nil);
+        MPMediaItemArtwork *artwork = [nativeMediaItem valueForProperty:MPMediaItemPropertyArtwork];
+        if (artwork != nil) {
+            image = [artwork imageWithSize:artwork.bounds.size];
+        }
+        
+        NSData * data(UIImagePNGRepresentation(image));
+        
+        cocos2d::CCTexture2D * retVal(nullptr);
+        if (data) {
+            unsigned char * buffer;
+            [data getBytes:buffer length:data.length];
+            cocos2d::CCImage * image(new cocos2d::CCImage);
+            if(image && image->initWithImageData(buffer, data.length))
+                image->autorelease();
+            else{
+                CC_SAFE_DELETE(image);
+                image=nullptr;
+            }
+            
+            if (image) {
+                retVal=new cocos2d::CCTexture2D;
+                
+                if (retVal && retVal->initWithImage(image))
+                    retVal->autorelease();
+                else{
+                    CC_SAFE_DELETE(retVal);
+                    retVal=nullptr;
+                }
+                
+                
+            }
+            
+            
+            
+        }
+        
+        return retVal;
+        
+    }
+    
+    bool MediaItem::isPlayable() const{
+        return !assetNeedsToDownload() && !assetHasBeenDeleted();
+    }
+    
+    float MediaItem::trackLength() const{
+        return [[nativeMediaItem valueForProperty:MPMediaItemPropertyPlaybackDuration] floatValue];
+    }
+    std::string MediaItem::releaseDate() const{
+        NSDate * date([nativeMediaItem valueForProperty:MPMediaItemPropertyReleaseDate]);
+        if (date) {
+            NSDateFormatter * dateFormatter([[NSDateFormatter alloc] init]);
+            [dateFormatter setDateFormat:@"yyyy-MM-dd 'at' HH:mm"];
+            NSString * dateString([dateFormatter stringFromDate:date]);
+            [dateFormatter release];
+            return stringFromNSString(dateString);
+        }
+        return "";
+    }
+    std::string MediaItem::releaseYearString() const{
+        return stringFromNSString([NSString stringWithFormat:@"%@", [nativeMediaItem valueForProperty:@"year"]]);
+    }
+    
+    int MediaItem::trackNumber() const{
+        return [[nativeMediaItem valueForProperty:MPMediaItemPropertyAlbumTrackNumber] intValue];
+    }
+    
+    std::string MediaItem::trackLengthString() const{
+        NSString *timeString = nil;
+        const int secsPerMin = 60;
+        const int minsPerHour = 60;
+        const char *timeSep = ":";
+        NSTimeInterval seconds = trackLength();
+        seconds = floor(seconds);
+        
+        if(seconds < 60.0) {
+            timeString = [NSString stringWithFormat:@"0:%02.0f", seconds];
+        }
+        else {
+            int mins = seconds/secsPerMin;
+            int secs = seconds - mins*secsPerMin;
+            
+            if(mins < 60.0) {
+                timeString = [NSString stringWithFormat:@"%d%s%02d", mins, timeSep, secs];
+            }
+            else {
+                int hours = mins/minsPerHour;
+                mins -= hours * minsPerHour;
+                timeString = [NSString stringWithFormat:@"%d%s%02d%s%02d", hours, timeSep, mins, timeSep, secs];
+            }
+        }
+        return stringFromNSString(timeString);
+    }
+    bool MediaItem::assetNeedsToDownload() const{
+        return assetURL().empty();
+    }
+    
+    bool MediaItem::assetHasBeenDeleted() const{
+        if (assetURL().empty())
+            return false;
+        else {
+            NSString *urlString(@(assetURL().c_str()));
+            bool assetURLPointsNowhere(([urlString rangeOfString:@"ipod-library://item/item.(null)"].location != NSNotFound));
+            return assetURLPointsNowhere;
+        }
+    }
+    
+    bool MediaItem::existsInLibrary() const{
+        MPMediaPropertyPredicate *predicate = [MPMediaPropertyPredicate predicateWithValue:@(persistentID().c_str())
+                                                                               forProperty: MPMediaItemPropertyPersistentID];
+        MPMediaQuery *query = [[MPMediaQuery alloc] init];
+        [query addFilterPredicate:predicate];
+        bool exists(([[query items] count] != 0));
+        return exists;
+    }
+    
+    
+    MediaItem::MediaItem(){
+    
+    }
+    
+    
+    MediaItem::~MediaItem(){
+        if (_artwork) {
+            _artwork->release();
+            _artwork=nullptr;
+        }
+        if (nativeMediaItem) {
+            [nativeMediaItem release];
+            _nativeHandle=nullptr;
+        }
+    }
+    
     void pickItemFromMusicLibrary(std::function<void(const std::string & itemFileCopyPath)> completion){
         [mcbMedaiPickerHandler pickItemFromMusicLibrary:completion];
     }
@@ -279,5 +521,15 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
          }
          AudioFileClose(afid);
          */
+    }
+    
+    
+    
+    void setMediaLibraryUpdatedHandle(const std::function<void()> & updateHaldle){
+        [[MediaQueryHandler sharedInstance] setMediaLibraryUpdatedHandler:updateHaldle];
+    }
+    
+    pMediaItems queryMediaItems(){
+        return [[MediaQueryHandler sharedInstance] queryMediaItems];
     }
 }}}
