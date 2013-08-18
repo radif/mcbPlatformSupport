@@ -225,15 +225,15 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
         
         UIImage *image(nil);
         MPMediaItemArtwork *artwork = [nativeMediaItem valueForProperty:MPMediaItemPropertyArtwork];
-        if (artwork != nil) {
-            image = [artwork imageWithSize:artwork.bounds.size];
+        if (artwork) {
+            image=[artwork imageWithSize:artwork.bounds.size];
         }
         
         NSData * data(UIImagePNGRepresentation(image));
         
         cocos2d::CCTexture2D * retVal(nullptr);
         if (data) {
-            unsigned char * buffer;
+            unsigned char * buffer((unsigned char *)malloc(sizeof(unsigned char) * data.length));
             [data getBytes:buffer length:data.length];
             cocos2d::CCImage * image(new cocos2d::CCImage);
             if(image && image->initWithImageData(buffer, data.length))
@@ -257,8 +257,13 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
             }
             
             
-            
+            free(buffer);
+            //it is beter not to keep big art in memory
+            //_artwork=retVal;
+            //_artwork->retain();
         }
+        
+        
         
         return retVal;
         
@@ -387,7 +392,6 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
                     
                     if (image) {
                         retVal=new cocos2d::CCTexture2D;
-                        
                         if (retVal && retVal->initWithImage(image))
                             retVal->autorelease();
                         else{
