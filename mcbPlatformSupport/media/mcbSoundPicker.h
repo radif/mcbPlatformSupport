@@ -18,7 +18,18 @@ namespace cocos2d{
 namespace mcb{namespace PlatformSupport{namespace SoundPicker{
     
     class MediaItem{
-        mutable cocos2d::CCTexture2D * _artwork=nullptr;
+        mutable cocos2d::CCTexture2D * _thumb=nullptr;
+        const bool _isLocal;
+        const std::string _localPath;
+        
+        mutable struct{
+            std::string title;
+            std::string artist;
+            std::string albumTitle;
+            std::string albumArtist;
+            
+        } _cache;
+        
     public:
         void * _nativeHandle=nullptr;
 
@@ -31,6 +42,8 @@ namespace mcb{namespace PlatformSupport{namespace SoundPicker{
         std::string albumArtist() const;
         
         cocos2d::CCTexture2D * artwork() const;
+        cocos2d::CCTexture2D * thumb() const;
+
         
         bool isPlayable() const;
        
@@ -47,9 +60,13 @@ namespace mcb{namespace PlatformSupport{namespace SoundPicker{
         
         bool existsInLibrary() const;
         
+        void copyToLibrary(const std::function<void(const std::string & copiedItemPath)> & completion) const;
         
         MediaItem();
+        MediaItem(const std::string & localFilePath);
+
         virtual ~MediaItem();
+        
     };
     extern const char * kMediaLibraryUpdatedNotification;
     
@@ -59,7 +76,7 @@ namespace mcb{namespace PlatformSupport{namespace SoundPicker{
     
     void pickItemFromMusicLibrary(std::function<void(const std::string & itemFileCopyPath)> completion);
     std::string localPlaybackPath();
-    void metadataForMediaFile(const std::string & filePath, const std::function<void(cocos2d::CCTexture2D * tex, const::std::string & songTitle, const::std::string & albumTitle, const::std::string & artistName)> completion);
+    void metadataForMediaFile(const std::string & filePath, const std::function<void(cocos2d::CCTexture2D * tex, const std::string & songTitle, const std::string & albumTitle, const std::string & artistName)> completion);
 
     
     //media items
