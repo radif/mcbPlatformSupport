@@ -10,7 +10,8 @@
 #include "mcbPlatformSupport.h"
 
 namespace mcb{namespace PlatformSupport{namespace SoundPicker{
-    
+    const char * kMediaLibraryUpdatedNotification="kMediaLibraryUpdatedNotification";
+
     std::string localPlaybackPath(){
         return PlatformSupport::resolvePath("$(LIBRARY)/music.mp4");
     }

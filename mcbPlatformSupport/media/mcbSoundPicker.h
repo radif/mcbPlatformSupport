@@ -57,14 +57,14 @@ namespace mcb{namespace PlatformSupport{namespace SoundPicker{
     typedef std::vector<pMediaItem> MediaItems;
     typedef std::shared_ptr<MediaItems> pMediaItems;
     
-    
     void pickItemFromMusicLibrary(std::function<void(const std::string & itemFileCopyPath)> completion);
     std::string localPlaybackPath();
     void metadataForMediaFile(const std::string & filePath, const std::function<void(cocos2d::CCTexture2D * tex, const::std::string & songTitle, const::std::string & albumTitle, const::std::string & artistName)> completion);
 
     
     //media items
-    //use this handle or listen to the kMediaLibraryUpdatedNotification
+    //use this handle or listen to the kMediaLibraryUpdatedNotification.
+    //Only one handler is supported, for multiple listeners, use notifications
     void setMediaLibraryUpdatedHandle(const std::function<void()> & updateHaldle);
     
     pMediaItems queryMediaItems();

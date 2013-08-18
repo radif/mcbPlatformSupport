@@ -15,7 +15,6 @@
 #include <AudioToolbox/AudioToolbox.h>
 #include "CCNotificationCenter.h"
 
-const char * kMediaLibraryUpdatedNotification="kMediaLibraryUpdatedNotification";
 
 @interface mcbMedaiPickerHandler : NSObject <MPMediaPickerControllerDelegate>
 +(void)pickItemFromMusicLibrary:(std::function<void(const std::string & itemFileCopyPath)>) completion;
@@ -149,7 +148,7 @@ static MediaQueryHandler * _sharedMediaHandler=nil;
     [super dealloc];
 }
 - (void)mediaLibraryUpdated:(NSNotification *)notification {
-    cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kMediaLibraryUpdatedNotification);
+    cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(mcb::PlatformSupport::SoundPicker::kMediaLibraryUpdatedNotification);
     if (_mediaLibraryUpdatedHandler)
         _mediaLibraryUpdatedHandler();
 }
