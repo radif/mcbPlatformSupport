@@ -10,6 +10,7 @@
 #include "mcbPlatformSupportConstants.h"
 #include "mcbPlatformSupport.h"
 #include "mcbNumber.h"
+#include <iomanip>      // std::setprecision
 
 using namespace cocos2d;
 namespace mcb{namespace PlatformSupport{namespace Functions{
@@ -36,6 +37,41 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         else
             angle = fmodf(angle, -360.0f);
         return angle;
+    }
+    
+    std::string formattedTimeFromSeconds(float seconds, bool alwaysShowsHour, bool showsHundredth, bool hasSpaces){
+        
+        int time(seconds);
+        
+        long hour=time/3600;
+        time=time%3600;
+        int min=time/60;
+        time=time%60;
+        int sec=time;
+        
+        std::string space(hasSpaces? " ":"");
+        
+        std::stringstream ss;
+        
+        
+        if (hour || alwaysShowsHour){
+            std::string hourPrefix(hour<10?"0":"");
+            ss<< hourPrefix<<hour << space<<":"<<space;
+        }
+        
+        std::string minPrefix(min<10?"0":"");
+        std::string secPrefix(sec<10?"0":"");
+        ss<< minPrefix <<min << space <<":"<<space << secPrefix << sec;
+        
+        if (showsHundredth) {
+            int hundredth((seconds-time)*100);
+            std::string hPrefix(hundredth<10?"0":"");
+            ss<<space<<":"<<space<<hPrefix<<hundredth;
+        }
+        
+        
+        return ss.str();
+        
     }
     
     
