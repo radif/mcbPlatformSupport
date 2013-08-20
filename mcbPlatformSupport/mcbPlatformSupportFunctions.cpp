@@ -39,7 +39,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         return angle;
     }
     
-    std::string formattedTimeFromSeconds(float seconds, bool alwaysShowsHour, bool showsHundredth, bool hasSpaces){
+    std::string formattedTimeFromSeconds(const float seconds, bool alwaysShowsHour, bool showsHundredth, bool hasSpaces){
         
         int time(seconds);
         
@@ -64,7 +64,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         ss<< minPrefix <<min << space <<":"<<space << secPrefix << sec;
         
         if (showsHundredth) {
-            int hundredth((seconds-time)*100);
+            int hundredth((seconds-int(seconds))*100);
             std::string hPrefix(hundredth<10?"0":"");
             ss<<space<<":"<<space<<hPrefix<<hundredth;
         }
