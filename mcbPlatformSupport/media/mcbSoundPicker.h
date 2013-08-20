@@ -27,7 +27,8 @@ namespace mcb{namespace PlatformSupport{namespace SoundPicker{
             std::string artist;
             std::string albumTitle;
             std::string albumArtist;
-            
+            float duration=-1;
+            std::string copiedFilePath;
         } _cache;
         
     public:
@@ -41,9 +42,11 @@ namespace mcb{namespace PlatformSupport{namespace SoundPicker{
         std::string artist() const;
         std::string albumArtist() const;
         
+        float duration() const;
         cocos2d::CCTexture2D * artwork() const;
         cocos2d::CCTexture2D * thumb() const;
 
+        std::string copiedFilePath() const;//this one is returning a path only when the asset is copied by calling the method copyToLibrary()
         
         bool isPlayable() const;
        

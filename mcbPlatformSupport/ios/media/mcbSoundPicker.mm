@@ -357,14 +357,20 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
     
     void MediaItem::copyToLibrary(const std::function<void(const std::string & copiedItemPath)> & completion) const{
         if (_isLocal){
+            _cache.copiedFilePath=_localPath;
             if (completion)
                 completion(_localPath);
         }else{
             copyMPMediaItemToLibrary(nativeMediaItem, [=](const std::string & copiedItemPath){
+                _cache.copiedFilePath=copiedItemPath;
                 if (completion)
                     completion(copiedItemPath);
             });
         }
+    }
+    
+    std::string MediaItem::copiedFilePath() const{
+        return _cache.copiedFilePath;
     }
     
     MediaItem::MediaItem(): _isLocal(false), _localPath(""){}
@@ -408,13 +414,24 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
     }
     
     MediaItem::~MediaItem(){
-        CC_SAFE_RELEASE_NULL(_thumb);
-        if (nativeMediaItem) {
-            [nativeMediaItem release];
-            _nativeHandle=nullptr;
+        CC_SAFE_RELEASE(_thumb);
+        if (_isLocal) {
+            if (nativeAsset)
+                [nativeAsset release];
+        }else{
+            if (nativeMediaItem)
+                [nativeMediaItem release];
         }
     }
-    
+    float MediaItem::duration() const{
+        if (_cache.duration==-1.f){
+            AVAudioPlayer * p([[AVAudioPlayer alloc]initWithContentsOfURL:[NSURL fileURLWithPath:@(assetURL().c_str())] error:nil]);
+            if (p)
+                _cache.duration=p.duration;
+            [p release];
+        }
+        return _cache.duration;
+    }
     void pickItemFromMusicLibrary(std::function<void(const std::string & itemFileCopyPath)> completion){
         [mcbMedaiPickerHandler pickItemFromMusicLibrary:completion];
     }
