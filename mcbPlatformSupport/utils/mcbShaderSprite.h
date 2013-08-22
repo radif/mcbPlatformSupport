@@ -32,6 +32,7 @@ namespace mcb{ namespace utils{
                 if (program){
                     program->addAttribute(kCCAttributeNamePosition, cocos2d::kCCVertexAttrib_Position);
                     program->addAttribute(kCCAttributeNameTexCoord, cocos2d::kCCVertexAttrib_TexCoords);
+                    program->addAttribute(kCCAttributeNameColor, cocos2d::kCCVertexAttrib_Color);
                     program->link();
                     program->updateUniforms();
                     
