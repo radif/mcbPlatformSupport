@@ -13,7 +13,7 @@
 
 namespace mcb{namespace PlatformSupport{
     class UserInteractionEnabled{
-        int _userInteractionEnabledCounter=0;
+        int _userInteractionEnabledCounter=1;
     public:
         virtual void setUserInteractionEnabled(bool enabled);
         virtual bool getUserInteractionEnabled(){return !((bool)_userInteractionEnabledCounter);};
