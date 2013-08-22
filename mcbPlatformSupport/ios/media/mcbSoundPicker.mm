@@ -427,12 +427,23 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
         }
         CC_SAFE_RETAIN(_noArt);
     }
+    std::string MediaItem::localPath() const{
+        std::string path;
+        if (_isLocal)
+            path=_localPath;
+        else
+            path=copiedFilePath();
+        return path;
+    }
     float MediaItem::duration() const{
         if (_cache.duration==-1.f){
-            AVAudioPlayer * p([[AVAudioPlayer alloc]initWithContentsOfURL:[NSURL fileURLWithPath:@(assetURL().c_str())] error:nil]);
-            if (p)
-                _cache.duration=p.duration;
-            [p release];
+            std::string path(localPath());
+            if (path.size()) {
+                AVAudioPlayer * p([[AVAudioPlayer alloc]initWithContentsOfURL:[NSURL fileURLWithPath:@(path.c_str())] error:nil]);
+                if (p)
+                    _cache.duration=p.duration;
+                [p release];                
+            }
         }
         return _cache.duration;
     }

@@ -53,7 +53,7 @@ namespace mcb{namespace PlatformSupport{namespace SoundPicker{
         cocos2d::CCTexture2D * noArtwork() const;
         
         std::string copiedFilePath() const;//this one is returning a path only when the asset is copied by calling the method copyToLibrary()
-        
+        std::string localPath() const;
         bool isPlayable() const;
        
         float trackLength() const;
