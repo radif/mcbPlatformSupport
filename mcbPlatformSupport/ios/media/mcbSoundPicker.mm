@@ -413,6 +413,9 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
         
     }
     
+    void MediaItem::setNoArtwork(cocos2d::CCTexture2D * noartowrk){CC_SAFE_RELEASE(_noArt);_noArt=noartowrk;CC_SAFE_RETAIN(_noArt);}
+    cocos2d::CCTexture2D * MediaItem::noArtwork() const{return _noArt;}
+    
     MediaItem::~MediaItem(){
         CC_SAFE_RELEASE(_thumb);
         if (_isLocal) {
@@ -422,6 +425,7 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
             if (nativeMediaItem)
                 [nativeMediaItem release];
         }
+        CC_SAFE_RETAIN(_noArt);
     }
     float MediaItem::duration() const{
         if (_cache.duration==-1.f){
