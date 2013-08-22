@@ -31,6 +31,9 @@ namespace mcb{namespace PlatformSupport{namespace SoundPicker{
             std::string copiedFilePath;
         } _cache;
         
+        
+        cocos2d::CCTexture2D * _noArt=nullptr;
+        
     public:
         void * _nativeHandle=nullptr;
 
@@ -45,9 +48,12 @@ namespace mcb{namespace PlatformSupport{namespace SoundPicker{
         float duration() const;
         cocos2d::CCTexture2D * artwork() const;
         cocos2d::CCTexture2D * thumb() const;
-
-        std::string copiedFilePath() const;//this one is returning a path only when the asset is copied by calling the method copyToLibrary()
         
+        void setNoArtwork(cocos2d::CCTexture2D * noartowrk);
+        cocos2d::CCTexture2D * noArtwork() const;
+        
+        std::string copiedFilePath() const;//this one is returning a path only when the asset is copied by calling the method copyToLibrary()
+        std::string localPath() const;
         bool isPlayable() const;
        
         float trackLength() const;
