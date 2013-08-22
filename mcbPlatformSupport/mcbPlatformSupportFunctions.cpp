@@ -264,7 +264,8 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         return uiValue;
     }
     
-    cocos2d::ccColor3B parseWebRGB(const std::string webColor){
+    cocos2d::ccColor3B parseWebRGB(std::string webColor){
+        std::transform(webColor.begin(), webColor.end(), webColor.begin(), ::tolower);
         const char *pszColor(webColor.c_str());
         unsigned int uiColor = 0;
         if (strlen(pszColor) > 1){

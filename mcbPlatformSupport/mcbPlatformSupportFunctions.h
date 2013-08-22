@@ -39,7 +39,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     cocos2d::CCTextAlignment textAlignmentForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCTextAlignment defaultVal=cocos2d::kCCTextAlignmentCenter);
     void setNodeProperties(cocos2d::CCNode * node, cocos2d::CCDictionary * data);
     
-    cocos2d::ccColor3B parseWebRGB(const std::string webColor);
+    cocos2d::ccColor3B parseWebRGB(std::string webColor);
     
 }}}
 #endif /* defined(__mcb__mcbPlatformSupportFunctions__) */
