@@ -18,15 +18,23 @@ namespace mcb{namespace PlatformSupport{
     public:
         static AudioCache* sharedInstance();
         
+        //loads the sound or increments ref count if already loaded
         pAudioPlayer loadSound(const std::string & path, const std::string & key="");
-        pAudioPlayer playerForSound(const std::string & pathOrKey);
+        pAudioPlayer playerForSound(const std::string & pathOrKey) const;
         
+        //plays the sound or loads and plays if not loaded previously, subject to unload the sound once used without load
         pAudioPlayer playAudioSound(const std::string & pathOrKey);
+        
+        //stops the sound or loads and stops if not loaded previously, subject to unload the sound once used without load
         pAudioPlayer stopAudioSound(const std::string & pathOrKey);
         
-        void iterateThroughSounds(std::function<void(const std::string & pathOrKey, pAudioPlayer player)> handle);
-        
+        //basic iteration
+        void iterateThroughSounds(std::function<void(const std::string & pathOrKey, pAudioPlayer player)> handle) const;
+
+        //unloads the sound or decrements ref count if it is more than 1
         void unloadSound(const std::string & pathOrKey);
+        
+        //clears all the cached sounds regardless of the ref count
         void drain();
     };
 }}

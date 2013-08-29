@@ -38,7 +38,7 @@ namespace mcb{namespace PlatformSupport{
         return retVal;
     }
     
-    pAudioPlayer AudioCache::playerForSound(const std::string & pathOrKey){
+    pAudioPlayer AudioCache::playerForSound(const std::string & pathOrKey) const{
         auto it(_players.find(pathOrKey));
         if (it==_players.end())
             return nullptr;
@@ -60,7 +60,7 @@ namespace mcb{namespace PlatformSupport{
         return player;
     }
     
-    void AudioCache::iterateThroughSounds(std::function<void(const std::string & pathOrKey, pAudioPlayer player)> handle){
+    void AudioCache::iterateThroughSounds(std::function<void(const std::string & pathOrKey, pAudioPlayer player)> handle) const{
         if (!handle)
             return;
         for (const auto & pair : _players)
