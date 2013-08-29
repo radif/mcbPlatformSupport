@@ -21,27 +21,41 @@ namespace mcb{namespace PlatformSupport{
     }
     
     
-    void AudioCache::loadSound(const std::string & path, const std::string & key){
+    pAudioPlayer AudioCache::loadSound(const std::string & path, const std::string & key){
         std::string pathOrKey(key.empty()? path : key);
-        pAudioPlayer player(playerForSound(pathOrKey));
-        if(!player)
-            _players[pathOrKey]=std::make_shared<AudioPlayer>(path);
+        
+        pAudioPlayer retVal(nullptr);
+        
+        auto it(_players.find(pathOrKey));
+        if (it==_players.end()){
+            retVal=std::make_shared<AudioPlayer>(path);
+            _players[pathOrKey]={retVal,1};//initial retain count is 1
+        }else{
+            (*it).second.second++;//bump up the retain count
+            retVal=(*it).second.first;
+        }
+        
+        return retVal;
     }
     
     pAudioPlayer AudioCache::playerForSound(const std::string & pathOrKey){
         auto it(_players.find(pathOrKey));
         if (it==_players.end())
             return nullptr;
-        return (*it).second;
+        return (*it).second.first;
     }
     
     pAudioPlayer AudioCache::playAudioSound(const std::string & pathOrKey){
         pAudioPlayer player(playerForSound(pathOrKey));
+        if (!player)
+            player=loadSound(pathOrKey);
         player->play();
         return player;
     }
     pAudioPlayer AudioCache::stopAudioSound(const std::string & pathOrKey){
         pAudioPlayer player(playerForSound(pathOrKey));
+        if (!player)
+            player=loadSound(pathOrKey);
         player->stop();
         return player;
     }
@@ -50,16 +64,21 @@ namespace mcb{namespace PlatformSupport{
         if (!handle)
             return;
         for (const auto & pair : _players)
-            handle(pair.first, pair.second);
+            handle(pair.first, pair.second.first);
     }
     
     void AudioCache::unloadSound(const std::string & pathOrKey){
         auto it(_players.find(pathOrKey));
         if (it==_players.end())
             return;//failing silently
-        _players.erase(it);
+        
+        if ((*it).second.second<=1)
+            _players.erase(it);
+        else
+            (*it).second.second--;
+        
     }
-    void AudioCache::unloadAllSounds(){
+    void AudioCache::drain(){
         _players.erase(_players.begin(), _players.end());
     }
     

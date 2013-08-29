@@ -14,11 +14,11 @@
 
 namespace mcb{namespace PlatformSupport{
     class AudioCache{
-        std::map<std::string, pAudioPlayer> _players;
+        std::map<std::string, std::pair<pAudioPlayer, int>> _players;//retian counted
     public:
         static AudioCache* sharedInstance();
         
-        void loadSound(const std::string & path, const std::string & key="");
+        pAudioPlayer loadSound(const std::string & path, const std::string & key="");
         pAudioPlayer playerForSound(const std::string & pathOrKey);
         
         pAudioPlayer playAudioSound(const std::string & pathOrKey);
@@ -27,7 +27,7 @@ namespace mcb{namespace PlatformSupport{
         void iterateThroughSounds(std::function<void(const std::string & pathOrKey, pAudioPlayer player)> handle);
         
         void unloadSound(const std::string & pathOrKey);
-        void unloadAllSounds();
+        void drain();
     };
 }}
 
