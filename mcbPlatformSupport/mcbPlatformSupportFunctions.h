@@ -28,6 +28,42 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     }
     
     //parser
+    
+    template <typename T>
+    struct containerOrNull{
+        bool isSet=false;
+        T value;
+        //assignement
+        containerOrNull(T && newVal){set(std::forward<T>(newVal));}
+        containerOrNull(T & newVal){set(newVal);}
+        containerOrNull(T newVal){set(std::move(newVal));}
+
+        virtual ~containerOrNull(){}
+        
+        void set(T && newVal){value=std::forward<T>(newVal); isSet=true;}
+        void set(T & newVal){value=newVal; isSet=true;}
+        void setV(T newVal){value=std::move(newVal); isSet=true;}
+        
+        //comparison
+        bool operator == (const containerOrNull<T> & other) const{return value==other.value && isSet==other.isSet;}
+
+        //assignment
+        containerOrNull<T>& operator = (const containerOrNull<T> & other){value=other.value; isSet=other.isSet; return *this;}
+        
+        T & operator = (const T & other){value=other; isSet=true; return value;}
+        T & operator = (const T && other){value=std::forward<T>(other); isSet=true; return value;}
+        
+        //TODO: move
+        
+        //TODO: copy
+        
+        //get
+        T get() const{return value;}
+        T* getPtr() const{if (isSet) return &value; return nullptr;}
+        T* operator *() const{return getPtr();}
+    };
+    
+    
     cocos2d::CCPoint ccpFromString(const std::string & ccpString);
     std::string stringForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, const std::string & defaultVal="");
     bool boolForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, bool defaultVal=false);
@@ -40,6 +76,8 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     void setNodeProperties(cocos2d::CCNode * node, cocos2d::CCDictionary * data);
     
     cocos2d::ccColor3B parseWebRGB(std::string webColor);
+    
+    
     
 }}}
 #endif /* defined(__mcb__mcbPlatformSupportFunctions__) */
