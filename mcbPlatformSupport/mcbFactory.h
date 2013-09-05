@@ -34,7 +34,8 @@ namespace mcb{namespace PlatformSupport{
                 if (retVal->init(data))
                     retVal->autorelease();
                 else{
-                    delete retVal;
+                    if(retVal)
+                        retVal->release();
                     retVal=nullptr;
                 }
             }
