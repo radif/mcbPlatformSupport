@@ -34,7 +34,7 @@ namespace mcb{namespace PlatformSupport{
                 if (retVal->init(data))
                     retVal->autorelease();
                 else{
-                    retVal->release();
+                    delete retVal;
                     retVal=nullptr;
                 }
             }
@@ -44,6 +44,20 @@ namespace mcb{namespace PlatformSupport{
         virtual bool init(cocos2d::CCDictionary * data)=0;
         virtual ~Factory(){}
     };
+    
+    
+    //universal create function outside of a class
+    template<typename C, typename ...Args>
+    static C * create(Args&& ...args) {
+        auto retVal(new C);
+        if (retVal && retVal->init(std::forward<Args>(args)...)) {
+            retVal->autorelease();
+        }else{
+            delete retVal;
+            retVal=nullptr;
+        }
+        return retVal;
+    }
 }}
 
 #endif /* defined(__mcb__mcbFactory__) */
