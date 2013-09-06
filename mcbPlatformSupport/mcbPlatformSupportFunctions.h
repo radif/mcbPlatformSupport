@@ -29,22 +29,15 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         return s;
     }
     
-    class custom_numpunct : public std::numpunct<char>{
-        const char _separator;
-        const std::string _grouper;
-    public:
-        custom_numpunct(const char separator, const std::string & grouper): _separator(separator), _grouper(grouper) {}
-        virtual ~ custom_numpunct(){}
-    protected:
-        virtual char do_thousands_sep() const{return _separator;}
-        virtual std::string do_grouping() const{return _grouper;}
-    };
-    
     template<class T>
     std::string numberFormatWithCommas(T value){
-        std::unique_ptr<custom_numpunct> numpunct(new custom_numpunct(',', "\03"));
+        struct : public std::numpunct<char>{
+        protected:
+            virtual char do_thousands_sep() const{return ',';}
+            virtual std::string do_grouping() const{return "\03";}
+        } numpunct;
         std::stringstream ss;
-        ss.imbue({std::locale(), numpunct.get()});
+        ss.imbue({std::locale(), &numpunct});
         ss << std::setprecision(2) << std::fixed << value;
         return ss.str();
     }
