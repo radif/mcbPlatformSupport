@@ -10,6 +10,8 @@
 #define __mcb__mcbPlatformSupportFunctions__
 
 #include "cocos2d.h"
+#include <iomanip>
+#include <locale>
 
 namespace mcb{namespace PlatformSupport{namespace Functions{
     cocos2d::CCPoint relativeCoordinatesFromAbsolute(cocos2d::CCPoint absoluteCoordinates);
@@ -25,6 +27,26 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         ss << i;
         s = ss.str();
         return s;
+    }
+    
+    class custom_numpunct : public std::numpunct<char>{
+        const char _separator;
+        const std::string _grouper;
+    public:
+        custom_numpunct(const char separator, const std::string & grouper): _separator(separator), _grouper(grouper) {}
+        virtual ~ custom_numpunct(){}
+    protected:
+        virtual char do_thousands_sep() const{return _separator;}
+        virtual std::string do_grouping() const{return _grouper;}
+    };
+    
+    template<class T>
+    std::string numberFormatWithCommas(T value){
+        std::unique_ptr<custom_numpunct> numpunct(new custom_numpunct(',', "\03"));
+        std::stringstream ss;
+        ss.imbue({std::locale(), numpunct.get()});
+        ss << std::setprecision(2) << std::fixed << value;
+        return ss.str();
     }
     
     //parser
