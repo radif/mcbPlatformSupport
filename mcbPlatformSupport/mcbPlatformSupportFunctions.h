@@ -42,6 +42,14 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         return ss.str();
     }
     
+    
+    void replaceOccurrencesOfStringByString(std::string& str, const std::string& from, const std::string& to);
+    bool replaceFirstOccurrenceOfStringByString(std::string& str, const std::string& from, const std::string& to) ;
+    
+    std::string lastPathComponent(const std::string & path);
+    std::string stringByDeletingLastPathComponent(const std::string & path);
+    std::string deletePathExtension(const std::string & path);
+    
     //parser
     
     template <typename T>

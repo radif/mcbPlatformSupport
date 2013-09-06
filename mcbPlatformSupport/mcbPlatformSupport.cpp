@@ -11,6 +11,7 @@
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
+#include "mcbPlatformSupportFunctions.h"
 
 
 /*
@@ -119,6 +120,38 @@ namespace mcb{namespace PlatformSupport{
         }
     }
     
+#pragma mark path resolution
+    void _resolveSystemPaths(std::string & inPath) {
+        //shared
+        PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(SHARED)", getSharedBundlePath());
+        // bundle
+        PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(BUNDLE)", _platformSpecificBundlePath());
+        //documents
+        PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(DOCUMENTS)", _platformSpecificDocsPath());
+        //cache
+        PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(CACHES)", _platformSpecificCachesPath());
+        //Library
+        PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(LIBRARY)", _platformSpecificLibPath());
+        //General Assets
+        PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(ASSETS)", _platformSpecificBundlePath()+"/assets");
+        //Downloads
+        //....
+    }
+    
+    void _resolveSystemAndLocalPaths(std::string & inPath, const std::string & localDirectory){
+        _resolveSystemPaths(inPath);
+        PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(LOCAL)..", PlatformSupport::Functions::stringByDeletingLastPathComponent(localDirectory));
+        PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(LOCAL)", localDirectory);
+    }
+    
+    
+    std::string resolvePath(std::string inPath, const std::string & localDirectory){
+        if (localDirectory.empty())
+            _resolveSystemPaths(inPath);
+        else
+            _resolveSystemAndLocalPaths(inPath, localDirectory);
+        return inPath;
+    }
 #pragma mark -
 #pragma mark parsing
     

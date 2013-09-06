@@ -74,6 +74,41 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         
     }
     
+    void replaceOccurrencesOfStringByString(std::string& str, const std::string& from, const std::string& to) {
+        if(from.empty())
+            return;
+        size_t start_pos = 0;
+        while((start_pos = str.find(from, start_pos)) != std::string::npos) {
+            str.replace(start_pos, from.length(), to);
+            start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+        }
+    }
+    bool replaceFirstOccurrenceOfStringByString(std::string& str, const std::string& from, const std::string& to) {
+        size_t start_pos = str.find(from);
+        if(start_pos == std::string::npos)
+            return false;
+        str.replace(start_pos, from.length(), to);
+        return true;
+    }
+    
+    std::string lastPathComponent(const std::string & path) {
+        size_t slashPos = path.find_last_of("/");
+        if(slashPos != std::string::npos)
+            return path.substr(slashPos + 1, path.length() - slashPos);
+        return path;
+    }
+    std::string stringByDeletingLastPathComponent(const std::string & path){
+        size_t slashPos = path.find_last_of("/");
+        if(slashPos != std::string::npos)
+            return path.substr(0, slashPos);
+        return path;
+    }
+    std::string deletePathExtension(const std::string & path) {
+        size_t dotPos = path.find_last_of(".");
+        if(dotPos != std::string::npos)
+            return path.substr(0, dotPos);
+        return path;
+    }
     
     //parser
     
