@@ -49,7 +49,8 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     std::string lastPathComponent(const std::string & path);
     std::string stringByDeletingLastPathComponent(const std::string & path);
     std::string deletePathExtension(const std::string & path);
-    
+    std::string stringByAppendingPathComponent(std::string path, std::string component);
+    void _removeLastSlashInPath(std::string & path);
     //parser
     
     template <typename T>

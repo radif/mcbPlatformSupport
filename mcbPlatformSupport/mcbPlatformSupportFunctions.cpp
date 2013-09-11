@@ -109,6 +109,18 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
             return path.substr(0, dotPos);
         return path;
     }
+    std::string stringByAppendingPathComponent(std::string path, std::string component){
+        _removeLastSlashInPath(path);
+        _removeLastSlashInPath(component);
+        return path+"/"+component;
+    }
+    void _removeLastSlashInPath(std::string & path){
+        size_t slashPos = path.find_last_of("/");
+        while (slashPos==path.size()-1 && slashPos>0) {
+            path=path.substr(0, path.size()-1);
+            slashPos = path.find_last_of("/");
+        }
+    }
     
     //parser
     

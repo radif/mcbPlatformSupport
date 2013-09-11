@@ -140,7 +140,9 @@ namespace mcb{namespace PlatformSupport{
     
     void _resolveSystemAndLocalPaths(std::string & inPath, const std::string & localDirectory){
         _resolveSystemPaths(inPath);
-        PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(LOCAL)..", PlatformSupport::Functions::stringByDeletingLastPathComponent(localDirectory));
+        std::string pathWithDeletedLastComponent(PlatformSupport::Functions::stringByDeletingLastPathComponent(localDirectory));
+        PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(LOCAL)..", pathWithDeletedLastComponent);
+        PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(LOCAL)/..", pathWithDeletedLastComponent);
         PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(LOCAL)", localDirectory);
     }
     
