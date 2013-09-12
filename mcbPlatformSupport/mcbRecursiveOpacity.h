@@ -13,13 +13,13 @@
 #include <functional>
 
 namespace mcb{namespace PlatformSupport{
-    class RecursiveOpacity{
-        void _setRecrusiveOpacity(cocos2d::CCNode * node, const GLubyte & opacity, const bool & absolute);
-    public:
-        void setRecrusiveOpacity(const GLubyte opacity, const bool absolute=false);
-        
+    struct RecursiveOpacity{
+        void setOpacityRecursively(const GLubyte opacity, const bool absolute=false);
         void runFadeAction(const float duration, const GLubyte fromOpacity, const GLubyte toOpacity, const bool absolute=false, const std::function<void()> & completion=nullptr);
     };
+    
+    void setRecursiveOpacity(cocos2d::CCNode * node, const GLubyte & opacity, const bool & absolute=false);
+
 }}
 
 
