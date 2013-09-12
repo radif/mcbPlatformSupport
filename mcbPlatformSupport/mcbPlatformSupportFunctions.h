@@ -50,6 +50,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     std::string stringByDeletingLastPathComponent(const std::string & path);
     std::string deletePathExtension(const std::string & path);
     std::string stringByAppendingPathComponent(std::string path, std::string component);
+    //TODO: Canonical path
     void _removeLastSlashInPath(std::string & path);
     //parser
     
