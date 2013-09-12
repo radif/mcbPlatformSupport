@@ -31,13 +31,13 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     
     template<class T>
     std::string numberFormatWithCommas(T value){
-        struct : public std::numpunct<char>{
+        struct Numpunct: public std::numpunct<char>{
         protected:
             virtual char do_thousands_sep() const{return ',';}
             virtual std::string do_grouping() const{return "\03";}
-        } numpunct;
+        };
         std::stringstream ss;
-        ss.imbue({std::locale(), &numpunct});
+        ss.imbue({std::locale(), new Numpunct});
         ss << std::setprecision(2) << std::fixed << value;
         return ss.str();
     }
