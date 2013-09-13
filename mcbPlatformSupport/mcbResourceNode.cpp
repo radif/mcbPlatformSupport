@@ -57,7 +57,7 @@ namespace mcb{namespace PlatformSupport{
     
     ResourceNode * ResourceNode::create(const std::string & localPath){
         const std::string path(PlatformSupport::resolvePath(localPath));
-        CCDictionary * data(PlatformSupport::dictionaryFromPlist(std::string(path+"/manifest.data").c_str()));
+        CCDictionary * data(PlatformSupport::dictionaryFromPlist(Functions::stringByAppendingPathComponent(path, Constants::kManifestDataFile)));
         if (data)
             return create(path, data);
         return nullptr;

@@ -148,6 +148,7 @@ namespace mcb{namespace PlatformSupport{
     
     
     std::string resolvePath(std::string inPath, const std::string & localDirectory){
+        Functions::_removeLastSlashInPath(inPath);
         if (localDirectory.empty())
             _resolveSystemPaths(inPath);
         else
@@ -223,7 +224,7 @@ namespace mcb{namespace PlatformSupport{
         }
     }
     
-    cocos2d::CCDictionary *dictionaryFromPlist(const char *pFileName){
+    cocos2d::CCDictionary *dictionaryFromPlist(const std::string & plistFileName){
         xmlDoc *doc(0);
         xmlNode *root_element(0);
         
@@ -241,7 +242,7 @@ namespace mcb{namespace PlatformSupport{
         
         
         unsigned long  uSize(0);
-        xmlChar * xmlBuff(cocos2d::CCFileUtils::sharedFileUtils()->getFileData(pFileName, "r", &uSize));
+        xmlChar * xmlBuff(cocos2d::CCFileUtils::sharedFileUtils()->getFileData(plistFileName.c_str(), "r", &uSize));
         if (uSize)
             doc = xmlReadMemory((const char *)xmlBuff, uSize, "", 0, XML_PARSE_NOBLANKS);
         

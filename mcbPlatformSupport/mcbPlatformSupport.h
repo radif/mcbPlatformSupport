@@ -52,7 +52,7 @@ namespace mcb{namespace PlatformSupport{
     
     void iterateArray(cocos2d::CCArray * arr, std::function<void(cocos2d::CCObject *item, unsigned idx, bool & stop)>block);
     
-    cocos2d::CCDictionary *dictionaryFromPlist(const char *pFileName);
+    cocos2d::CCDictionary *dictionaryFromPlist(const std::string & plistFileName);
     
     //paths
     std::string resolvePath(std::string inPath, const std::string & localDirectory="");

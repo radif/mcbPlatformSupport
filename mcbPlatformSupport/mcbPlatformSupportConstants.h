@@ -29,6 +29,9 @@ namespace mcb{ namespace PlatformSupport{namespace Constants{
     extern const char * kBottomLeftPositionString;
     extern const char * kBottomRightPositionString;
 
+    //files
+    extern const char * kManifestDataFile;
+    
 
 }}}
 #endif /* defined(__mcb__PlatformSupportConstants__) */

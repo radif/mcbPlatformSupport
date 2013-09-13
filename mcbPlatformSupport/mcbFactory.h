@@ -11,6 +11,7 @@
 
 #include "mcbPath.h"
 #include "mcbPlatformSupport.h"
+#include "mcbPlatformSupportFunctions.h"
 
 namespace mcb{namespace PlatformSupport{
     
@@ -40,6 +41,13 @@ namespace mcb{namespace PlatformSupport{
                 }
             }
             return retVal;
+        }
+        
+        static C * createWithBundlePath(const std::string & path){
+            std::string p(PlatformSupport::resolvePath(path));
+            Functions::_removeLastSlashInPath(p);
+            cocos2d::CCDictionary * data(dictionaryFromPlist(Functions::stringByAppendingPathComponent(p, PlatformSupport::Constants::kManifestDataFile)));
+            return createInstance(p, data);
         }
     protected:
         virtual bool init(cocos2d::CCDictionary * data)=0;
