@@ -16,7 +16,13 @@ namespace mcb{namespace PlatformSupport{
         //_thisNode=thisNode; //reinterpret_cast<CCNode *>(this) ;
         
         assert(_thisNode);
-        
+        initGenerators();
+    }
+    ViewBuilder::~ViewBuilder(){
+        _buttonEventReceiver->release();
+    }
+#pragma mark view builder
+    void ViewBuilder::initGenerators(){
         _generators["node"]=[=](CCDictionary * data)->CCNode *{
             cocos2d::CCNode * node(cocos2d::CCNode::create());
             Functions::setNodeProperties(node, data);
@@ -111,11 +117,6 @@ namespace mcb{namespace PlatformSupport{
             return m;
         };
     }
-    ViewBuilder::~ViewBuilder(){
-        _buttonEventReceiver->release();
-    }
-#pragma mark view builder
-   
     void ViewBuilder::setFactoryForKey(const std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> & lambda, const std::string & key){
         _generators[key]=lambda;
     }

@@ -27,13 +27,19 @@ namespace mcb{namespace PlatformSupport{
         };
         ButtonEventReceiver * const _buttonEventReceiver;
     protected:
+        
+        virtual void initGenerators();//override it to change the default generators. call super to keep the existing ones. Otherwise, use functions below to add factories
+        
         std::map<std::string, std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)>> _generators;
         void setFactoryForKey(const std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> & lambda, const std::string & key);
         std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> factoryForKey(const std::string & key);
+        
         virtual void buildViewWithSceneData(cocos2d::CCDictionary * sceneData);
         virtual void buildViewWithData(cocos2d::CCDictionary * data);
         virtual void buttonWithTagPressed(cocos2d::CCObject * button, int tag){}
-        ViewBuilder(cocos2d::CCNode *thisNode);
+
+        
+        ViewBuilder(cocos2d::CCNode *thisNode);//pass from a subclass. Subclass has to be a CCNode * instance
         virtual ~ViewBuilder();
     };
 }}
