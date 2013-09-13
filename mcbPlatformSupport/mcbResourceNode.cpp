@@ -25,102 +25,8 @@ namespace mcb{namespace PlatformSupport{
     static std::stack<std::string> _navigationStack;
 
 #pragma mark lifecycle
-    ResourceNode::ResourceNode(){
-                
-        _generators["node"]=[=](CCDictionary * data)->CCNode *{
-            cocos2d::CCNode * node(cocos2d::CCNode::create());
-            Functions::setNodeProperties(node, data);
-            return node;
-            
-        };
-
-        
-        _generators["label-ttf"]=[=](CCDictionary * data)->cocos2d::CCNode *{
-            std::string text(Functions::stringForObjectKey(data, "text"));
-            std::string fontName(Functions::stringForObjectKey(data, "font_name", "Georgia"));
-            float fontSize(Functions::floatForObjectKey(data, "font_size", 24));
-            
-            ccColor3B color(Functions::colorForObjectKey(data, "text_color"));
-            color=Functions::webColorForObjectKey(data, "text_webColor", color);
-            CCTextAlignment hAlignment(Functions::textAlignmentForObjectKey(data, "alignment"));
-            
-            CCLabelTTF * letterLabel(CCLabelTTF::create(text.c_str(), fontName.c_str(), fontSize, CCSizeZero, hAlignment));
-            Functions::setNodeProperties(letterLabel, data);
-            letterLabel->setColor(color);
-            return letterLabel;
-        };
-
-        _generators["label-bmf"]=[=](CCDictionary * data)->cocos2d::CCNode *{
-            std::string text(Functions::stringForObjectKey(data, "text"));
-            std::string fontPath(mcbPath(Functions::stringForObjectKey(data, "font_path")));
-            assert(fontPath.length());
-            
-            CCTextAlignment hAlignment(Functions::textAlignmentForObjectKey(data, "alignment"));
-            float width(Functions::floatForObjectKey(data, "width"));
-            CCPoint imageOffset(Functions::pointForObjectKey(data, "imageOffset"));
-            
-            CCLabelBMFont * letterLabel(CCLabelBMFont::create(text.c_str(), fontPath.c_str(), width, hAlignment, imageOffset));
-            Functions::setNodeProperties(letterLabel, data);
-            if (data->objectForKey("text_color"))
-                letterLabel->setColor(Functions::colorForObjectKey(data, "text_color"));
-            else if(data->objectForKey("text_webColor"))
-                letterLabel->setColor(Functions::webColorForObjectKey(data, "text_webColor"));
-            
-            return letterLabel;
-        };
-
-        _generators["menu-item-text"]=[=](CCDictionary * data)->cocos2d::CCNode *{
-            std::string text(Functions::stringForObjectKey(data, "text"));
-            std::string fontName(Functions::stringForObjectKey(data, "font_name", "Georgia"));            
-            float fontSize(Functions::floatForObjectKey(data, "font_size", 24));
-            ccColor3B color(Functions::colorForObjectKey(data, "text_color"));
-            color=Functions::webColorForObjectKey(data, "text_webColor",color);
-            //CCTextAlignment hAlignment(textAlignmentForObjectKeyL(data, "alignment"));
-            
-            CCMenuItemFont * item=CCMenuItemFont::create(text.c_str());
-            item->setTarget(this, menu_selector(ResourceNode::_buttonWithTagPressed));
-            Number * tag=(Number *)data->objectForKey("tag");
-            if (tag)
-                item->setTag(*tag);
-            item->setColor(color);
-            item->setFontName(fontName.c_str());
-            item->setFontSize(fontSize);
-            
-            CCMenu*m(CCMenu::createWithItem(item));
-            Functions::setNodeProperties(m, data);
-            return m;
-            
-            
-        };
-        
-        _generators["sprite"]=[=](CCDictionary * data)->CCNode *{
-            std::string imagePath(Functions::stringForObjectKey(data, "image"));
-            assert(imagePath.length());
-            imagePath=mcbPath(imagePath);
-            cocos2d::CCSprite * spr(cocos2d::CCSprite::create(imagePath.c_str()));
-            Functions::setNodeProperties(spr, data);
-            return spr;
-            
-        };
-        
-        _generators["menu-item-image"]=[=](CCDictionary * data)->CCNode *{
-            CCAssert(data, "MenuItem data is missing!");
-            
-            std::string str(mcbPath(Functions::stringForObjectKey(data, "normalImage")));
-            std::string str1(mcbPath(Functions::stringForObjectKey(data, "selectedImage")));
-
-            assert(str.length());
-            assert(str1.length());
-            
-            CCMenuItemImage * item=CCMenuItemImage::create(str.c_str(), str1.c_str());
-            item->setTarget(this, menu_selector(ResourceNode::_buttonWithTagPressed));
-            item->setTag(Functions::floatForObjectKey(data, "tag"));
-            
-            CCMenu*m(CCMenu::createWithItem(item));
-            Functions::setNodeProperties(m, data);
-            return m;
-        };
-        
+    ResourceNode::ResourceNode(): ViewBuilder(this){
+    
     }
     ResourceNode::~ResourceNode(){
         CC_SAFE_RELEASE(_data);
@@ -128,18 +34,7 @@ namespace mcb{namespace PlatformSupport{
 
     bool ResourceNode::init(cocos2d::CCDictionary * data){
         auto retVal(super::init());
-        std::string viewDataStr("viewData");
-        std::string deviceSufixViewDataStr(viewDataStr+PlatformSupport::getDeviceSuffix());
-        std::string deviceIdiomViewDataStr(viewDataStr+PlatformSupport::getDeviceIdiom());
-        
-        CCDictionary * viewData((CCDictionary *)data->objectForKey(deviceIdiomViewDataStr.c_str()));
-        if (!viewData)
-            viewData=((CCDictionary *)data->objectForKey(deviceSufixViewDataStr.c_str()));
-        if (!viewData)
-            viewData=((CCDictionary *)data->objectForKey(viewDataStr.c_str()));
-        if (viewData)
-            buildViewWithData(viewData);
-        
+        buildViewWithSceneData(data);
         return retVal;
     }
     void ResourceNode::setData(cocos2d::CCDictionary * data){
@@ -275,61 +170,5 @@ namespace mcb{namespace PlatformSupport{
             else
                 break;
         }
-    }
-#pragma mark view builder
-    void ResourceNode::setFactoryForKey(const std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> & lambda, const std::string & key){
-        _generators[key]=lambda;
-    }
-    std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> ResourceNode::factoryForKey(const std::string & key){
-        auto it(_generators.find(key));
-        if (it!=_generators.end())
-            return (*it).second;
-        return nullptr;
-    }
-    void ResourceNode::buildViewWithData(cocos2d::CCDictionary * data){
-        if (!data)
-            return;
-        CCArray * children=(CCArray *)data->objectForKey("children");
-        _populateChildren(children, this);
-    }
-    void ResourceNode::_populateChildren(cocos2d::CCArray * children, CCNode * parent){
-        
-        mcbForEachBegin(CCDictionary *, child, children)
-        CCString * typeS((CCString *)child->objectForKey("type"));
-        if (typeS) {
-            std::string type(typeS->m_sString);
-            CCNode * childNode(nullptr);
-            auto lambda(factoryForKey(type));
-            if (lambda)
-                childNode=lambda(child);
-            
-            if (childNode) {
-                
-                Number * tag=(Number *)child->objectForKey("tag");
-                if (tag)
-                    childNode->setTag(*tag);
-                
-                Number * zOrder=(Number *)child->objectForKey("zOrder");
-                
-                if (zOrder)
-                    parent->addChild(childNode, *zOrder);
-                else
-                    parent->addChild(childNode);
-                
-                
-                CCArray * m_children=(CCArray *)child->objectForKey("children");
-                if (m_children)
-                    _populateChildren(m_children, childNode);
-            }
-            
-        }
-        mcbForEachEnd
-    }
-#pragma mark callbacks
-    void ResourceNode::_buttonWithTagPressed(cocos2d::CCObject * button){
-        CCMenuItem * item(dynamic_cast<CCMenuItem *>(button));
-        if (!item)
-            return;
-        buttonWithTagPressed(button, item->getTag());
     }
 }}

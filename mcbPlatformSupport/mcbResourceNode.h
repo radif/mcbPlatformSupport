@@ -12,14 +12,14 @@
 #include "cocos2d.h"
 #include "mcbPath.h"
 #include "mcbResourceNodeReflection.h"
+#include "mcbViewBuilder.h"
 
 namespace mcb{namespace PlatformSupport{
-    class ResourceNode : public cocos2d::CCNode, protected Path{
+    class ResourceNode : public cocos2d::CCNode, public ViewBuilder{
         typedef cocos2d::CCNode super;
         
         cocos2d::CCDictionary * _data=nullptr;
         
-        virtual void _populateChildren(cocos2d::CCArray * children, cocos2d::CCNode * parent);
         virtual void setData(cocos2d::CCDictionary * data);
         friend class ResourceNodeFactory;
         REGISTER_RESOURCE_NODE_CLASS_FOR_REFLECTION_H(ResourceNode);
@@ -27,9 +27,6 @@ namespace mcb{namespace PlatformSupport{
         //private parts
         bool _mcbCleanupCalled=false;
         virtual void _processCleanup();
-        void _buttonWithTagPressed(cocos2d::CCObject * button);
-        std::map<std::string, std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)>> _generators;
-
     public:
         
         static cocos2d::CCScene * createWithScene(const std::string & localPath);
@@ -54,14 +51,6 @@ namespace mcb{namespace PlatformSupport{
         virtual void afterCleanup();//when override, please, call super
         
         virtual void mcbCleanup(); //when override, please, call super
-        
-        
-        void setFactoryForKey(const std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> & lambda, const std::string & key);
-        std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> factoryForKey(const std::string & key);
-        
-        virtual void buildViewWithData(cocos2d::CCDictionary * data);
-        virtual void buttonWithTagPressed(cocos2d::CCObject * button, int tag){};
-
         virtual cocos2d::CCDictionary * getData(){return _data;}
         ResourceNode();
         virtual ~ResourceNode();
