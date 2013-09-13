@@ -13,9 +13,9 @@
 using namespace cocos2d;
 namespace mcb{namespace PlatformSupport{
     ViewBuilder::ViewBuilder(cocos2d::CCNode * thisNode):_thisNode(thisNode), _buttonEventReceiver(new ButtonEventReceiver([=](cocos2d::CCObject * button, const int & tag){buttonWithTagPressed(button, tag);})){
-        //_thisNode=thisNode; //reinterpret_cast<CCNode *>(this) ;
-        
         assert(_thisNode);
+        assert(dynamic_cast<CCNode *>(_thisNode));
+
         initGenerators();
     }
     ViewBuilder::~ViewBuilder(){

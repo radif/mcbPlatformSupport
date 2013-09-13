@@ -28,8 +28,6 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         s = ss.str();
         return s;
     }
-    template <class C, typename T>
-    C convertToNodeType(T inType){return dynamic_cast<C>((cocos2d::CCObject *)inType);}
     
     template<class T>
     std::string numberFormatWithCommas(T value){
