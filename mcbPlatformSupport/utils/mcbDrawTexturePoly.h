@@ -11,7 +11,7 @@
 
 #include "cocos2d.h"
 namespace mcb{namespace PlatformSupport{namespace DrawTexturePoly{
-    void drawTexturePoly(cocos2d::CCTexture2D * tex, const cocos2d::CCPoint * poli, unsigned int numberOfPoints, bool preferHorizontal);
+    void drawTexturePoly(cocos2d::CCTexture2D * tex, const cocos2d::CCPoint * poli, const unsigned int numberOfPoints, const bool preferHorizontal, const float texScale=1.f);
 }}}
 
 #endif /* defined(__mcb__utils__DrawTexturePoly__) */

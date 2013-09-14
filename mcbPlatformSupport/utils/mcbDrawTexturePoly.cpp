@@ -9,10 +9,10 @@
 #include "mcbDrawTexturePoly.h"
 using namespace cocos2d;
 namespace mcb{namespace PlatformSupport{namespace DrawTexturePoly{
-    void drawTexturePoly(cocos2d::CCTexture2D * tex, const cocos2d::CCPoint * poli, unsigned int numberOfPoints, bool preferHorizontal){
+    void drawTexturePoly(cocos2d::CCTexture2D * tex, const cocos2d::CCPoint * poli, const unsigned int numberOfPoints, const bool preferHorizontal, const float texScale){
     
-        const float m_uPixelsWide(tex->getPixelsWide());
-        const float m_uPixelsHigh(tex->getPixelsHigh());
+        const float m_uPixelsWide(tex->getPixelsWide()*texScale);
+        const float m_uPixelsHigh(tex->getPixelsHigh()*texScale);
         const float m_fMaxT(1.f);
         const float m_fMaxS(1.f);
         
