@@ -245,6 +245,9 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     void setNodeProperties(cocos2d::CCNode * node, CCDictionary * data){
         
         CCPoint pos(Functions::pointForObjectKey(data, "position"));
+        CCPoint posOffset(Functions::pointForObjectKey(data, "positionOffset"));
+        pos=ccpAdd(pos, posOffset);
+        
         float rotation(Functions::floatForObjectKey(data, "rotation"));
         
         //scale
