@@ -108,6 +108,16 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         static cocos2d::ccColor4F color4FFrom3B(const cocos2d::ccColor3B &color){return {color.r/255.f, color.g/255.f, color.b/255.f, 1.f};}
         static cocos2d::ccColor3B color3BFrom4F(const cocos2d::ccColor4F &color){return {static_cast<GLubyte>(color.r*255.f), static_cast<GLubyte>(color.g*255.f), static_cast<GLubyte>(color.b*255.f)};}
     
+        
+        static cocos2d::ccColor4F colorAdd(const cocos2d::ccColor4F &color1, const cocos2d::ccColor4F &color2){return {color1.r+color2.r, color1.g+color2.g, color1.b+color2.b, color1.a+color2.a};}
+        
+        static cocos2d::ccColor4F colorSub(const cocos2d::ccColor4F &color1, const cocos2d::ccColor4F &color2){return {color1.r-color2.r, color1.g-color2.g, color1.b-color2.b, color1.a-color2.a};}
+        
+        static cocos2d::ccColor4F colorMult(const cocos2d::ccColor4F &color1, const cocos2d::ccColor4F &color2){return {color1.r*color2.r, color1.g*color2.g, color1.b*color2.b, color1.a*color2.a};}
+        static cocos2d::ccColor4F colorMult(const cocos2d::ccColor4F &color1, const float ratio){return {color1.r*ratio, color1.g*ratio, color1.b*ratio, color1.a*ratio};}
+
+
+        
     
 }}}
 #endif /* defined(__mcb__mcbPlatformSupportFunctions__) */
