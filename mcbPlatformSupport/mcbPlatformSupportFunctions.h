@@ -55,25 +55,25 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     //parser
     
     template <typename T>
-    struct containerOrNull{
+    struct Nullable{
         bool isSet=false;
         T value;
         //assignement
-        containerOrNull(T && newVal){set(std::forward<T>(newVal));}
-        containerOrNull(T & newVal){set(newVal);}
-        containerOrNull(T newVal){set(std::move(newVal));}
+        Nullable(T && newVal){set(std::forward<T>(newVal));}
+        Nullable(T & newVal){set(newVal);}
+        Nullable(T newVal){set(std::move(newVal));}
 
-        virtual ~containerOrNull(){}
+        virtual ~Nullable(){}
         
         void set(T && newVal){value=std::forward<T>(newVal); isSet=true;}
         void set(T & newVal){value=newVal; isSet=true;}
         void setV(T newVal){value=std::move(newVal); isSet=true;}
         
         //comparison
-        bool operator == (const containerOrNull<T> & other) const{return value==other.value && isSet==other.isSet;}
+        bool operator == (const Nullable<T> & other) const{return value==other.value && isSet==other.isSet;}
 
         //assignment
-        containerOrNull<T>& operator = (const containerOrNull<T> & other){value=other.value; isSet=other.isSet; return *this;}
+        Nullable<T>& operator = (const Nullable<T> & other){value=other.value; isSet=other.isSet; return *this;}
         
         T & operator = (const T & other){value=other; isSet=true; return value;}
         T & operator = (const T && other){value=std::forward<T>(other); isSet=true; return value;}
@@ -88,20 +88,25 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         T* operator *() const{return getPtr();}
     };
     
-    
-    cocos2d::CCPoint ccpFromString(const std::string & ccpString);
-    std::string stringForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, const std::string & defaultVal="");
-    bool boolForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, bool defaultVal=false);
-    float floatForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, float defaultVal=0.f);
-    cocos2d::CCSize sizeForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCSize defaultVal={0.f,0.f});
-    cocos2d::CCPoint pointForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCPoint defaultVal={0.f,0.f});
-    cocos2d::ccColor3B colorForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::ccColor3B defaultVal={0,0,0});
-    cocos2d::ccColor3B webColorForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::ccColor3B defaultVal={0,0,0});
-    cocos2d::CCTextAlignment textAlignmentForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCTextAlignment defaultVal=cocos2d::kCCTextAlignmentCenter);
-    void setNodeProperties(cocos2d::CCNode * node, cocos2d::CCDictionary * data);
-    
-    cocos2d::ccColor3B parseWebRGB(std::string webColor);
-    
+        cocos2d::CCPoint ccpFromString(const std::string & ccpString);
+        std::string stringForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, const std::string & defaultVal="");
+        bool boolForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, bool defaultVal=false);
+        float floatForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, float defaultVal=0.f);
+        cocos2d::CCSize sizeForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCSize defaultVal={0.f,0.f});
+        cocos2d::CCPoint pointForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCPoint defaultVal={0.f,0.f});
+        cocos2d::ccColor3B colorForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::ccColor3B defaultVal={0,0,0});
+        cocos2d::ccColor3B webColorForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::ccColor3B defaultVal={0,0,0});
+        cocos2d::CCTextAlignment textAlignmentForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCTextAlignment defaultVal=cocos2d::kCCTextAlignmentCenter);
+        void setNodeProperties(cocos2d::CCNode * node, cocos2d::CCDictionary * data);
+        
+        cocos2d::ccColor3B parseWebRGB(std::string webColor);
+        static cocos2d::ccColor4F color4FFrom4B(const cocos2d::ccColor4B &color){return {color.r/255.f, color.g/255.f, color.b/255.f, color.a/255.f};}
+        static cocos2d::ccColor4B color4BFrom4F(const cocos2d::ccColor4F &color){return {static_cast<GLubyte>(color.r*255.f), static_cast<GLubyte>(color.g*255.f), static_cast<GLubyte>(color.b*255.f), static_cast<GLubyte>(color.a*255.f)};}
+        static cocos2d::ccColor3B color3BFrom4B(const cocos2d::ccColor4B &color){return {color.r, color.g, color.b};}
+        static cocos2d::ccColor4B color4BFrom3B(const cocos2d::ccColor3B &color){return {color.r, color.g, color.b, 255};}
+        
+        static cocos2d::ccColor4F color4FFrom3B(const cocos2d::ccColor3B &color){return {color.r/255.f, color.g/255.f, color.b/255.f, 1.f};}
+        static cocos2d::ccColor3B color3BFrom4F(const cocos2d::ccColor4F &color){return {static_cast<GLubyte>(color.r*255.f), static_cast<GLubyte>(color.g*255.f), static_cast<GLubyte>(color.b*255.f)};}
     
     
 }}}
