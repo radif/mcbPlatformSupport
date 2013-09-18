@@ -153,6 +153,20 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
     inline std::string stringFromNSString(NSString *s){return s? [s UTF8String]: "";}
     inline float floatFromNSNumber(NSNumber *n){return n? [n floatValue]: 0.f;}
 
+    inline static void stringByRemovingTHE(std::string & inString){
+        static const std::string prefixToRemove("the");
+        static const size_t prefixLength(prefixToRemove.size());
+        if (inString.size()>prefixLength) {
+            std::string prefix(inString.substr(0, prefixLength));
+            std::transform(prefix.begin(), prefix.end(), prefix.begin(), ::tolower);
+            if (prefix==prefixToRemove) {
+                inString=inString.substr(prefixLength, inString.size()-prefixLength);
+                while (inString.size() && inString[0]==' ')
+                    inString=inString.substr(1, inString.size()-1);
+            }
+        }
+    }
+
 #define nativeMediaItem static_cast<MPMediaItem *>(_nativeHandle)
 #define nativeAsset static_cast<AVAsset *>(_nativeHandle)
 
@@ -210,7 +224,13 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
 
         return "";
     }
-    
+    const std::string & MediaItem::sortingTitle() const{
+        if (_cache.sortingTitle.empty()){
+            _cache.sortingTitle=title();
+            stringByRemovingTHE(_cache.sortingTitle);
+        }
+        return _cache.sortingTitle;
+    }
     std::string MediaItem::title() const{
         if (_isLocal) {
             return _cache.title;
@@ -219,6 +239,13 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
     }
     std::string MediaItem::albumTitle() const{
         return stringFromNSString([nativeMediaItem valueForProperty:MPMediaItemPropertyAlbumTitle]);
+    }
+    const std::string & MediaItem::sortingArtist() const{
+        if (_cache.sortingArtist.empty()){
+            _cache.sortingArtist=artist();
+            stringByRemovingTHE(_cache.sortingArtist);
+        }
+        return _cache.sortingArtist;
     }
     std::string MediaItem::artist() const{
         if (_isLocal) {
