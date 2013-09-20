@@ -227,7 +227,7 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
     const std::string & MediaItem::sortingTitle() const{
         if (_cache.sortingTitle.empty()){
             _cache.sortingTitle=title();
-            stringByRemovingTHE(_cache.sortingTitle);
+            //stringByRemovingTHE(_cache.sortingTitle);
         }
         return _cache.sortingTitle;
     }
