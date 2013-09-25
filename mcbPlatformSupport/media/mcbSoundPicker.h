@@ -24,7 +24,9 @@ namespace mcb{namespace PlatformSupport{namespace SoundPicker{
         
         mutable struct{
             std::string title;
+            std::string sortingTitle;
             std::string artist;
+            std::string sortingArtist;
             std::string albumTitle;
             std::string albumArtist;
             float duration=-1;
@@ -41,6 +43,9 @@ namespace mcb{namespace PlatformSupport{namespace SoundPicker{
         std::string assetURL() const;
         
         std::string title() const;
+        const std::string & sortingTitle() const;
+        const std::string & sortingArtist() const;
+
         std::string albumTitle() const;
         std::string artist() const;
         std::string albumArtist() const;
