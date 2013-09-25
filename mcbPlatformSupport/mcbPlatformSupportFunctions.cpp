@@ -116,7 +116,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     }
     void _removeLastSlashInPath(std::string & path){
         size_t slashPos = path.find_last_of("/");
-        while (slashPos==path.size()-1 && slashPos>0) {
+        while (slashPos==path.size()-1 && slashPos>0 && !path.empty()) {
             path=path.substr(0, path.size()-1);
             slashPos = path.find_last_of("/");
         }
