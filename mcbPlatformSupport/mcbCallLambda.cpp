@@ -16,7 +16,7 @@ namespace mcb{namespace PlatformSupport{
         if (_lambda)
             _lambda();
     }
-    cocos2d::CCSequence * CallLambda::createWithDelay(float delay, std::function<void()> lambda){
+    cocos2d::CCSequence * CallLambda::createWithDelay(const float delay, const std::function<void()>  & lambda){
         CallLambda *pRet = new CallLambda();
         if (pRet && pRet->initWithLambda(lambda)){
             pRet->autorelease();
@@ -36,7 +36,33 @@ namespace mcb{namespace PlatformSupport{
         return nullptr;
     }
     bool CallLambda::initWithLambda(const std::function<void()> & lambda){
-        _lambda=std::move(lambda);
+        _lambda=std::forward<decltype(lambda)>(lambda);
         return true;
     }
+    
+    
+    //ScheduleTimerLambda
+    ScheduleTimerLambda * ScheduleTimerLambda::create(const float duration, const std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda){
+        ScheduleTimerLambda *retVal = new ScheduleTimerLambda(duration);
+        if (retVal){
+            retVal->_lambda=std::move(lambda);
+            retVal->autorelease();
+            return retVal;
+        }
+        CC_SAFE_DELETE(retVal);
+        return nullptr;
+    }
+    
+    void ScheduleTimerLambda::execute(float deltaTime){
+        if (_lambda){
+            _actionTime+=deltaTime;
+            float progress(_actionTime/_duration);
+            if (progress>=1.f) {
+                _isDone=true;
+                return;
+            }
+            _lambda(deltaTime, progress ,_isDone);
+        }
+    }
+    
 }}

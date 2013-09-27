@@ -17,25 +17,25 @@ namespace mcb{namespace PlatformSupport{
         virtual void update(float time) {execute();}
     public:
         static CallLambda * create(std::function<void()> lambda);
-        static cocos2d::CCSequence * createWithDelay(float delay, std::function<void()> lambda);
+        static cocos2d::CCSequence * createWithDelay(const float delay, const std::function<void()> & lambda);
         virtual bool initWithLambda(const std::function<void()> & lambda);
         virtual void execute();
     protected:
-        CallLambda(){}
+        CallLambda() = default;
         virtual ~CallLambda(){}
     };
     
     template <typename T>
     class ScheduleLambda : public cocos2d::CCActionInstant{
         typedef cocos2d::CCActionInstant super;
-        std::function<void(float deltaTime, T *userData , bool & stop)> _lambda=nullptr;
+        std::function<void(const float deltaTime, T *userData , bool & stop)> _lambda=nullptr;
         virtual void update(float deltaTime) {execute(deltaTime);}
         bool _isDone=false;
         virtual bool isDone(){return _isDone;}
         virtual void step(float dt){update(dt);}
         T _userData;
     public:
-        static ScheduleLambda * create(T && userData, std::function<void(float deltaTime, T *userData , bool & stop)> &&lambda){
+        static ScheduleLambda * create(T && userData, const std::function<void(const float deltaTime, T *userData , bool & stop)> &&lambda){
             ScheduleLambda *retVal = new ScheduleLambda();
             if (retVal){
                 retVal->_userData=std::forward<T>(userData);
@@ -52,13 +52,33 @@ namespace mcb{namespace PlatformSupport{
                 _lambda(deltaTime, &_userData,_isDone);
         }
     protected:
-        ScheduleLambda(){}
+        ScheduleLambda() = default;
         virtual ~ScheduleLambda(){}
     };
     template <typename T>
     ScheduleLambda<T> * create_scheduleLambda(T userData, std::function<void(float deltaTime, decltype(userData) *userData , bool & stop)> && lambda){
         return ScheduleLambda<T>::create(std::move(userData), std::move(lambda));
     }
+    
+    
+    class ScheduleTimerLambda : public cocos2d::CCActionInstant{
+        typedef cocos2d::CCActionInstant super;
+        std::function<void(const float deltaTime, const float progres, bool & stop)> _lambda=nullptr;
+        virtual void update(float deltaTime) {execute(deltaTime);}
+        bool _isDone=false;
+        const float _duration;
+        float _actionTime=0.f;
+        virtual bool isDone(){return _isDone;}
+        virtual void step(float dt){update(dt);}
+    public:
+        static ScheduleTimerLambda * create(const float duration, const std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda);
+        virtual void execute(float deltaTime);
+    protected:
+        ScheduleTimerLambda(const float & duration): _duration(duration){}
+        virtual ~ScheduleTimerLambda(){}
+    };
+    
+    static float linearToEaseIn(const float progress){return 1.f-cosf(progress*M_PI_2);}
     
     //TODO:
     //create_scheduleLambda_progress //take easein/out params, auto stop
