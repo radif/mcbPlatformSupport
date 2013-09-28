@@ -16,7 +16,7 @@ namespace mcb{namespace PlatformSupport{
         std::function<void()> _lambda=nullptr;
         virtual void update(float time) {execute();}
     public:
-        static CallLambda * create(std::function<void()> lambda);
+        static CallLambda * create(const std::function<void()> & lambda);
         static cocos2d::CCSequence * createWithDelay(const float delay, const std::function<void()> & lambda);
         virtual bool initWithLambda(const std::function<void()> & lambda);
         virtual void execute();
@@ -35,11 +35,11 @@ namespace mcb{namespace PlatformSupport{
         virtual void step(float dt){update(dt);}
         T _userData;
     public:
-        static ScheduleLambda * create(T && userData, const std::function<void(const float deltaTime, T *userData , bool & stop)> &&lambda){
+        static ScheduleLambda * create(T && userData, std::function<void(const float deltaTime, T *userData , bool & stop)> &&lambda){
             ScheduleLambda *retVal = new ScheduleLambda();
             if (retVal){
                 retVal->_userData=std::forward<T>(userData);
-                retVal->_lambda=std::move(lambda);
+                retVal->_lambda=std::forward<decltype(lambda)>(lambda);
                 retVal->autorelease();
                 return retVal;
             }
@@ -57,7 +57,7 @@ namespace mcb{namespace PlatformSupport{
     };
     template <typename T>
     ScheduleLambda<T> * create_scheduleLambda(T userData, std::function<void(float deltaTime, decltype(userData) *userData , bool & stop)> && lambda){
-        return ScheduleLambda<T>::create(std::move(userData), std::move(lambda));
+        return ScheduleLambda<T>::create(std::forward<T>(userData), std::forward<decltype(lambda)>(lambda));
     }
     
     
@@ -71,7 +71,7 @@ namespace mcb{namespace PlatformSupport{
         virtual bool isDone(){return _isDone;}
         virtual void step(float dt){update(dt);}
     public:
-        static ScheduleTimerLambda * create(const float duration, const std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda);
+        static ScheduleTimerLambda * create(const float duration, std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda);
         virtual void execute(float deltaTime);
     protected:
         ScheduleTimerLambda(const float & duration): _duration(duration){}

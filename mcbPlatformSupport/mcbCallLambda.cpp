@@ -26,7 +26,7 @@ namespace mcb{namespace PlatformSupport{
         return nullptr;
     }
     
-    CallLambda * CallLambda::create(std::function<void()> lambda){
+    CallLambda * CallLambda::create(const std::function<void()> & lambda){
         CallLambda *pRet = new CallLambda();
         if (pRet && pRet->initWithLambda(lambda)){
             pRet->autorelease();
@@ -42,10 +42,10 @@ namespace mcb{namespace PlatformSupport{
     
     
     //ScheduleTimerLambda
-    ScheduleTimerLambda * ScheduleTimerLambda::create(const float duration, const std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda){
+    ScheduleTimerLambda * ScheduleTimerLambda::create(const float duration, std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda){
         ScheduleTimerLambda *retVal = new ScheduleTimerLambda(duration);
         if (retVal){
-            retVal->_lambda=std::move(lambda);
+            retVal->_lambda=std::forward<decltype(lambda)>(lambda);
             retVal->autorelease();
             return retVal;
         }
