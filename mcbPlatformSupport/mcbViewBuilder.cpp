@@ -9,6 +9,7 @@
 #include "mcbViewBuilder.h"
 #include "mcbPlatformSupportFunctions.h"
 #include "mcbNumber.h"
+#include "cocos-ext.h"
 
 using namespace cocos2d;
 namespace mcb{namespace PlatformSupport{
@@ -97,6 +98,17 @@ namespace mcb{namespace PlatformSupport{
             Functions::setNodeProperties(spr, data);
             return spr;
             
+        };
+        
+        _generators["scale9sprite"]=[=](CCDictionary * data)->CCNode *{
+            std::string imagePath(Functions::stringForObjectKey(data, "image"));
+            assert(imagePath.length());
+            imagePath=mcbPath(imagePath);
+            cocos2d::extension::CCScale9Sprite * spr(cocos2d::extension::CCScale9Sprite::create(imagePath.c_str()));
+            Functions::setNodeProperties(spr, data);
+            CCSize preferredSize(Functions::sizeForObjectKey(data, "preferredSize", spr->getContentSize()));
+            spr->setPreferredSize(preferredSize);
+            return spr;
         };
         
         _generators["menu-item-image"]=[=](CCDictionary * data)->CCNode *{
