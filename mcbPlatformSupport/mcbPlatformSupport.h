@@ -55,10 +55,12 @@ namespace mcb{namespace PlatformSupport{
     cocos2d::CCDictionary *dictionaryFromPlist(const std::string & plistFileName);
     
     //paths
-    std::string resolvePath(std::string inPath, const std::string & localDirectory="");
+    typedef std::map<std::string, std::string> path_tokens_t;
+    std::string resolvePath(std::string inPath, const std::string & localDirectory="", std::map<std::string, std::string> * userTokens=nullptr);
     
     void setSharedBundlePath(const std::string & gbpath);
-    
+    void addTokenForPath(const std::string token, const std::string path);
+
     std::string getSharedBundlePath();
     
     std::string _platformSpecificDocsPath();

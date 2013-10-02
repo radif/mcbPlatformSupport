@@ -36,6 +36,7 @@ namespace mcb{namespace PlatformSupport{
     static cocos2d::CCRect _visibleScreenRect=cocos2d::CCRectZero;
     static std::string _deviceIdiom;
     static std::string _sharedBundlePath;
+    static std::unique_ptr<path_tokens_t> _pathTokens=nullptr;
     static float _screenScaleRatio=1.0f;
     static DeviceType _devType=DeviceTypeUnknown;
 
@@ -106,6 +107,8 @@ namespace mcb{namespace PlatformSupport{
     
     
     void setSharedBundlePath(const std::string & shpath){_sharedBundlePath=resolvePath(shpath);}
+    void addTokenForPath(const std::string token, const std::string path){if (!_pathTokens) _pathTokens=std::unique_ptr<path_tokens_t>(new path_tokens_t); (*_pathTokens)[token]=path;}
+
     std::string getSharedBundlePath(){return _sharedBundlePath;}
     
     void iterateArray(cocos2d::CCArray * arr, std::function<void(cocos2d::CCObject *item, unsigned idx, bool & stop)>block){
@@ -136,6 +139,9 @@ namespace mcb{namespace PlatformSupport{
         PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(ASSETS)", _platformSpecificBundlePath()+"/assets");
         //Downloads
         //....
+        if (_pathTokens)
+            for (const std::pair<std::string, std::string> & pair: *_pathTokens)
+                PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, pair.first, pair.second);
     }
     
     void _resolveSystemAndLocalPaths(std::string & inPath, const std::string & localDirectory){
@@ -147,12 +153,17 @@ namespace mcb{namespace PlatformSupport{
     }
     
     
-    std::string resolvePath(std::string inPath, const std::string & localDirectory){
+    std::string resolvePath(std::string inPath, const std::string & localDirectory, std::map<std::string, std::string> * userTokens){
         Functions::_removeLastSlashInPath(inPath);
         if (localDirectory.empty())
             _resolveSystemPaths(inPath);
         else
             _resolveSystemAndLocalPaths(inPath, localDirectory);
+        
+        if (userTokens)
+            for (const std::pair<std::string, std::string> & pair: *userTokens)
+                PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, pair.first, pair.second);
+        
         return inPath;
     }
 #pragma mark -
