@@ -54,70 +54,38 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     void _removeLastSlashInPath(std::string & path);
     //parser
     
-    template <typename T>
-    struct Nullable{
-        bool isSet=false;
-        T value;
-        //assignement
-        Nullable(T && newVal){set(std::forward<T>(newVal));}
-        Nullable(T & newVal){set(newVal);}
-        Nullable(T newVal){set(std::move(newVal));}
-
-        virtual ~Nullable(){}
-        
-        void set(T && newVal){value=std::forward<T>(newVal); isSet=true;}
-        void set(T & newVal){value=newVal; isSet=true;}
-        void setV(T newVal){value=std::move(newVal); isSet=true;}
-        
-        //comparison
-        bool operator == (const Nullable<T> & other) const{return value==other.value && isSet==other.isSet;}
-
-        //assignment
-        Nullable<T>& operator = (const Nullable<T> & other){value=other.value; isSet=other.isSet; return *this;}
-        
-        T & operator = (const T & other){value=other; isSet=true; return value;}
-        T & operator = (const T && other){value=std::forward<T>(other); isSet=true; return value;}
-        
-        //TODO: move
-        
-        //TODO: copy
-        
-        //get
-        T get() const{return value;}
-        T* getPtr() const{if (isSet) return &value; return nullptr;}
-        T* operator *() const{return getPtr();}
-    };
+    //TODO: use std::optional or boost::optional for return types and default vals
     
-        cocos2d::CCPoint ccpFromString(const std::string & ccpString);
-        std::string stringForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, const std::string & defaultVal="");
-        bool boolForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, bool defaultVal=false);
-        float floatForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, float defaultVal=0.f);
-        cocos2d::CCSize sizeForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCSize defaultVal={0.f,0.f});
-        cocos2d::CCPoint pointForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCPoint defaultVal={0.f,0.f});
-        cocos2d::ccColor3B colorForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::ccColor3B defaultVal={0,0,0});
-        cocos2d::ccColor3B webColorForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::ccColor3B defaultVal={0,0,0});
-        cocos2d::CCTextAlignment textAlignmentForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCTextAlignment defaultVal=cocos2d::kCCTextAlignmentCenter);
-        void setNodeProperties(cocos2d::CCNode * node, cocos2d::CCDictionary * data);
-        
-        cocos2d::ccColor3B parseWebRGB(std::string webColor);
-        static cocos2d::ccColor4F color4FFrom4B(const cocos2d::ccColor4B &color){return {color.r/255.f, color.g/255.f, color.b/255.f, color.a/255.f};}
-        static cocos2d::ccColor4B color4BFrom4F(const cocos2d::ccColor4F &color){return {static_cast<GLubyte>(color.r*255.f), static_cast<GLubyte>(color.g*255.f), static_cast<GLubyte>(color.b*255.f), static_cast<GLubyte>(color.a*255.f)};}
-        static cocos2d::ccColor3B color3BFrom4B(const cocos2d::ccColor4B &color){return {color.r, color.g, color.b};}
-        static cocos2d::ccColor4B color4BFrom3B(const cocos2d::ccColor3B &color){return {color.r, color.g, color.b, 255};}
-        
-        static cocos2d::ccColor4F color4FFrom3B(const cocos2d::ccColor3B &color){return {color.r/255.f, color.g/255.f, color.b/255.f, 1.f};}
-        static cocos2d::ccColor3B color3BFrom4F(const cocos2d::ccColor4F &color){return {static_cast<GLubyte>(color.r*255.f), static_cast<GLubyte>(color.g*255.f), static_cast<GLubyte>(color.b*255.f)};}
+    cocos2d::CCPoint ccpFromString(const std::string & ccpString);
+    std::string stringForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, const std::string & defaultVal="");
+    bool boolForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, bool defaultVal=false);
+    float floatForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, float defaultVal=0.f);
+    cocos2d::CCSize sizeForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCSize defaultVal={0.f,0.f});
+    cocos2d::CCPoint pointForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCPoint defaultVal={0.f,0.f});
+    cocos2d::ccColor3B colorForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::ccColor3B defaultVal={0,0,0});
+    cocos2d::ccColor3B webColorForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::ccColor3B defaultVal={0,0,0});
+    cocos2d::CCTextAlignment textAlignmentForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCTextAlignment defaultVal=cocos2d::kCCTextAlignmentCenter);
+    void setNodeProperties(cocos2d::CCNode * node, cocos2d::CCDictionary * data);
     
-        
-        static cocos2d::ccColor4F colorAdd(const cocos2d::ccColor4F &color1, const cocos2d::ccColor4F &color2){return {color1.r+color2.r, color1.g+color2.g, color1.b+color2.b, color1.a+color2.a};}
-        
-        static cocos2d::ccColor4F colorSub(const cocos2d::ccColor4F &color1, const cocos2d::ccColor4F &color2){return {color1.r-color2.r, color1.g-color2.g, color1.b-color2.b, color1.a-color2.a};}
-        
-        static cocos2d::ccColor4F colorMult(const cocos2d::ccColor4F &color1, const cocos2d::ccColor4F &color2){return {color1.r*color2.r, color1.g*color2.g, color1.b*color2.b, color1.a*color2.a};}
-        static cocos2d::ccColor4F colorMult(const cocos2d::ccColor4F &color1, const float ratio){return {color1.r*ratio, color1.g*ratio, color1.b*ratio, color1.a*ratio};}
-
-
-        
+    cocos2d::ccColor3B parseWebRGB(std::string webColor);
+    static cocos2d::ccColor4F color4FFrom4B(const cocos2d::ccColor4B &color){return {color.r/255.f, color.g/255.f, color.b/255.f, color.a/255.f};}
+    static cocos2d::ccColor4B color4BFrom4F(const cocos2d::ccColor4F &color){return {static_cast<GLubyte>(color.r*255.f), static_cast<GLubyte>(color.g*255.f), static_cast<GLubyte>(color.b*255.f), static_cast<GLubyte>(color.a*255.f)};}
+    static cocos2d::ccColor3B color3BFrom4B(const cocos2d::ccColor4B &color){return {color.r, color.g, color.b};}
+    static cocos2d::ccColor4B color4BFrom3B(const cocos2d::ccColor3B &color){return {color.r, color.g, color.b, 255};}
+    
+    static cocos2d::ccColor4F color4FFrom3B(const cocos2d::ccColor3B &color){return {color.r/255.f, color.g/255.f, color.b/255.f, 1.f};}
+    static cocos2d::ccColor3B color3BFrom4F(const cocos2d::ccColor4F &color){return {static_cast<GLubyte>(color.r*255.f), static_cast<GLubyte>(color.g*255.f), static_cast<GLubyte>(color.b*255.f)};}
+    
+    
+    static cocos2d::ccColor4F colorAdd(const cocos2d::ccColor4F &color1, const cocos2d::ccColor4F &color2){return {color1.r+color2.r, color1.g+color2.g, color1.b+color2.b, color1.a+color2.a};}
+    
+    static cocos2d::ccColor4F colorSub(const cocos2d::ccColor4F &color1, const cocos2d::ccColor4F &color2){return {color1.r-color2.r, color1.g-color2.g, color1.b-color2.b, color1.a-color2.a};}
+    
+    static cocos2d::ccColor4F colorMult(const cocos2d::ccColor4F &color1, const cocos2d::ccColor4F &color2){return {color1.r*color2.r, color1.g*color2.g, color1.b*color2.b, color1.a*color2.a};}
+    static cocos2d::ccColor4F colorMult(const cocos2d::ccColor4F &color1, const float ratio){return {color1.r*ratio, color1.g*ratio, color1.b*ratio, color1.a*ratio};}
+    
+    
+    
     
 }}}
 #endif /* defined(__mcb__mcbPlatformSupportFunctions__) */

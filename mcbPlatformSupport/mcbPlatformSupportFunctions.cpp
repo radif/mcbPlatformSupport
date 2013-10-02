@@ -293,7 +293,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
             node->setVisible(Functions::boolForObjectKey(data, "visible", node->isVisible()));
         
     }
-
+    
     
     //color
     unsigned int _parseHex(const char *pszValue){
