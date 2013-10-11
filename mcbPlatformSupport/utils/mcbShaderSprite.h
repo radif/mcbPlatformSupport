@@ -14,11 +14,12 @@ namespace mcb{ namespace utils{
     template <class Derived>
     class ShaderSprite : public cocos2d::CCSprite{
         typedef cocos2d::CCSprite super;
+        cocos2d::CCGLProgram * _program=nullptr;//retained
         void initShader(const std::string & fragmentShaderPath, void* userData=nullptr){
             const GLchar *  fragmentSource =(GLchar *)cocos2d::CCString::createWithContentsOfFile(cocos2d::CCFileUtils::sharedFileUtils()-> fullPathForFilename(fragmentShaderPath.c_str()).c_str())->getCString();
             if (fragmentShaderPath.size() && strlen(fragmentSource)) {
                 cocos2d::CCGLProgram * program(cocos2d::CCShaderCache::sharedShaderCache()->programForKey(fragmentShaderPath.c_str()));
-                if (/*program*/false)
+                if (program)
                     setShaderProgram(program);
                 else{
                     program=new cocos2d::CCGLProgram;
@@ -36,10 +37,12 @@ namespace mcb{ namespace utils{
                     program->link();
                     program->updateUniforms();
                     
+                    _program=program;
+                    _program->retain();
+                    
                     setupShaderProgram(program, userData);
                     
                     cocos2d::CCShaderCache::sharedShaderCache()->addProgram(program, fragmentShaderPath.c_str());
-                    scheduleUpdate();
                     program->use();
                     setupShaderProgramBindingsBeforeFirstUpdate(program, userData);
                 }else
@@ -59,18 +62,18 @@ namespace mcb{ namespace utils{
             CC_SAFE_DELETE(pobSprite);
             return nullptr;
         }
-        
-
+        cocos2d::CCGLProgram * shaderProgram(){return _program;}
     protected:
+        
         //Override this in order to setup your shader behavior
         virtual void setupShaderProgram(cocos2d::CCGLProgram * program, void* userData=nullptr)=0;
         virtual void setupShaderProgramBindingsBeforeFirstUpdate(cocos2d::CCGLProgram * program, void* userData=nullptr){}
         virtual void shaderProgramInitFailed(const std::string & fragmentShaderPath, void* userData=nullptr)=0;
-        //updates are scheduled automatically if the shader program is instantiated
-        virtual void update(float dt) override=0;
         
-        ShaderSprite(){}
-        virtual ~ShaderSprite(){}
+        //use visit() to set uniforms of the shader
+        
+        ShaderSprite()=default;
+        virtual ~ShaderSprite(){CC_SAFE_RELEASE(_program);}
     };
 }}
 
