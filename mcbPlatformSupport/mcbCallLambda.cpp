@@ -42,10 +42,11 @@ namespace mcb{namespace PlatformSupport{
     
     
     //ScheduleTimerLambda
-    ScheduleTimerLambda * ScheduleTimerLambda::create(const float duration, std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda){
+    ScheduleTimerLambda * ScheduleTimerLambda::create(const float duration, std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda, std::function<void()> && finally){
         ScheduleTimerLambda *retVal = new ScheduleTimerLambda(duration);
         if (retVal){
             retVal->_lambda=std::forward<decltype(lambda)>(lambda);
+            retVal->_finally=std::forward<decltype(finally)>(finally);
             retVal->autorelease();
             return retVal;
         }
@@ -59,6 +60,8 @@ namespace mcb{namespace PlatformSupport{
             float progress(_actionTime/_duration);
             if (progress>=1.f) {
                 _isDone=true;
+                if (_finally)
+                    _finally();
                 return;
             }
             _lambda(deltaTime, progress ,_isDone);

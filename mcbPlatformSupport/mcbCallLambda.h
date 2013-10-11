@@ -64,6 +64,7 @@ namespace mcb{namespace PlatformSupport{
     class ScheduleTimerLambda : public cocos2d::CCActionInstant{
         typedef cocos2d::CCActionInstant super;
         std::function<void(const float deltaTime, const float progres, bool & stop)> _lambda=nullptr;
+        std::function<void()> _finally=nullptr;
         virtual void update(float deltaTime) {execute(deltaTime);}
         bool _isDone=false;
         const float _duration;
@@ -71,7 +72,7 @@ namespace mcb{namespace PlatformSupport{
         virtual bool isDone(){return _isDone;}
         virtual void step(float dt){update(dt);}
     public:
-        static ScheduleTimerLambda * create(const float duration, std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda);
+        static ScheduleTimerLambda * create(const float duration, std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda, std::function<void()> && finally=nullptr);
         virtual void execute(float deltaTime);
     protected:
         ScheduleTimerLambda(const float & duration): _duration(duration){}
