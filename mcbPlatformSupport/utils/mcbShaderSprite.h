@@ -15,11 +15,11 @@ namespace mcb{ namespace utils{
     class ShaderSprite : public cocos2d::CCSprite{
         typedef cocos2d::CCSprite super;
         cocos2d::CCGLProgram * _program=nullptr;//retained
-        void initShader(const std::string & fragmentShaderPath, void* userData=nullptr){
+        void initShader(const std::string & fragmentShaderPath, void* userData=nullptr, bool cachesCompiledShader=true){
             const GLchar *  fragmentSource =(GLchar *)cocos2d::CCString::createWithContentsOfFile(cocos2d::CCFileUtils::sharedFileUtils()-> fullPathForFilename(fragmentShaderPath.c_str()).c_str())->getCString();
             if (fragmentShaderPath.size() && strlen(fragmentSource)) {
                 cocos2d::CCGLProgram * program(cocos2d::CCShaderCache::sharedShaderCache()->programForKey(fragmentShaderPath.c_str()));
-                if (program)
+                if (program && cachesCompiledShader)
                     setShaderProgram(program);
                 else{
                     program=new cocos2d::CCGLProgram;
@@ -52,10 +52,10 @@ namespace mcb{ namespace utils{
             
         }
     public:
-        static Derived* create(const std::string & texturePath, const std::string & fragmentShaderPath, void* userData=nullptr){
+        static Derived* create(const std::string & texturePath, const std::string & fragmentShaderPath, void* userData=nullptr, bool cachesCompiledShader=true){
             Derived * pobSprite = new Derived();
             if (pobSprite && pobSprite->initWithFile(texturePath.c_str())){
-                pobSprite->initShader(fragmentShaderPath, userData);
+                pobSprite->initShader(fragmentShaderPath, userData, cachesCompiledShader);
                 pobSprite->autorelease();
                 return pobSprite;
             }
@@ -70,7 +70,7 @@ namespace mcb{ namespace utils{
         virtual void setupShaderProgramBindingsBeforeFirstUpdate(cocos2d::CCGLProgram * program, void* userData=nullptr){}
         virtual void shaderProgramInitFailed(const std::string & fragmentShaderPath, void* userData=nullptr)=0;
         
-        //use visit() to set uniforms of the shader
+        //use visit() to set uniforms of the shader, call super::visit()
         
         ShaderSprite()=default;
         virtual ~ShaderSprite(){CC_SAFE_RELEASE(_program);}
