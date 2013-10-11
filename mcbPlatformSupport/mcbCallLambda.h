@@ -16,8 +16,8 @@ namespace mcb{namespace PlatformSupport{
         std::function<void()> _lambda=nullptr;
         virtual void update(float time) {execute();}
     public:
-        static CallLambda * create(const std::function<void()> & lambda);
-        static cocos2d::CCSequence * createWithDelay(const float delay, const std::function<void()> & lambda);
+        static CallLambda * create(const std::function<void()> & lambda, int tag=0);
+        static cocos2d::CCSequence * createWithDelay(const float delay, const std::function<void()> & lambda, int tag=0);
         virtual bool initWithLambda(const std::function<void()> & lambda);
         virtual void execute();
     protected:
@@ -53,13 +53,28 @@ namespace mcb{namespace PlatformSupport{
         }
     protected:
         ScheduleLambda() = default;
-        virtual ~ScheduleLambda(){}
+        virtual ~ScheduleLambda()=default;
     };
     template <typename T>
     ScheduleLambda<T> * create_scheduleLambda(T userData, std::function<void(float deltaTime, decltype(userData) *userData , bool & stop)> && lambda){
         return ScheduleLambda<T>::create(std::forward<T>(userData), std::forward<decltype(lambda)>(lambda));
     }
     
+    
+    class ScheduleUpdateLambda : public cocos2d::CCActionInstant{
+        typedef cocos2d::CCActionInstant super;
+        std::function<void(const float deltaTime, bool & stop)> _lambda=nullptr;
+        virtual void update(float deltaTime) {execute(deltaTime);}
+        bool _isDone=false;
+        virtual bool isDone(){return _isDone;}
+        virtual void step(float dt){update(dt);}
+    public:
+        static ScheduleUpdateLambda * create(std::function<void(const float deltaTime, bool & stop)> && lambda, int tag=0);
+        virtual void execute(float deltaTime);
+    protected:
+        ScheduleUpdateLambda()=default;
+        virtual ~ScheduleUpdateLambda()=default;
+    };
     
     class ScheduleTimerLambda : public cocos2d::CCActionInstant{
         typedef cocos2d::CCActionInstant super;
@@ -72,15 +87,15 @@ namespace mcb{namespace PlatformSupport{
         virtual bool isDone(){return _isDone;}
         virtual void step(float dt){update(dt);}
     public:
-        static ScheduleTimerLambda * create(const float duration, std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda, std::function<void()> && finally=nullptr);
+        static ScheduleTimerLambda * create(const float duration, std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda, std::function<void()> && finally=nullptr, int tag=0);
         virtual void execute(float deltaTime);
     protected:
         ScheduleTimerLambda(const float & duration): _duration(duration){}
-        virtual ~ScheduleTimerLambda(){}
+        virtual ~ScheduleTimerLambda()=default;
     };
     
     static float linearToEaseIn(const float progress){return 1.f-cosf(progress*M_PI_2);}
-    
+
     //TODO:
     //create_scheduleLambda_progress //take easein/out params, auto stop
     
