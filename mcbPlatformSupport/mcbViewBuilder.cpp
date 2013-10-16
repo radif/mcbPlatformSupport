@@ -10,6 +10,7 @@
 #include "mcbPlatformSupportFunctions.h"
 #include "mcbNumber.h"
 #include "cocos-ext.h"
+#include "mcbAccelerometerParallaxNode.h"
 
 using namespace cocos2d;
 namespace mcb{namespace PlatformSupport{
@@ -31,6 +32,13 @@ namespace mcb{namespace PlatformSupport{
             
         };
         
+        _generators["ui-parallax-node"]=[=](CCDictionary * data)->CCNode *{
+            AccelerometerParallaxNode * node(AccelerometerParallaxNode::create());
+            Functions::setNodeProperties(node, data);
+            node->setMultiplier(Functions::pointForObjectKey(data, "multiplier",{0.f,0.f}));
+            return node;
+            
+        };
         
         _generators["label-ttf"]=[=](CCDictionary * data)->cocos2d::CCNode *{
             std::string text(Functions::stringForObjectKey(data, "text"));
