@@ -21,21 +21,17 @@ namespace mcb{namespace PlatformSupport{
     void AccelerometerParallaxNode::onEnter(){
         super::onEnter();
         Accelerometer::sharedInstance()->addListener(this, [=](cocos2d::CCAcceleration* pAccelerationValue){
-            _offset.x=pAccelerationValue->x*_multiplier.x;
-            _offset.y=pAccelerationValue->y*_multiplier.y;
+            _prevAccel.x = (pAccelerationValue->x*_filteringFactor)+(_prevAccel.x*(1.f-_filteringFactor));
+            _prevAccel.y = (pAccelerationValue->y*_filteringFactor)+(_prevAccel.y*(1.f-_filteringFactor));
+            
+            _offset.x=(_prevAccel.x+_accelerationOffset.x)*_multiplier.x;
+            _offset.y=(_prevAccel.y+_accelerationOffset.y)*_multiplier.y;
             super::setPosition(ccpAdd(_realPosition, _offset));
         });
     }
     void AccelerometerParallaxNode::onExit(){
         super::onExit();
         Accelerometer::sharedInstance()->removeListener(this);
-    }
-    
-    void AccelerometerParallaxNode::setMultiplier(const cocos2d::CCPoint & multiplier){
-        _multiplier=multiplier;
-    }
-    const cocos2d::CCPoint & AccelerometerParallaxNode::multiplier(){
-        return _multiplier;
     }
 
 }}

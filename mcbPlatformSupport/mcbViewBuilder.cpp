@@ -35,7 +35,9 @@ namespace mcb{namespace PlatformSupport{
         _generators["ui-parallax-node"]=[=](CCDictionary * data)->CCNode *{
             AccelerometerParallaxNode * node(AccelerometerParallaxNode::create());
             Functions::setNodeProperties(node, data);
-            node->setMultiplier(Functions::pointForObjectKey(data, "multiplier",{0.f,0.f}));
+            node->setMultiplier(Functions::pointForObjectKey(data, "multiplier",node->multiplier()));
+            node->setFilteringFactor(Functions::floatForObjectKey(data, "filteringFactor",node->filteringFactor()));
+            node->setAccelerationOffset(Functions::pointForObjectKey(data, "accelerationOffset",node->accelerationOffset()));
             return node;
             
         };
