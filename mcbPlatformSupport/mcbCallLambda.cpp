@@ -21,7 +21,9 @@ namespace mcb{namespace PlatformSupport{
         if (pRet && pRet->initWithLambda(lambda)){
             pRet->autorelease();
             pRet->setTag(tag);
-            return cocos2d::CCSequence::createWithTwoActions(cocos2d::CCDelayTime::create(delay),pRet);
+            auto retVal(cocos2d::CCSequence::createWithTwoActions(cocos2d::CCDelayTime::create(delay),pRet));
+            retVal->setTag(tag);
+            return retVal;
         }
         CC_SAFE_DELETE(pRet);
         return nullptr;
