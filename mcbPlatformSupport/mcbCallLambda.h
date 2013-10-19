@@ -94,7 +94,7 @@ namespace mcb{namespace PlatformSupport{
         virtual ~ScheduleTimerLambda()=default;
     };
     
-    static float linearToEaseIn(const float progress){return 1.f-cosf(progress*M_PI_2);}
+    static float linearToEaseOut(const float progress){return 1.f-cosf(progress*M_PI_2);}
 
     //TODO:
     //create_scheduleLambda_progress //take easein/out params, auto stop
