@@ -94,26 +94,11 @@ namespace mcb{namespace PlatformSupport{
         virtual ~ScheduleTimerLambda()=default;
     };
     
-    static float linearToEaseOut(const float progress){return 1.f-cosf(progress*M_PI_2);}
-
-    //TODO:
-    //create_scheduleLambda_progress //take easein/out params, auto stop
-    
-    //0-1
-    //float linearToEaseIn(const float & progress){return sin(progress*M_PI_2);}
-    //float linearToEaseOut(const float & progress){return sin(progress*M_PI_2);}
-    
-    
-    //float progress(*pActionTime/duration);
-
-    
-    //auto stops on progress
-    //
-    
-//    ScheduleLambda<T> * create_scheduleLambda_progress(T userData, std::function<void(float deltaTime, decltype(userData) *userData , bool & stop, bool isLastCall)> && lambda, scheduleLambdaCurve=scheduleLambdaCurveLinear){
-//        return ScheduleLambda<T>::create(std::move(userData), std::move(lambda));
-//    }
-    
+    namespace ProgressCurveFunctions{
+        static float inline linearToEaseOut(const float progress){return 1.f-cosf(progress*M_PI_2);}
+        static float inline linearToEaseIn(const float progress){return sinf(progress*M_PI_2);}
+        float linearToBackInOut(float time, float multiplier=1.f, float m_fRate=1.5f);
+    }
 }}
 
 

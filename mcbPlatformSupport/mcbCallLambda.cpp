@@ -92,5 +92,22 @@ namespace mcb{namespace PlatformSupport{
             _lambda(deltaTime,_isDone);
         }
     }
-    
+    namespace ProgressCurveFunctions{
+        float linearToBackInOut(float time, float multiplier, float m_fRate){
+            auto innerUpdateL([=](float time)->float{
+                const float overshoot(1.70158f*1.525f*multiplier);
+                time=time*2.f;
+                if (time<1.f)
+                    return (time*time*((overshoot+1.f)*time-overshoot))*.5f;
+                
+                time=time-2.f;
+                return (time*time*((overshoot+1.f)*time+overshoot))*.5f+1.f;
+            });
+            time*=2.f;
+            if (time<1.f)
+                return innerUpdateL(0.5f*powf(time, m_fRate));
+            
+            return innerUpdateL(1.f-.5f*powf(2.f-time, m_fRate));
+        }
+    }
 }}
