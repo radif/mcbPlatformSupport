@@ -93,7 +93,7 @@ namespace mcb{namespace PlatformSupport{
         }
     }
     namespace ProgressCurveFunctions{
-        float linearToBackInOut(float time, float multiplier, float m_fRate){
+        float linearToBackInOut(float progress, float multiplier, float rate){
             auto innerUpdateL([=](float time)->float{
                 const float overshoot(1.70158f*1.525f*multiplier);
                 time=time*2.f;
@@ -103,11 +103,34 @@ namespace mcb{namespace PlatformSupport{
                 time=time-2.f;
                 return (time*time*((overshoot+1.f)*time+overshoot))*.5f+1.f;
             });
-            time*=2.f;
-            if (time<1.f)
-                return innerUpdateL(0.5f*powf(time, m_fRate));
+            progress*=2.f;
+            if (progress<1.f)
+                return innerUpdateL(0.5f*powf(progress, rate));
             
-            return innerUpdateL(1.f-.5f*powf(2.f-time, m_fRate));
+            return innerUpdateL(1.f-.5f*powf(2.f-progress, rate));
+        }
+        float linearToBackIn(float preogress, float rate){
+            auto innerUpdateL([=](float time)->float{
+                float overshoot(1.70158f);
+                return time*time*((overshoot+1)*time-overshoot);
+            });
+            preogress*=2.f;
+            if (preogress<1.f)
+                return innerUpdateL(0.5f*powf(preogress, rate));
+            
+            return innerUpdateL(1.f-.5f*powf(2.f-preogress, rate));
+        }
+        float linearToBackOut(float progress, float rate){
+            auto innerUpdateL([=](float time)->float{
+                float overshoot = 1.70158f;
+                time=time-1.f;
+                return time*time*((overshoot+1.f)*time+overshoot)+1.f;
+            });
+            progress*=2.f;
+            if (progress<1.f)
+                return innerUpdateL(0.5f*powf(progress, rate));
+            
+            return innerUpdateL(1.f-.5f*powf(2.f-progress, rate));
         }
     }
 }}
