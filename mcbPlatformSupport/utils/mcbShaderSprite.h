@@ -15,6 +15,19 @@ namespace mcb{ namespace utils{
     class ShaderSprite : public cocos2d::CCSprite{
         typedef cocos2d::CCSprite super;
         cocos2d::CCGLProgram * _program=nullptr;//retained
+    public:
+        static Derived* create(const std::string & texturePath, const std::string & fragmentShaderPath, void* userData=nullptr){
+            Derived * pobSprite = new Derived();
+            if (pobSprite && pobSprite->initWithFile(texturePath.c_str())){
+                pobSprite->initShader(fragmentShaderPath, userData);
+                pobSprite->autorelease();
+                return pobSprite;
+            }
+            CC_SAFE_DELETE(pobSprite);
+            return nullptr;
+        }
+        cocos2d::CCGLProgram * shaderProgram(){return _program;}
+    protected:
         void initShader(const std::string & fragmentShaderPath, void* userData=nullptr){
             const GLchar *  fragmentSource =(GLchar *)cocos2d::CCString::createWithContentsOfFile(cocos2d::CCFileUtils::sharedFileUtils()-> fullPathForFilename(fragmentShaderPath.c_str()).c_str())->getCString();
             if (fragmentShaderPath.size() && strlen(fragmentSource)) {
@@ -51,20 +64,6 @@ namespace mcb{ namespace utils{
             }
             
         }
-    public:
-        static Derived* create(const std::string & texturePath, const std::string & fragmentShaderPath, void* userData=nullptr){
-            Derived * pobSprite = new Derived();
-            if (pobSprite && pobSprite->initWithFile(texturePath.c_str())){
-                pobSprite->initShader(fragmentShaderPath, userData);
-                pobSprite->autorelease();
-                return pobSprite;
-            }
-            CC_SAFE_DELETE(pobSprite);
-            return nullptr;
-        }
-        cocos2d::CCGLProgram * shaderProgram(){return _program;}
-    protected:
-        
         //Override this in order to setup your shader behavior
         virtual void setupShaderProgram(cocos2d::CCGLProgram * program, void* userData=nullptr)=0;
         virtual void setupShaderProgramBindingsBeforeFirstUpdate(cocos2d::CCGLProgram * program, void* userData=nullptr){}
