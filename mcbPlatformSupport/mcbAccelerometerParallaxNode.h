@@ -29,6 +29,9 @@ namespace mcb{namespace PlatformSupport{
         }_prevAccel;
     public:
         CREATE_FUNC(AccelerometerParallaxNode);
+#if COCOS2D_VERSION <= 0x00020003
+        virtual bool init(){return true;}
+#endif
         
         void setMultiplier(const cocos2d::CCPoint & multiplier){_multiplier=multiplier;}
         const cocos2d::CCPoint & multiplier(){return _multiplier;}
