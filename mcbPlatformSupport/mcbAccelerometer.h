@@ -9,19 +9,21 @@
 #ifndef __SoundSurfer__mcbAccelerometer__
 #define __SoundSurfer__mcbAccelerometer__
 
-#include "cocos2d.h"
+#include "mcbFactory.h"
+
 namespace mcb{namespace PlatformSupport{
     class AccelerometerListener{};
     
-    class Accelerometer : public cocos2d::CCAccelerometerDelegate{
+    class Accelerometer : public PlatformSupport::SingletonFactory<Accelerometer> , public cocos2d::CCAccelerometerDelegate{
+        friend PlatformSupport::SingletonFactory<Accelerometer>;
     public:
         typedef std::function<void(cocos2d::CCAcceleration* pAccelerationValue)> listener_t;
-        static Accelerometer * sharedInstance();
         void addListener(AccelerometerListener * listener, const listener_t & listenerBlock);
         void removeListener(AccelerometerListener * listener);
     private:
         std::map<AccelerometerListener *, listener_t> _listeners;
     protected:
+        virtual void init() override{}
         virtual void didAccelerate(cocos2d::CCAcceleration* pAccelerationValue) override;
         Accelerometer();
         virtual ~Accelerometer();

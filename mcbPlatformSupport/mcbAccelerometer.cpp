@@ -11,14 +11,6 @@
 
 using namespace cocos2d;
 namespace mcb{namespace PlatformSupport{
-    static Accelerometer * _sharedInstance(nullptr);
-    Accelerometer * Accelerometer::sharedInstance(){
-        static std::once_flag onceFlag;
-        std::call_once(onceFlag,[](){
-            _sharedInstance=new Accelerometer;
-        });
-        return _sharedInstance;
-    }
     void Accelerometer::didAccelerate(CCAcceleration* pAccelerationValue){
         for (const auto & listener : _listeners)
             listener.second(pAccelerationValue);

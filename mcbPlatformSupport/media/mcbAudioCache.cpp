@@ -9,17 +9,7 @@
 #include "mcbAudioCache.h"
 #include <mutex>
 
-namespace mcb{namespace PlatformSupport{
-    static AudioCache * _sharedAudioCache=nullptr;
-    AudioCache* AudioCache::sharedInstance(){
-        static std::once_flag onceFlag;
-        std::call_once(onceFlag,[](){
-            if (!_sharedAudioCache)
-                _sharedAudioCache=new AudioCache;
-        });
-        return _sharedAudioCache;
-    }
-    
+namespace mcb{namespace PlatformSupport{    
     
     pAudioPlayer AudioCache::loadSound(const std::string & path, const std::string & key){
         std::string pathOrKey(key.empty()? path : key);

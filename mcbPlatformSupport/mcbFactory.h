@@ -51,9 +51,26 @@ namespace mcb{namespace PlatformSupport{
         }
     protected:
         virtual bool init(cocos2d::CCDictionary * data)=0;
-        virtual ~Factory(){}
+        virtual ~Factory()=default;
     };
     
+    
+    template<class C>
+    class SingletonFactory{
+    public:
+        static C * sharedInstance(){
+            static C * sharedInstance(nullptr);
+            static std::once_flag onceFlag;
+            std::call_once(onceFlag,[](){
+                sharedInstance=new C;
+                sharedInstance->init();
+            });
+            return sharedInstance;
+        }
+    protected:
+        virtual void init()=0;
+        virtual ~SingletonFactory()=default;
+    };
     
     //universal create function outside of a class
     template<typename C, typename ...Args>

@@ -11,12 +11,14 @@
 
 #include "mcbAudioPlayer.h"
 #include <map>
+#include <mcbFactory.h>
 
 namespace mcb{namespace PlatformSupport{
-    class AudioCache{
+    class AudioCache : public PlatformSupport::SingletonFactory<AudioCache>{
+        friend PlatformSupport::SingletonFactory<AudioCache>;
         std::map<std::string, std::pair<pAudioPlayer, int>> _players;//retian counted
+        virtual void init() override{}
     public:
-        static AudioCache* sharedInstance();
         
         //loads the sound or increments ref count if already loaded
         pAudioPlayer loadSound(const std::string & path, const std::string & key="");

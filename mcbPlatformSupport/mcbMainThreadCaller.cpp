@@ -7,16 +7,14 @@
 //
 
 #include "mcbMainThreadCaller.h"
-#include "cocos2d.h"
+#include "mcbFactory.h"
 #include <future>
 
 namespace mcb{namespace PlatformSupport{
-    
     class MainThreadCaller;
-    
-    static MainThreadCaller * _sharedInstance=nullptr;
-    
-    class MainThreadCaller : public cocos2d::CCObject {
+    class MainThreadCaller : public cocos2d::CCObject, public PlatformSupport::SingletonFactory<MainThreadCaller> {
+        friend PlatformSupport::SingletonFactory<MainThreadCaller>;
+        virtual void init() override{}
         std::vector<std::function<void()>> _functions;
         std::mutex _functionsMutex;
         
@@ -37,14 +35,6 @@ namespace mcb{namespace PlatformSupport{
         }
         
     public:
-        static MainThreadCaller * sharedInstance(){
-            static std::once_flag onceFlag;
-            std::call_once(onceFlag,[](){
-                if (!_sharedInstance)
-                    _sharedInstance=new MainThreadCaller();
-            });
-            return _sharedInstance;
-        }
         void call_on_main_thread(std::function<void()> && mainThreadFunction, bool waitUntilDone=false){
             {
             std::lock_guard<std::mutex> lock(_functionsMutex);
