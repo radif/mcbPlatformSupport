@@ -9,16 +9,17 @@
 #ifndef __SoundSurfer__mcbMenuItemImageBlinker__
 #define __SoundSurfer__mcbMenuItemImageBlinker__
 
-#include "cocos2d.h"
+#include "mcbFactory.h"
+
 namespace mcb{ namespace PlatformSupport{
-    class MenuItemImageBlinkerContext{
+    class MenuItemImageBlinkerContext : public SingletonFactory<MenuItemImageBlinkerContext>{
+        friend SingletonFactory<MenuItemImageBlinkerContext>;
+        virtual void init() override{}
         std::vector<cocos2d::ccColor3B> _blinkingColors;
         std::vector<cocos2d::ccColor3B> _blinkingColorsSelected;
         float _blinkingDelay=0.f;
         float _blinkingDelaySelected=0.f;
-    public:
-        static MenuItemImageBlinkerContext * sharedInstance();
-        
+    public:        
         void setSpriteBlinkingColors(const std::vector<cocos2d::ccColor3B> colors){_blinkingColors=colors;}
         void setSelectedSpriteBlinkingColors(const std::vector<cocos2d::ccColor3B> colors){_blinkingColorsSelected=colors;}
         void setSpriteBlinkingDelay(const float delay){_blinkingDelay=delay;}

@@ -12,16 +12,6 @@
 
 using namespace cocos2d;
 namespace mcb{ namespace PlatformSupport{
-    static MenuItemImageBlinkerContext * _sharedInstance(nullptr);
-    MenuItemImageBlinkerContext * MenuItemImageBlinkerContext::sharedInstance(){
-        static std::once_flag onceFlag;
-        std::call_once(onceFlag,[=](){
-            _sharedInstance=new MenuItemImageBlinkerContext;
-        });
-        return _sharedInstance;
-    }
-    
-    
     static const int kSpriteBlinkingActionTag(1198163411);
     void MenuItemImageBlinker::activate(){
         if (_blinkingEnabled)
