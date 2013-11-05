@@ -11,6 +11,7 @@
 #include "mcbNumber.h"
 #include "cocos-ext.h"
 #include "mcbAccelerometerParallaxNode.h"
+#include "mcbVideoLayer.h"
 
 using namespace cocos2d;
 namespace mcb{namespace PlatformSupport{
@@ -130,13 +131,23 @@ namespace mcb{namespace PlatformSupport{
             assert(str.length());
             assert(str1.length());
             
-            CCMenuItemImage * item=CCMenuItemImage::create(str.c_str(), str1.c_str());
+            CCMenuItemImage * item(CCMenuItemImage::create(str.c_str(), str1.c_str()));
             item->setTarget(_buttonEventReceiver, menu_selector(ViewBuilder::ButtonEventReceiver::_buttonWithTagPressed));
             item->setTag(Functions::floatForObjectKey(data, "tag"));
             
             CCMenu*m(CCMenu::createWithItem(item));
             Functions::setNodeProperties(m, data);
             return m;
+        };
+        
+        _generators["video-layer"]=[=](CCDictionary * data)->CCNode *{
+            CCAssert(data, "Video Layer data is missing!");
+            VideoLayer * retVal(VideoLayer::create());
+            //if (data->objectForKey("videoFrame"))
+            //    retVal->setVideoFrame(Functions::rect?);
+            retVal->setVideoPath(mcbPath(Functions::stringForObjectKey(data, "videoPath")));
+            Functions::setNodeProperties(retVal, data);
+            return retVal;
         };
     }
     void ViewBuilder::setFactoryForKey(const std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> & lambda, const std::string & key){
