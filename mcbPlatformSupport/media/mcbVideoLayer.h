@@ -43,7 +43,7 @@ namespace mcb{namespace PlatformSupport{
         float duration() const;
         bool isPlaying() const;
         float currentTime() const;
-        
+        void sizeToFill(const cocos2d::CCSize & originalSize);
         const std::string & videoPath() const;
         void setVideoPath(const std::string & videoPath);
         void setVideoFrame(const cocos2d::CCRect & videoFrame);

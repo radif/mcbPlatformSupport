@@ -123,7 +123,23 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     }
     
     //parser
-    
+    cocos2d::CCRect ccRectFromString(const std::string & ccRectString){
+        cocos2d::CCRect retVal{0.f,0.f,0.f,0.f};
+        do {
+            std::string content(ccRectString);
+            // find the first '{' and the third '}'
+            size_t nPosRight(content.find('}'));
+            CC_BREAK_IF(nPosRight==std::string::npos);
+            
+            // get the point string and size string
+            std::string pointStr(content.substr(0, nPosRight+1));
+            std::string sizeStr(content.substr(nPosRight + 1, content.length() - nPosRight));
+            retVal.origin=ccpFromString(pointStr);
+            retVal.size=ccpFromString(sizeStr);
+        } while (false);
+        
+        return retVal;
+    }
     cocos2d::CCPoint ccpFromString(const std::string & ccpString)
     {
         cocos2d::CCPoint p;
@@ -209,7 +225,14 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
             retVal=PlatformSupport::Functions::ccpFromString(pString->m_sString);
         return retVal;
     }
-    
+    cocos2d::CCRect rectForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCRect defaultVal){
+        CCRect retVal(defaultVal);
+        CCObject * obj(dict->objectForKey(key.c_str()));
+        CCString * pString(dynamic_cast<CCString *>(obj));
+        if (pString)
+            retVal=PlatformSupport::Functions::ccRectFromString(pString->m_sString);
+        return retVal;
+    }
     cocos2d::ccColor3B colorForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::ccColor3B defaultVal){
         ccColor3B retVal(defaultVal);
         CCObject * obj(dict->objectForKey(key.c_str()));

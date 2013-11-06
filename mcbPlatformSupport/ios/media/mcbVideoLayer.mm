@@ -30,7 +30,6 @@ using namespace cocos2d;
         _player=[[AVPlayer alloc] init];
         self.backgroundColor = [UIColor clearColor];
         ((AVPlayerLayer *)self.layer).player=_player;
-        
         //callbacks
         [[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(onPlaybackFinished) name: AVPlayerItemDidPlayToEndTimeNotification object:nil];
     }
@@ -51,19 +50,15 @@ using namespace cocos2d;
 +(Class)layerClass {
 	return [AVPlayerLayer class];
 }
-
 -(void)loadVideoFile:(NSString *)videoFile {
     [_player replaceCurrentItemWithPlayerItem:[AVPlayerItem playerItemWithURL:[NSURL fileURLWithPath:videoFile]]];
 }
-
-
 -(void)start{
     [_player play];
 }
 -(void)stop{
     [_player play];
 }
-
 -(void)pause{
     [_player pause];
 }
@@ -83,7 +78,6 @@ using namespace cocos2d;
 -(float)currentTime{
     return CMTimeGetSeconds([[_player currentItem] currentTime]);
 }
-
 -(BOOL)isPlaying{
     return [_player rate]!=0.f;
 }
@@ -100,7 +94,13 @@ namespace mcb{namespace PlatformSupport{
 #define _nativePlayer static_cast<mcbVideoPlayer *>(_nativeHandler)
     
     CGRect CCRectToUI(const cocos2d::CCRect frame){
-        return CGRectMake(frame.origin.x, getVisibleScreenRect().size.height-frame.origin.y-frame.size.height, frame.size.width, frame.size.height);
+        CGRect retVal(CGRectMake(frame.origin.x, getVisibleScreenRect().size.height-frame.origin.y-frame.size.height, frame.size.width, frame.size.height));
+        float scale(CCEGLView::sharedOpenGLView()->getScaleX()*.5f);
+        retVal.origin.x*=scale;
+        retVal.origin.y*=scale;
+        retVal.size.width*=scale;
+        retVal.size.height*=scale;
+        return retVal;
     }
     
     VideoLayer::VideoLayer() : _videoFrame(getVisibleScreenRect()){
@@ -168,11 +168,21 @@ namespace mcb{namespace PlatformSupport{
     
     void VideoLayer::setVideoFrame(const cocos2d::CCRect & videoFrame){
         _videoFrame=videoFrame;
+        //CGRect fr(CCRectToUI(_videoFrame));
+        //NSLog(@"%@",NSStringFromCGRect(fr));
         [_nativePlayer setFrame:CCRectToUI(_videoFrame)];
     }
     const cocos2d::CCRect & VideoLayer::videoFrame() const{
         return _videoFrame;
     }
-
+    void VideoLayer::sizeToFill(const cocos2d::CCSize & originalSize){
+        CGSize sz([_nativePlayer frame].size);
+        
+        float originalRatio(originalSize.width/originalSize.height);
+        float screenRatio(sz.width/sz.height);
+        
+        float r(screenRatio/originalRatio);
+        _nativePlayer.layer.transform=CATransform3DMakeScale(r, r, 1);
+    }
 
 }}

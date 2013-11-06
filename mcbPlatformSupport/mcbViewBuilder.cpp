@@ -143,8 +143,10 @@ namespace mcb{namespace PlatformSupport{
         _generators["video-layer"]=[=](CCDictionary * data)->CCNode *{
             CCAssert(data, "Video Layer data is missing!");
             VideoLayer * retVal(VideoLayer::create());
-            //if (data->objectForKey("videoFrame"))
-            //    retVal->setVideoFrame(Functions::rect?);
+            if (data->objectForKey("videoFrame"))
+                retVal->setVideoFrame(Functions::rectForObjectKey(data, "videoFrame"));
+            if (data->objectForKey("originalSizeToFill"))
+                retVal->sizeToFill(Functions::sizeForObjectKey(data, "originalSizeToFill"));
             retVal->setVideoPath(mcbPath(Functions::stringForObjectKey(data, "videoPath")));
             Functions::setNodeProperties(retVal, data);
             return retVal;
