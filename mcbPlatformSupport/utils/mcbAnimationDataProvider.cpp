@@ -73,7 +73,7 @@ namespace mcb{ namespace PlatformSupport{
         }
         return retVal;
     }
-    cocos2d::CCActionInterval * AnimationDataProvider::createAnimateAction(){
+    cocos2d::CCActionInterval * AnimationDataProvider::createAnimateAction(bool stopsSoundOnFinish){
         _audioPlayer=nullptr;
         CCActionInterval *retVal(CCAnimate::create(createAnimation()));
         
@@ -86,12 +86,13 @@ namespace mcb{ namespace PlatformSupport{
             retVal=CCSequence::createWithTwoActions(CallLambda::create([=](){
                 playerCopy->play();
             }), retVal);
-            retVal=CCSequence::createWithTwoActions(retVal, CallLambda::create([=](){
-                if (playerCopy) {
-                    playerCopy->stop();
-                    //_audioPlayer=nullptr;
-                }
-            }));
+            if (stopsSoundOnFinish)
+                retVal=CCSequence::createWithTwoActions(retVal, CallLambda::create([=](){
+                    if (playerCopy) {
+                        playerCopy->stop();
+                        //_audioPlayer=nullptr;
+                    }
+                }));
         }
         
         //repeat

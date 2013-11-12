@@ -24,14 +24,13 @@ namespace mcb{ namespace PlatformSupport{
         
         pAudioPlayer _audioPlayer=nullptr;
         
-        
         void init(cocos2d::CCDictionary *data);
         cocos2d::CCArray * _textures=nullptr;//retained
     public:
         static pAnimationDataProvider create(const std::string & localPath, cocos2d::CCDictionary * data);
         void precacheTextures();
         cocos2d::CCAnimation * createAnimation();
-        cocos2d::CCActionInterval * createAnimateAction();
+        cocos2d::CCActionInterval * createAnimateAction(bool stopsSoundOnFinish=false);
         
         
         const std::vector<std::string> & frames() const{return _frames;}
