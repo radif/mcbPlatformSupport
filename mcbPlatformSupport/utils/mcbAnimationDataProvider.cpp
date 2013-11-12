@@ -80,14 +80,16 @@ namespace mcb{ namespace PlatformSupport{
         
         //sound
         if (!_soundPath.empty()) {
+            std::string soundCopy(_soundPath);
+            _audioPlayer=std::make_shared<PlatformSupport::AudioPlayer>(soundCopy);
+            pAudioPlayer playerCopy(_audioPlayer);
             retVal=CCSequence::createWithTwoActions(CallLambda::create([=](){
-                _audioPlayer=std::make_shared<PlatformSupport::AudioPlayer>(_soundPath);
-                _audioPlayer->play();
+                playerCopy->play();
             }), retVal);
             retVal=CCSequence::createWithTwoActions(retVal, CallLambda::create([=](){
-                if (_audioPlayer) {
-                    _audioPlayer->stop();
-                    _audioPlayer=nullptr;
+                if (playerCopy) {
+                    playerCopy->stop();
+                    //_audioPlayer=nullptr;
                 }
             }));
         }
