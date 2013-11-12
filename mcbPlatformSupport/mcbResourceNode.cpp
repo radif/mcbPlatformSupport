@@ -150,7 +150,9 @@ namespace mcb{namespace PlatformSupport{
         
         return true;
     }
-    
+    bool ResourceNode::reloadNode(const std::function<void(ResourceNode * newNode, const std::function<void()> & transitionHandle)> & transitionHandle){
+        return transitionToANodeWithPath(_localPath, transitionHandle, false);
+    }
     void ResourceNode::popNavigationStack(){
         if (!_navigationStack.empty())
             _navigationStack.pop();

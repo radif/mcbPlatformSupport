@@ -39,7 +39,7 @@ namespace mcb{namespace PlatformSupport{
         
         bool transitionToANodeWithPath(const std::string & path, const std::function<void(ResourceNode * newNode, const std::function<void()> & transitionHandle)> & transitionHandle=nullptr, bool isStack=true);
         bool transitionBack(const std::function<void(ResourceNode * newNode, const std::function<void()> & transitionHandle)> & transitionHandle=nullptr, const std::string & marker="");
-        
+        bool reloadNode(const std::function<void(ResourceNode * newNode, const std::function<void()> & transitionHandle)> & transitionHandle=nullptr);
         
         static void popNavigationStack();
         static void rewindNavigationStack();
