@@ -135,7 +135,8 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
             std::string pointStr(content.substr(0, nPosRight+1));
             std::string sizeStr(content.substr(nPosRight + 1, content.length() - nPosRight));
             retVal.origin=ccpFromString(pointStr);
-            retVal.size=ccpFromString(sizeStr);
+            auto sizeP(ccpFromString(sizeStr));
+            retVal.size= {sizeP.x,sizeP.y};
         } while (false);
         
         return retVal;
