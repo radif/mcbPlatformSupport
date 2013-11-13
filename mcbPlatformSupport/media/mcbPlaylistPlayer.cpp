@@ -8,7 +8,7 @@
 
 #include "mcbPlaylistPlayer.h"
 namespace mcb{namespace PlatformSupport{
-    PlaylistPlayer::PlaylistPlayer(const std::string & word, const std::vector<std::string> & audioFiles): _word(word), _audioFiles(audioFiles){
+    PlaylistPlayer::PlaylistPlayer(const std::string & playlistName, const std::vector<std::string> & audioFiles): _playlistName(playlistName), _audioFiles(audioFiles){
        
     }
     PlaylistPlayer::~PlaylistPlayer(){
@@ -47,7 +47,7 @@ namespace mcb{namespace PlatformSupport{
             _player=nullptr;
             _audioItemIndex=0;
             if (onPlaylistCompletedHandle)
-                onPlaylistCompletedHandle(this, _word);
+                onPlaylistCompletedHandle(this, _playlistName);
         }
     }
     

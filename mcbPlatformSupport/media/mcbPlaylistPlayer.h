@@ -18,7 +18,7 @@ namespace mcb{namespace PlatformSupport{
     
     class PlaylistPlayer{
         bool _isMeteringEnabled=false;
-        const std::string _word;
+        const std::string _playlistName;
         pAudioPlayer _player=nullptr;
         const std::vector<std::string> _audioFiles;
         int _audioItemIndex=0;
@@ -27,7 +27,7 @@ namespace mcb{namespace PlatformSupport{
         
     public:
         //lifecycle
-        PlaylistPlayer(const std::string & word, const std::vector<std::string> & audioFiles);
+        PlaylistPlayer(const std::string & playlistName, const std::vector<std::string> & audioFiles);
         virtual ~PlaylistPlayer();
         
         /* transport control */
@@ -50,7 +50,7 @@ namespace mcb{namespace PlatformSupport{
         
         
         //this is guaranted to be called
-        std::function<void(PlaylistPlayer *player, const std::string & word)> onPlaylistCompletedHandle=nullptr;
+        std::function<void(PlaylistPlayer *player, const std::string & playlistName)> onPlaylistCompletedHandle=nullptr;
         
         void setSuspended(bool suspended);
         
