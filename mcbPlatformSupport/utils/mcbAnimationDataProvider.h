@@ -26,6 +26,7 @@ namespace mcb{ namespace PlatformSupport{
         
         void init(cocos2d::CCDictionary *data);
         cocos2d::CCArray * _textures=nullptr;//retained
+        cocos2d::CCAnimation * _animation=nullptr;//retained
     public:
         static pAnimationDataProvider create(const std::string & localPath, cocos2d::CCDictionary * data);
         void precacheTextures();

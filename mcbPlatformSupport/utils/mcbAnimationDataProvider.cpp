@@ -16,6 +16,7 @@ namespace mcb{ namespace PlatformSupport{
     AnimationDataProvider::AnimationDataProvider(const std::string & localPath) : Path(localPath){}
     AnimationDataProvider::~AnimationDataProvider(){
         CC_SAFE_RELEASE(_textures);
+        CC_SAFE_RELEASE(_animation);
     }
     pAnimationDataProvider AnimationDataProvider::create(const std::string & localPath, cocos2d::CCDictionary * data){
         if (!data)
@@ -43,15 +44,19 @@ namespace mcb{ namespace PlatformSupport{
         }
     }
     void AnimationDataProvider::precacheTextures(){
-        CC_SAFE_RELEASE(_textures);
-        if (!_frames.empty()) {
-            _textures=CCArray::create();
-            _textures->retain();
-            for (const std::string & path : _frames)
-                _textures->addObject(CCTextureCache::sharedTextureCache()->addImage(path.c_str()));
+        if (!_textures) {
+            if (!_frames.empty()) {
+                _textures=CCArray::create();
+                _textures->retain();
+                for (const std::string & path : _frames)
+                    _textures->addObject(CCTextureCache::sharedTextureCache()->addImage(path.c_str()));
+            }
         }
     }
     cocos2d::CCAnimation * AnimationDataProvider::createAnimation(){
+        if (_animation)
+            return _animation;
+        
         precacheTextures();
         
         CCAnimation * retVal(CCAnimation::create());
@@ -71,6 +76,8 @@ namespace mcb{ namespace PlatformSupport{
             if (_restoresOriginalFrame)
                 addTextureL((CCTexture2D *)_textures->objectAtIndex(0));
         }
+        _animation=retVal;
+        _animation->retain();
         return retVal;
     }
     cocos2d::CCActionInterval * AnimationDataProvider::createAnimateAction(bool stopsSoundOnFinish){
