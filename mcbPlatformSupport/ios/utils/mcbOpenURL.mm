@@ -90,10 +90,9 @@ namespace mcb{namespace PlatformSupport{namespace utils{
         [mailComposeController setToRecipients:receipients];
         
         if(addDeviceInfo){
-           
             iOS::MemoryInfoInGB memInfo(iOS::memoryInGB());
             
-            [mailComposeController setMessageBody:@((body + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"+"Build Version: "+iOS::buildVersion()+"\n"+"Platform: "+iOS::platform()+"\n"+"Locale: "+iOS::locale()+"\n"+"Language: "+iOS::language()+"\n"+"iOSVersion: "+iOS::iOSVersion()+"\n"+"Total Memory: "+memInfo.totalMemory+"MB"+"\n"+"Used Memory: "+memInfo.usedMemory+"MB"+"\n"+"Free Memory: "+memInfo.freeMemory+"MB").c_str()) isHTML:FALSE];
+            [mailComposeController setMessageBody:@((body + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"+"Build Version: "+iOS::buildVersion()+"\n"+"Platform: "+iOS::platform()+"\n"+"Locale: "+iOS::locale()+"\n"+"Language: "+iOS::language()+"\n"+"iOSVersion: "+iOS::iOSVersion()+"\n"+"Total Memory: "+memInfo.totalMemory+"GB"+"\n"+"Used Memory: "+memInfo.usedMemory+"GB"+"\n"+"Free Memory: "+memInfo.freeMemory+"GB").c_str()) isHTML:FALSE];
         }else
             [mailComposeController setMessageBody:@(body.c_str()) isHTML:FALSE];
         
