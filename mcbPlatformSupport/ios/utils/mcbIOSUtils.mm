@@ -45,7 +45,7 @@ namespace mcb{namespace PlatformSupport{namespace utils{namespace iOS{
     std::string iOSVersion(){
         return [[[UIDevice currentDevice] systemVersion] UTF8String];
     }
-    MemoryInfoInMB memoryInMB(){
+    MemoryInfoInGB memoryInGB(){
         float totalSpace = 0.0f;
         float freeSpace = 0.0f;
         float usedSpace = 0.0f;
@@ -65,6 +65,6 @@ namespace mcb{namespace PlatformSupport{namespace utils{namespace iOS{
         NSString* memCapacity = [NSString stringWithFormat:@"%ld", lroundf(totalSpace)];
         NSString* memUsed = [NSString stringWithFormat:@"%ld", lroundf(usedSpace)];
         NSString* memFree = [NSString stringWithFormat:@"%ld", lroundf(freeSpace)];
-        return MemoryInfoInMB{[memCapacity UTF8String], [memUsed UTF8String], [memFree UTF8String]};
+        return MemoryInfoInGB{[memCapacity UTF8String], [memUsed UTF8String], [memFree UTF8String]};
     }
 }}}}

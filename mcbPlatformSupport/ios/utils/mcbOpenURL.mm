@@ -91,7 +91,7 @@ namespace mcb{namespace PlatformSupport{namespace utils{
         
         if(addDeviceInfo){
            
-            iOS::MemoryInfoInMB memInfo(iOS::memoryInMB());
+            iOS::MemoryInfoInGB memInfo(iOS::memoryInGB());
             
             [mailComposeController setMessageBody:@((body + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n"+"Build Version: "+iOS::buildVersion()+"\n"+"Platform: "+iOS::platform()+"\n"+"Locale: "+iOS::locale()+"\n"+"Language: "+iOS::language()+"\n"+"iOSVersion: "+iOS::iOSVersion()+"\n"+"Total Memory: "+memInfo.totalMemory+"MB"+"\n"+"Used Memory: "+memInfo.usedMemory+"MB"+"\n"+"Free Memory: "+memInfo.freeMemory+"MB").c_str()) isHTML:FALSE];
         }else

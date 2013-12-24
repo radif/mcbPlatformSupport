@@ -17,7 +17,7 @@ namespace mcb{namespace PlatformSupport{namespace utils{namespace iOS{
     std::string language();
     std::string iOSVersion();
     
-    struct MemoryInfoInMB{std::string totalMemory, usedMemory, freeMemory;};
-    MemoryInfoInMB memoryInMB();
+    struct MemoryInfoInGB{std::string totalMemory, usedMemory, freeMemory;};
+    MemoryInfoInGB memoryInGB();
     
 }}}}
