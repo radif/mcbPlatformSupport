@@ -6,6 +6,9 @@
 //
 //
 
+#ifndef __mcb__mcbIOSUtils__
+#define __mcb__mcbIOSUtils__
+
 #import <Foundation/Foundation.h>
 #include <iostream>
 
@@ -27,3 +30,4 @@ namespace mcb{namespace PlatformSupport{namespace utils{namespace iOS{
     MemoryInfoInGB memoryInGB();
     
 }}}}
+#endif//__mcb__mcbIOSUtils__

@@ -6,6 +6,9 @@
 //
 //
 
+
+#ifndef __mcb__mcbObjCMacro__
+#define __mcb__mcbObjCMacro__
 #import <Foundation/Foundation.h>
 
 #if __cplusplus
@@ -19,3 +22,5 @@
 #define mcbAuto(name , expression) typeof(expression) name=expression
 
 #define mcbMakeLambda(lamdaName , lamdaExpression) mcbAuto(lamdaName , lamdaExpression)
+
+#endif//__mcb__mcbObjCMacro__
