@@ -287,7 +287,7 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
             for ( AVMetadataItem* item in metadata ) {
                 @autoreleasepool {
                     NSString *key = [item commonKey];
-                    if ([key isEqualToString:@"artwork"]){
+                    if ([key isEqualToString:MPMediaItemPropertyArtwork]){
                         NSData *data = [(NSDictionary *)[item value] objectForKey:@"data"];
                         if (data)
                             retVal=ccTextureFromNSData(data);
@@ -414,13 +414,13 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
                 NSString *key = [item commonKey];
                 NSString *value = [item stringValue];
                 
-                if ([key isEqualToString:@"title"])
+                if ([key isEqualToString:MPMediaItemPropertyTitle])
                     _cache.title=stringFromNSString(value);
                 else if ([key isEqualToString:@"albumName"])
                     _cache.albumTitle=stringFromNSString(value);
-                else if ([key isEqualToString:@"artist"])
+                else if ([key isEqualToString:MPMediaItemPropertyArtist])
                     _cache.artist=stringFromNSString(value);
-                else if ([key isEqualToString:@"artwork"]){
+                else if ([key isEqualToString:MPMediaItemPropertyArtwork]){
                     NSData *data = [(NSDictionary *)[item value] objectForKey:@"data"];
                     UIImage * image([UIImage imageWithData:data]);
                     //resize
@@ -496,13 +496,13 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
                 NSString *key = [item commonKey];
                 NSString *value = [item stringValue];
                 
-                if ([key isEqualToString:@"title"])
+                if ([key isEqualToString:MPMediaItemPropertyTitle])
                     songTitile=stringFromNSString(value);
                 else if ([key isEqualToString:@"albumName"])
                     albumTitle=stringFromNSString(value);
-                else if ([key isEqualToString:@"artist"])
+                else if ([key isEqualToString:MPMediaItemPropertyArtist])
                     artistName=stringFromNSString(value);
-                else if ([key isEqualToString:@"artwork"]){
+                else if ([key isEqualToString:MPMediaItemPropertyArtwork]){
                     NSData *data = [(NSDictionary *)[item value] objectForKey:@"data"];
                     if (data)
                         tex=ccTextureFromNSData(data);
