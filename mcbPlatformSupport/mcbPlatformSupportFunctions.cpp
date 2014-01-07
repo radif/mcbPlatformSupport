@@ -356,4 +356,18 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
             static_cast<GLubyte>(((uiColor)& 0xff))};
     }
     
+    
+    //random
+    std::string generateRandomAlphanumericString(const int length, const bool appendTimestamp){
+        const static std::string kAllChars("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
+        const int allCharsSize(kAllChars.size());
+        std::string retVal;
+        for(int i(0);i<length;++i){
+            int index(arc4random() % allCharsSize);
+            retVal+=kAllChars[index];
+        }
+        if (appendTimestamp)
+            retVal+="_"+t_to_string(time(0));
+        return retVal;
+    }
 }}}

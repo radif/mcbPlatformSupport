@@ -11,8 +11,12 @@
 
 #include "mcbFactory.h"
 #include "mcbPath.h"
+#include "mcbHTTPRequest.h"
 
 namespace mcb{namespace PlatformSupport{namespace network{
+    
+    void downloadAndUnzipBundle(const HTTPRequest & request, const std::string & bundlesDirectory, const std::function<void(const std::string & bundlePath, bool success)> & completion, const std::function<void(float progress)> & progress=nullptr);
+    
     class NetworkAssetManager : public SingletonFactory<NetworkAssetManager>{
     public:
         virtual void init() override;
@@ -25,8 +29,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         void loadVersionsWithPath(const std::string & path);
         
         //path format:
-        //remote | local
-        //$(HTTP)http://path.com?file.zip|$(SHARED)/store
+        //remote | fallback, remote path is the key for local path storage. If fallback not provided "" will be returned immediately if the assets has not downloaded yet
+        //#(http://path.com?file.zip|$(SHARED)/store)/asset.jpg
         std::string resolveNetworkAssetPath(const std::string & path);
         
     };

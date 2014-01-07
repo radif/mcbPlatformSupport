@@ -87,7 +87,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     static cocos2d::ccColor4F colorMult(const cocos2d::ccColor4F &color1, const float ratio){return {color1.r*ratio, color1.g*ratio, color1.b*ratio, color1.a*ratio};}
     
     
-    
+    std::string generateRandomAlphanumericString(const int length=16, const bool appendTimestamp=true);
     
 }}}
 #endif /* defined(__mcb__mcbPlatformSupportFunctions__) */
