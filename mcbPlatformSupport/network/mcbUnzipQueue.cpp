@@ -36,8 +36,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
             if (!task->isFinished())
                 filtered.emplace_back(task);
         
-        std::swap(_queue, filtered);
-        
+        //std::swap(_queue, filtered);
+        _queue=std::move(filtered);
         
         //launch up to max concurent
         int count(fminf(_queue.size(), _maxConcurrentOperations));

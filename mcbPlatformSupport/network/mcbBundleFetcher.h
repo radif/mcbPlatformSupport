@@ -14,15 +14,34 @@
 #include "mcbBundle.h"
 
 namespace mcb{namespace PlatformSupport{namespace network{
+    extern const std::string kFetchedBundlesPathToken;
     typedef const std::vector<pBundle> pBundles;
     class BundleFetcher : public SingletonFactory<BundleFetcher>{
-        std::set<std::string> _bundlesInProcess;
         pBundles _bundles;
+        
+        struct Metadata{
+            cocos2d::CCDictionary * metadata=nullptr;//retained
+            float version=0.f;
+            std::string url;
+            std::string downloadedMetadataPath;
+            bool setMetadata(cocos2d::CCDictionary *metadata);//return true if updated, nullptr will be ignored, previous data kept
+            bool updateDownloadedMetadata();
+            ~Metadata();
+        }_metadata;
+        
+        
+        void _fetchMetadata();
+        
+        void _createBundlesFromMetadata();
+        
+        void _fetchBundle(pBundle bundle, const std::function<void(bool success)> & completion, const std::function<void(float progress)> & progress=nullptr);
+        
     public:
         //this will not have effect, once the initial connection with server is established. tokens injected onto mcbPath
         void initPreshippedDataWithPath(const std::string path);
         void synchronizeWithServer();//fetch metadata, update or download
         bool isSynchronizingWithServer() const;
+        pBundle bundleByIdentifier(const std::string & identifier) const;
         pBundles & bundles() const;
 
         //once bundle is downloaded, new tokens will be injected to mcbPath
@@ -31,6 +50,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
 
     protected:
         virtual void init() override;
+        
+        BundleFetcher()=default;
+        virtual ~BundleFetcher()=default;
     };
 }}}
 

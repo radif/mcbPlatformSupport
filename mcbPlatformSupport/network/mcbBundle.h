@@ -23,6 +23,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         long long _downloadTimestamp=0;
         std::string _identifier;
         std::string _localPath;//tokenized, need to process with mcbPath
+        std::string _remoteURL;
         std::string _title;
         Bundle()=default;//avoiding make_shared in sake of hiding constructor to allow the creation of object through create func
         std::map<std::string, std::string> _userMetadata;
@@ -38,6 +39,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         const std::string & title() const{return _title;}
         const std::string & identifier() const{return _identifier;}
         const std::string & localPath() const{return _localPath;}//always tokenized!, need to process with mcbPath
+        const std::string & remoteURL() const{return _remoteURL;}
         
         Status status() const{return _status;}
         float version() const{return _version;}
@@ -49,6 +51,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         int intForKey(const std::string & key, int defaultVal=0) const;
         void setIntForKey(const std::string & key, int value);
+        
+        long longForKey(const std::string & key, long defaultVal=0) const;
+        void setLongForKey(const std::string & key, long value);
 
         float floatForKey(const std::string & key, float defaultVal=0.f) const;
         void setFloatForKey(const std::string & key, float value);
@@ -56,6 +61,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         std::string stringForKey(const std::string & key, const std::string & defaultVal="") const;
         void setStringForKey(const std::string & key, const std::string & value);
 
+        void serializeUserData();
         
         virtual ~Bundle()=default;
     };
