@@ -15,7 +15,15 @@
 using namespace cocos2d;
 namespace mcb{namespace PlatformSupport{namespace Functions{
     
+    static const std::string kmcbTRUEstring("true");
+    static const std::string kmcbFALSEstring("false");
     
+    bool boolFromString(const std::string & boolString){
+        return boolString==kmcbTRUEstring || boolString=="TRUE" || boolString=="1" || boolString=="yes" || boolString=="YES";
+    }
+    const std::string & stringFromBool(bool value){
+        return value?kmcbTRUEstring:kmcbFALSEstring;
+    }
     
     cocos2d::CCPoint relativeCoordinatesFromAbsolute(cocos2d::CCPoint absoluteCoordinates){
         cocos2d::CCSize screenSize = CCDirector::sharedDirector()->getWinSize();

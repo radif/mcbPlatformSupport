@@ -16,6 +16,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     class UnzipQueue : public SingletonFactory<UnzipQueue>{
         int _maxConcurrentOperations=1;
         std::vector<pUnzipTask> _queue;
+        friend SingletonFactory<UnzipQueue>;
     public:
         void setMaxConcurrentOperations(int maxConcurrentOperations);
         int maxConcurrentOperations() const{return _maxConcurrentOperations;}
@@ -24,7 +25,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         
         void circulate();
-        
+    protected:
         virtual void init() override;
     };
 }}}

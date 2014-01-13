@@ -20,6 +20,15 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     
     std::string formattedTimeFromSeconds(const float seconds, bool alwaysShowsHour=false, bool showsHundredth=false, bool hasSpaces=true);
     
+    //converting string to types
+    bool boolFromString(const std::string & boolString);
+    static int intFromString(const std::string & intString){return std::atoi(intString.c_str());}
+    static long longFromString(const std::string & longString){return std::atol(longString.c_str());}
+    static long long longlongFromString(const std::string & longlongString){return std::atoll(longlongString.c_str());}
+    static float floatFromString(const std::string & floatString){return std::atof(floatString.c_str());}
+    
+    //converting typed to string
+    const std::string & stringFromBool(bool value);
     template<class T>
     std::string t_to_string(T i){
         std::stringstream ss;
@@ -29,6 +38,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         return s;
     }
     
+    //numeric formats
     template<class T>
     std::string numberFormatWithCommas(T value){
         struct Numpunct: public std::numpunct<char>{
@@ -42,7 +52,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         return ss.str();
     }
     
-    
+    //string manipulations
     void replaceOccurrencesOfStringByString(std::string& str, const std::string& from, const std::string& to);
     bool replaceFirstOccurrenceOfStringByString(std::string& str, const std::string& from, const std::string& to) ;
     

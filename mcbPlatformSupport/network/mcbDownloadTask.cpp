@@ -25,13 +25,16 @@ namespace mcb{namespace PlatformSupport{namespace network{
         retVal->_completionHandle=[=](Status status, const HTTPResponse & response){
             //write to file
             if (response.succeed) {
-                FILE *f(fopen(weakTask.lock()->_saveToPath.c_str(), "wb"));
-                if (f){
-                    fwrite((unsigned char*)response.responseData.data(), response.responseData.size(), 1, f);
-                    fclose(f);
-                }else{
-                    status=StatusWriteFailed;
-                    weakTask.lock()->_status=status;
+                pDownloadTask capturedWeakTask(weakTask.lock());
+                if (capturedWeakTask) {
+                    FILE *f(fopen(capturedWeakTask->_saveToPath.c_str(), "wb"));
+                    if (f){
+                        fwrite((unsigned char*)response.responseData.data(), response.responseData.size(), 1, f);
+                        fclose(f);
+                    }else{
+                        status=StatusWriteFailed;
+                        capturedWeakTask->_status=status;
+                    }
                 }
             }
             if (completion)

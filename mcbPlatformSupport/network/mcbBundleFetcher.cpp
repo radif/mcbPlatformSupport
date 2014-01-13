@@ -1,20 +1,37 @@
 //
-//  mcbNetworkAssetPath.cpp
+//  mcbBundleFetcher.cpp
 //  SoundSurfer
 //
-//  Created by Radif Sharafullin on 1/5/14.
+//  Created by Radif Sharafullin on 1/12/14.
 //
 //
 
-#include "mcbNetworkAssetPath.h"
+#include "mcbBundleFetcher.h"
 #include "mcbDownloadQueue.h"
 #include "mcbUnzipQueue.h"
 #include "mcbPlatformSupportFunctions.h"
 
 namespace mcb{namespace PlatformSupport{namespace network{
+    void BundleFetcher::init(){
+        
+    }
+    void BundleFetcher::initPreshippedDataWithPath(const std::string path){
+        
+    }
+    bool BundleFetcher::isSynchronizingWithServer() const{
+        
+    }
+    void BundleFetcher::synchronizeWithServer(){
+        
+    }
     
-    void downloadAndUnzipBundle(const HTTPRequest & request, const std::string & bundlesDirectory, const std::function<void(const std::string & bundlePath, bool success)> & completion, const std::function<void(float progress)> & progress){
     
+    const std::vector<pBundle> & BundleFetcher::bundles() const{
+        return _bundles;
+    }
+    
+    void BundleFetcher::downloadAndUnzipBundle(const HTTPRequest & request, const std::string & bundlesDirectory, const std::function<void(const std::string & bundlePath, bool success)> & completion, const std::string & bundleID, const std::function<void(float progress)> & progress){
+        
         static const float kDownloadToUnpackProgressRatio(.7f);
         
         auto setProgressL([=](float p){
@@ -24,7 +41,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         
         
-        std::string bundleHash(Functions::generateRandomAlphanumericString());
+        std::string bundleHash(bundleID.empty()?Functions::generateRandomAlphanumericString():bundleID);
         std::string bundlePath(Functions::stringByAppendingPathComponent(bundlesDirectory, bundleHash));
         std::string bundleZipPath(bundlePath+".zip");
         std::string bundleUnZipPath(bundlePath+"/");
@@ -69,25 +86,4 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
     }
     
-    
-    
-    void NetworkAssetManager::init(){
-    
-    }
-    std::string NetworkAssetManager::resolveNetworkAssetPath(const std::string & path){
-        std::string localPath;
-        std::string networkURL;
-        
-        //check the data, see if can find it, if not, return local path, otherwise, return path from data, if exists
-        
-        //enqeue:
-        //compare versions, start download, unzip
-        
-        //remove previous version, update data
-        
-    }
-    void NetworkAssetManager::loadVersionsWithPath(const std::string & path){
-        std::string dataPath(resolveNetworkAssetPath(path));
-        
-    }
 }}}

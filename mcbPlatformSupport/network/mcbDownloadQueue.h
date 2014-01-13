@@ -16,6 +16,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     class DownloadQueue : public SingletonFactory<DownloadQueue>{
         int _maxConcurrentDownloads=8;
         std::vector<pDownloadTask> _queue;
+        friend SingletonFactory<DownloadQueue>;
     public:
         void setMaxConcurrentDownloads(int maxConcurrentDownloads);
         int maxConcurrentDownloads() const{return _maxConcurrentDownloads;}
@@ -33,6 +34,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         int timeoutForConnect();
         void setTimeoutForRead(int value);
         int timeoutForRead();
+    protected:
         virtual void init() override;
 
     };
