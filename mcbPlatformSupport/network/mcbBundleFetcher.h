@@ -15,8 +15,10 @@
 
 namespace mcb{namespace PlatformSupport{namespace network{
     extern const std::string kFetchedBundlesPathToken;
-    typedef const std::vector<pBundle> pBundles;
+    typedef std::vector<pBundle> pBundles;
     class BundleFetcher : public SingletonFactory<BundleFetcher>{
+        friend Bundle;
+        friend SingletonFactory<BundleFetcher>;
         pBundles _bundles;
         
         struct Metadata{
@@ -26,23 +28,29 @@ namespace mcb{namespace PlatformSupport{namespace network{
             std::string downloadedMetadataPath;
             bool setMetadata(cocos2d::CCDictionary *metadata);//return true if updated, nullptr will be ignored, previous data kept
             bool updateDownloadedMetadata();
+            bool hasMetadata() const{return metadata!=nullptr;}
             ~Metadata();
         }_metadata;
         
         
+        bool _isSynchronizing=false;
+        
         void _fetchMetadata();
         
         void _createBundlesFromMetadata();
+        void _saveBundlesUserdata();
+        void _restoreBundlesUserdata();
         
         void _fetchBundle(pBundle bundle, const std::function<void(bool success)> & completion, const std::function<void(float progress)> & progress=nullptr);
         
     public:
         //this will not have effect, once the initial connection with server is established. tokens injected onto mcbPath
         void initPreshippedDataWithPath(const std::string path);
-        void synchronizeWithServer();//fetch metadata, update or download
+        void updateMetadataFromServer();
+        bool synchronizeWithServer();//update or download bundles
         bool isSynchronizingWithServer() const;
         pBundle bundleByIdentifier(const std::string & identifier) const;
-        pBundles & bundles() const;
+        const pBundles & bundles() const;
 
         //once bundle is downloaded, new tokens will be injected to mcbPath
         void downloadAndUnzipBundle(const HTTPRequest & request, const std::string & bundlesDirectory, const std::function<void(const std::string & bundlePath, bool success)> & completion, const std::string & bundleID="", const std::function<void(float progress)> & progress=nullptr);

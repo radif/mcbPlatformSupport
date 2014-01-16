@@ -56,25 +56,67 @@ namespace mcb{namespace PlatformSupport{namespace network{
         return setMetadata(m);
     }
     void BundleFetcher::initPreshippedDataWithPath(const std::string path){
-        if (_metadata.metadata)
-            return;
-        
         cocos2d::CCDictionary * m(nullptr);
         if (cocos2d::CCFileUtils::sharedFileUtils()->isFileExist(path))
             m=PlatformSupport::dictionaryFromPlist(path);
         
-        _metadata.setMetadata(m);
-        _fetchMetadata();
-        _createBundlesFromMetadata();
+        if(_metadata.setMetadata(m)){
+            _fetchMetadata();
+            _createBundlesFromMetadata();
+        }
     }
     void BundleFetcher::_createBundlesFromMetadata(){
-        //if existing bundles, get their info and set it to the new ones
+        if (!_metadata.hasMetadata())
+            return;
+        
+        _saveBundlesUserdata();
+        //create new bundles
+        pBundles newBundles;
+        
+        cocos2d::CCArray * bundlesA((cocos2d::CCArray *)_metadata.metadata->objectForKey("bundles"));
+        if (bundlesA) {
+         
+            newBundles.reserve(bundlesA->count());
+            for (int i(0); i<bundlesA->count(); ++i) {
+                cocos2d::CCDictionary * bundleDict((cocos2d::CCDictionary *)bundlesA->objectAtIndex(i));
+                pBundle b(Bundle::create());
+                b->_identifier=PlatformSupport::Functions::stringForObjectKey(bundleDict, "identifier");
+                b->_localPath=PlatformSupport::Functions::stringByAppendingPathComponent(kFetchedBundlesPathToken, b->_identifier);
+                b->_title=PlatformSupport::Functions::stringForObjectKey(bundleDict, "title");
+                
+                //??b->_version=PlatformSupport::Functions::floatForObjectKey(bundleDict, "version");
+                
+                newBundles.emplace_back(b);
+            }
+        }
+        _bundles=std::move(newBundles);
+        _restoreBundlesUserdata();
+    }
+    void BundleFetcher::_saveBundlesUserdata(){
         
     }
+    void BundleFetcher::_restoreBundlesUserdata(){
+        
+    }
+
     bool BundleFetcher::isSynchronizingWithServer() const{
-        
+        return _isSynchronizing;
     }
-    void BundleFetcher::synchronizeWithServer(){
+    void BundleFetcher::updateMetadataFromServer(){
+        _fetchMetadata();
+    }
+    bool BundleFetcher::synchronizeWithServer(){
+        if (_isSynchronizing)
+            return false;
+        _isSynchronizing=true;
+        
+        
+        {//other thread?
+            
+        _isSynchronizing=false;
+        }
+        
+        return true;
         
     }
     
@@ -87,12 +129,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
             CC_SAFE_RELEASE(metadata);
             metadata=m;
             CC_SAFE_RETAIN(metadata);
+            
+            //update version and URL
+            version=newVersion;
+            url=PlatformSupport::Functions::stringForObjectKey(metadata, "url",url);
+            return true;
         }
-        
-        //update version and URL
-        version=newVersion;
-        url=PlatformSupport::Functions::stringForObjectKey(metadata, "url",url);
-        return true;
+        return false;
     }
     
     pBundle BundleFetcher::bundleByIdentifier(const std::string & identifier) const{
@@ -101,7 +144,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 return b;
         return nullptr;
     }
-    const std::vector<pBundle> & BundleFetcher::bundles() const{
+    const pBundles & BundleFetcher::bundles() const{
         return _bundles;
     }
     

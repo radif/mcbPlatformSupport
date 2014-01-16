@@ -12,6 +12,7 @@
 #include <iostream>
 #include <memory>
 #include <map>
+#include <vector>
 
 namespace mcb{namespace PlatformSupport{namespace network{
     class BundleFetcher;
@@ -20,13 +21,18 @@ namespace mcb{namespace PlatformSupport{namespace network{
     class Bundle{
         friend BundleFetcher;
         float _version=0.f;
-        long long _downloadTimestamp=0;
+        const long long kTimestampUndefined=-1;
+        long long _downloadTimestamp=kTimestampUndefined;
         std::string _identifier;
         std::string _localPath;//tokenized, need to process with mcbPath
         std::string _remoteURL;
         std::string _title;
-        Bundle()=default;//avoiding make_shared in sake of hiding constructor to allow the creation of object through create func
+        
         std::map<std::string, std::string> _userMetadata;
+        std::vector<std::string> _contentLabels;//these are coming from the server
+        
+        Bundle()=default;//avoiding make_shared in sake of hiding constructor to allow the creation of object through create func
+
     public:
         typedef enum {StatusUndefined, StatusAvailable, StatusHasUpdate, StatusFetching, StatusUnavailable} Status;
     private:
@@ -40,6 +46,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         const std::string & identifier() const{return _identifier;}
         const std::string & localPath() const{return _localPath;}//always tokenized!, need to process with mcbPath
         const std::string & remoteURL() const{return _remoteURL;}
+        const std::vector<std::string> & contentLabels() const{return _contentLabels;}
+
         
         Status status() const{return _status;}
         float version() const{return _version;}

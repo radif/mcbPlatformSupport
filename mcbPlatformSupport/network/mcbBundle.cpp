@@ -8,6 +8,7 @@
 
 #include "mcbBundle.h"
 #include "mcbPlatformSupportFunctions.h"
+#include "mcbBundleFetcher.h"
 
 namespace mcb{namespace PlatformSupport{namespace network{
     
@@ -63,6 +64,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         appendKeyValL(retVal, "version", PlatformSupport::Functions::t_to_string(_version) , false, false);
         appendKeyValL(retVal, "downloadTimestamp", PlatformSupport::Functions::t_to_string(_downloadTimestamp) , false, false);
         appendKeyValL(retVal, "status", stringFromStatus(_status) , false, false);
+        
+        //content labels? or coming from the server?
         
         //user metadata
         {
@@ -127,6 +130,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
     }
     
     void Bundle::serializeUserData(){
-        
+        BundleFetcher::sharedInstance()->_saveBundlesUserdata();
     }
 }}}
