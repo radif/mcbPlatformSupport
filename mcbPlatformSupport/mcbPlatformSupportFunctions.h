@@ -62,6 +62,16 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     std::string stringByAppendingPathComponent(std::string path, std::string component);
     //TODO: Canonical path
     void _removeLastSlashInPath(std::string & path);
+    
+    
+    //filesystem
+    bool fileExists(const std::string& fileName);
+    void copyFile(const std::string& fileNameFrom, const std::string& fileNameTo);
+    void renameFile(const std::string& fileNameFrom, const std::string& fileNameTo);
+    void createDirectory(const std::string& dirName);
+    void removeFile(const std::string& fileName);
+    
+    
     //parser
     
     //TODO: use std::optional or boost::optional for return types and default vals

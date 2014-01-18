@@ -7,6 +7,7 @@
 //
 
 #include "mcbDownloadTask.h"
+#include "mcbPlatformSupportFunctions.h"
 namespace mcb{namespace PlatformSupport{namespace network{
     
     void DownloadTask::download(const HTTPRequest & request, const std::string & saveToPath, const completion_handle_t & completion, const progress_handle_t & progress){
@@ -20,13 +21,15 @@ namespace mcb{namespace PlatformSupport{namespace network{
         retVal->_request=request;
         retVal->_saveToPath=saveToPath;
         std::weak_ptr<DownloadTask> weakTask(retVal);
-        //removing file first
-        std::remove(saveToPath.c_str());
         retVal->_completionHandle=[=](Status status, const HTTPResponse & response){
             //write to file
             if (response.succeed) {
                 pDownloadTask capturedWeakTask(weakTask.lock());
                 if (capturedWeakTask) {
+                    //removing file first
+                    Functions::removeFile(capturedWeakTask->_saveToPath);
+
+                    //write new content
                     FILE *f(fopen(capturedWeakTask->_saveToPath.c_str(), "wb"));
                     if (f){
                         fwrite((unsigned char*)response.responseData.data(), response.responseData.size(), 1, f);

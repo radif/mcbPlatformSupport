@@ -11,7 +11,6 @@
 #include "mcbUnzipQueue.h"
 #include "mcbPlatformSupport.h"
 #include "mcbPlatformSupportFunctions.h"
-#include <sys/stat.h>
 
 namespace mcb{namespace PlatformSupport{namespace network{
     const std::string kFetchedBundlesPathToken("$(FETCHED)");
@@ -22,11 +21,11 @@ namespace mcb{namespace PlatformSupport{namespace network{
     void BundleFetcher::init(){
         
         //generate bundle downloads path
-        const std::string fetchedBundlesPath(PlatformSupport::resolvePath("$(LIBRARY)/fetched_bundles/"));
+        const std::string fetchedBundlesPath(resolvePath("$(LIBRARY)/fetched_bundles/"));
         
         //create if doesn't exist
-        if(!cocos2d::CCFileUtils::sharedFileUtils()->isFileExist(fetchedBundlesPath))
-            mkdir(fetchedBundlesPath.c_str(),0777);
+        if(!Functions::fileExists(fetchedBundlesPath))
+            Functions::createDirectory(fetchedBundlesPath);
         
         //inject token
         PlatformSupport::addTokenForPath(kFetchedBundlesPathToken, fetchedBundlesPath);
@@ -44,7 +43,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         DownloadQueue::sharedInstance()->enqueueDownload(HTTPRequestGET(_metadata.url), _tempPathForDownloadingAsset(_metadata.downloadedMetadataPath), [=](DownloadTask::Status status, const HTTPResponse & response){
             if (status==DownloadTask::StatusCompleted){
-                rename(_tempPathForDownloadingAsset(_metadata.downloadedMetadataPath).c_str(), _metadata.downloadedMetadataPath.c_str());
+                Functions::removeFile(_metadata.downloadedMetadataPath);
+                Functions::renameFile(_tempPathForDownloadingAsset(_metadata.downloadedMetadataPath), _metadata.downloadedMetadataPath);
                 if(_metadata.updateDownloadedMetadata()){
                     cocos2d::CCLog("updated metadata to version %f!",_metadata.version);
                 }else{
@@ -57,14 +57,14 @@ namespace mcb{namespace PlatformSupport{namespace network{
     }
     bool BundleFetcher::Metadata::updateDownloadedMetadata(){
         cocos2d::CCDictionary * m(nullptr);
-        if (cocos2d::CCFileUtils::sharedFileUtils()->isFileExist(downloadedMetadataPath))
+        if (Functions::fileExists(downloadedMetadataPath))
             m=PlatformSupport::dictionaryFromPlist(downloadedMetadataPath);
         
         return setMetadata(m);
     }
     void BundleFetcher::initPreshippedDataWithPath(const std::string path){
         cocos2d::CCDictionary * m(nullptr);
-        if (cocos2d::CCFileUtils::sharedFileUtils()->isFileExist(path))
+        if (Functions::fileExists(path))
             m=PlatformSupport::dictionaryFromPlist(path);
         
         if(_metadata.setMetadata(m)){

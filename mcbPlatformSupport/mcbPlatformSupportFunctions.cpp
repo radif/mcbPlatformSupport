@@ -11,6 +11,8 @@
 #include "mcbPlatformSupport.h"
 #include "mcbNumber.h"
 #include <iomanip>      // std::setprecision
+#include <fstream> //file exists
+#include <sys/stat.h> //mkdir
 
 using namespace cocos2d;
 namespace mcb{namespace PlatformSupport{namespace Functions{
@@ -378,4 +380,33 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
             retVal+="_"+t_to_string(time(0));
         return retVal;
     }
+#pragma mark filesystem
+    bool fileExists(const std::string& fileName){
+        std::fstream file;
+        file.open(fileName.c_str(), std::ios::in);
+        if (file.is_open() == true){
+            file.close();
+            return true;
+        }
+        file.close();
+        return false;
+    }
+    void copyFile(const std::string& fileNameFrom, const std::string& fileNameTo){
+        assert(fileExists(fileNameFrom));
+        std::ifstream in (fileNameFrom.c_str());
+        std::ofstream out (fileNameTo.c_str());
+        out << in.rdbuf();
+        out.close();
+        in.close();
+    }
+    void renameFile(const std::string& fileNameFrom, const std::string& fileNameTo){
+        std::rename(fileNameFrom.c_str(), fileNameTo.c_str());
+    }
+    void createDirectory(const std::string& dirName){
+        mkdir(dirName.c_str(),0777);
+    }
+    void removeFile(const std::string& fileName){
+        std::remove(fileName.c_str());
+    }
+
 }}}
