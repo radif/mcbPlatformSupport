@@ -23,7 +23,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         struct Metadata{
             cocos2d::CCDictionary * metadata=nullptr;//retained
-            float version=0.f;
+            float version=-HUGE_VALF;
             std::string url;
             std::string downloadedMetadataPath;
             bool setMetadata(cocos2d::CCDictionary *metadata);//return true if updated, nullptr will be ignored, previous data kept
