@@ -32,6 +32,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
             ~Metadata();
         }_metadata;
         
+        std::string _tempPathForDownloadingAsset(const std::string & path){return path+".download";}
         
         bool _isSynchronizing=false;
         
@@ -46,7 +47,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     public:
         //this will not have effect, once the initial connection with server is established. tokens injected onto mcbPath
         void initPreshippedDataWithPath(const std::string path);
-        void updateMetadataFromServer();
+        void updateMetadataFromServer();//this will trigger synchronize with server if successful
         bool synchronizeWithServer();//update or download bundles
         bool isSynchronizingWithServer() const;
         pBundle bundleByIdentifier(const std::string & identifier) const;

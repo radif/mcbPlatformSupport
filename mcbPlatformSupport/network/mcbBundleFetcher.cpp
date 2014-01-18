@@ -42,10 +42,17 @@ namespace mcb{namespace PlatformSupport{namespace network{
         if (_metadata.url.empty())
             return;
         
-        DownloadQueue::sharedInstance()->enqueueDownload(HTTPRequestGET(_metadata.url), _metadata.downloadedMetadataPath, [=](DownloadTask::Status status, const HTTPResponse & response){
-            if (status==DownloadTask::StatusCompleted)
-                if(_metadata.updateDownloadedMetadata())
-                    synchronizeWithServer();
+        DownloadQueue::sharedInstance()->enqueueDownload(HTTPRequestGET(_metadata.url), _tempPathForDownloadingAsset(_metadata.downloadedMetadataPath), [=](DownloadTask::Status status, const HTTPResponse & response){
+            if (status==DownloadTask::StatusCompleted){
+                rename(_tempPathForDownloadingAsset(_metadata.downloadedMetadataPath).c_str(), _metadata.downloadedMetadataPath.c_str());
+                if(_metadata.updateDownloadedMetadata()){
+                    cocos2d::CCLog("updated metadata to version %f!",_metadata.version);
+                }else{
+                    cocos2d::CCLog("Don't need to update metadata, keeping current version: %f",_metadata.version);
+                }
+            }else{
+                cocos2d::CCLog("Download metadata failed, keeping current version: %f",_metadata.version);
+            }
         });
     }
     bool BundleFetcher::Metadata::updateDownloadedMetadata(){
@@ -62,7 +69,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         if(_metadata.setMetadata(m)){
             _fetchMetadata();
-            _createBundlesFromMetadata();
         }
     }
     void BundleFetcher::_createBundlesFromMetadata(){
@@ -113,7 +119,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         {//other thread?
             
-        _isSynchronizing=false;
+            _isSynchronizing=false;
         }
         
         return true;
@@ -133,6 +139,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
             //update version and URL
             version=newVersion;
             url=PlatformSupport::Functions::stringForObjectKey(metadata, "url",url);
+            BundleFetcher::sharedInstance()->_createBundlesFromMetadata();
             return true;
         }
         return false;

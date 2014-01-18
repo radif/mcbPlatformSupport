@@ -60,12 +60,13 @@ namespace mcb{namespace PlatformSupport{
     public:
         static C * sharedInstance(){
             static C * sharedInstance(nullptr);
-            static std::once_flag onceFlag;
-            if(!sharedInstance)
+            if(!sharedInstance){
+                static std::once_flag onceFlag;
                 std::call_once(onceFlag,[](){
                     sharedInstance=new C;
                     sharedInstance->init();
                 });
+            }
             return sharedInstance;
         }
     protected:
