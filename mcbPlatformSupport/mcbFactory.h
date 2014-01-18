@@ -61,10 +61,11 @@ namespace mcb{namespace PlatformSupport{
         static C * sharedInstance(){
             static C * sharedInstance(nullptr);
             static std::once_flag onceFlag;
-            std::call_once(onceFlag,[](){
-                sharedInstance=new C;
-                sharedInstance->init();
-            });
+            if(!sharedInstance)
+                std::call_once(onceFlag,[](){
+                    sharedInstance=new C;
+                    sharedInstance->init();
+                });
             return sharedInstance;
         }
     protected:
