@@ -96,7 +96,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         if (!_metadata.hasMetadata())
             return;
         
-        _saveBundlesUserdata();
+        _saveBundles();
         //create new bundles
         pBundles newBundles;
         
@@ -117,13 +117,15 @@ namespace mcb{namespace PlatformSupport{namespace network{
             }
         }
         _bundles=std::move(newBundles);
-        _restoreBundlesUserdata();
+        _restoreBundles();
     }
-    void BundleFetcher::_saveBundlesUserdata(){
-        
+    void BundleFetcher::_saveBundles(){
+        //bundles
+        //deleted bundles
     }
-    void BundleFetcher::_restoreBundlesUserdata(){
-        
+    void BundleFetcher::_restoreBundles(){
+        //bundles
+        //deleted bundles
     }
 
     bool BundleFetcher::isDownloadingBundles() const{
@@ -160,6 +162,17 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         return true;
         
+    }
+    
+    bool BundleFetcher::updatePendingBundles(){
+        //TODO: swap records for bundles to point to newly fetched bundles
+        //TODO: add to deleted bundles
+        return false;
+    }
+    bool BundleFetcher::deleteUpdatedBundles(){
+        //TODO: find deleted bundles and delete from disk their content
+        //TODO: delete all unfinished downloads and un-unzipped bundles
+        return false;
     }
     
     bool BundleFetcher::Metadata::setMetadata(cocos2d::CCDictionary *m){

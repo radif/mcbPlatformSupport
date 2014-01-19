@@ -131,6 +131,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
     }
     
     void Bundle::serializeUserData(){
-        BundleFetcher::sharedInstance()->_saveBundlesUserdata();
+        BundleFetcher::sharedInstance()->_saveBundles();
     }
 }}}

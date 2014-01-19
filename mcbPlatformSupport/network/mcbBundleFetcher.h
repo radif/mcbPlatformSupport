@@ -43,8 +43,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         
         void _createBundlesFromMetadata();
-        void _saveBundlesUserdata();
-        void _restoreBundlesUserdata();
+        void _saveBundles();
+        void _restoreBundles();
         
         void _fetchBundle(pBundle bundle, const std::function<void(bool success)> & completion, const std::function<void(float progress)> & progress=nullptr);
         
@@ -56,6 +56,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         bool synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle)> & completionPerBundle=nullptr, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion=nullptr);//update or download bundles
         bool synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle)> & completionPerBundle=nullptr, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion=nullptr);//update or download bundles
+        
+        bool updatePendingBundles();
+        bool deleteUpdatedBundles();
         
         bool isDownloadingBundles() const;
         pBundle bundleByIdentifier(const std::string & identifier) const;
