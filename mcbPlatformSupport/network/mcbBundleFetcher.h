@@ -36,7 +36,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         bool _isSynchronizing=false;
         
-        void _fetchMetadata();
+        bool _fetchMetadata();
         
         void _createBundlesFromMetadata();
         void _saveBundlesUserdata();

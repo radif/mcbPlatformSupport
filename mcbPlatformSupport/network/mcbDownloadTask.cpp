@@ -8,6 +8,8 @@
 
 #include "mcbDownloadTask.h"
 #include "mcbPlatformSupportFunctions.h"
+#include "mcbMainThreadCaller.h"
+
 namespace mcb{namespace PlatformSupport{namespace network{
     
     void DownloadTask::download(const HTTPRequest & request, const std::string & saveToPath, const completion_handle_t & completion, const progress_handle_t & progress){
@@ -28,7 +30,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 if (capturedWeakTask) {
                     //removing file first
                     Functions::removeFile(capturedWeakTask->_saveToPath);
-
                     //write new content
                     FILE *f(fopen(capturedWeakTask->_saveToPath.c_str(), "wb"));
                     if (f){
@@ -40,9 +41,14 @@ namespace mcb{namespace PlatformSupport{namespace network{
                     }
                 }
             }
-            if (completion)
-                completion(status, response);
+            //emptying the data to prevent copying in stack
+            decltype(response.responseData) emptyData;
+            HTTPResponse responseWithoutData{response.request, response.responseCode, emptyData, response.succeed, response.errorBuffer};
             
+            call_on_main_thread([=](){
+                if (completion)
+                    completion(status, responseWithoutData);
+            });
         };
         retVal->_progressHandle=progress;
         return retVal;

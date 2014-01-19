@@ -8,6 +8,8 @@
 
 #include "mcbNetworkTask.h"
 #include "cocos-ext.h"
+#include "mcbMainThreadCaller.h"
+
 using namespace cocos2d;
 using namespace cocos2d::extension;
 
@@ -76,9 +78,16 @@ namespace mcb{namespace PlatformSupport{namespace network{
         static_cast<NetworkTaskCallbackReceiver *>(_callback.receiver)->callbackHandle=[=](CCHttpResponse *response){
             _status=response->isSucceed()?StatusCompleted:StatusCancelled;
             setProgress(1.f);
-            if (_completionHandle)
-                _completionHandle(_status, HTTPResponse{_request, response->getResponseCode(),std::move(*response->getResponseData()), response->isSucceed(), response->getErrorBuffer()});
-            releaseSelf();
+            CC_SAFE_RETAIN(response);
+            response->retain();
+            call_on_main_thread([=](){
+                if (_completionHandle)
+                    _completionHandle(_status, HTTPResponse{_request, response->getResponseCode(),std::move(*response->getResponseData()), response->isSucceed(), response->getErrorBuffer()});
+                CC_SAFE_RELEASE(response);
+                releaseSelf();
+            });
+            
+
         };
         
         CCHttpClient::getInstance()->send(req);
@@ -95,9 +104,11 @@ namespace mcb{namespace PlatformSupport{namespace network{
         //TODO: cancel actual download
         
         _status=StatusCancelled;
-        if (_completionHandle)
-            _completionHandle(_status, HTTPResponse{_request});
-        releaseSelf();
+        call_on_main_thread([=](){
+            if (_completionHandle)
+                _completionHandle(_status, HTTPResponse{_request});
+            releaseSelf();
+        });
     }
     void NetworkTask::releaseSelf(){
         _strongSelf=nullptr;

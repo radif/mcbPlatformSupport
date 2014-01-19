@@ -41,9 +41,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
         _fetchMetadata();
         
     }
-    void BundleFetcher::_fetchMetadata(){
+    bool BundleFetcher::_fetchMetadata(){
         if (_metadata.url.empty())
-            return;
+            return false;
+        if (_isSynchronizing)
+            return false;
+        
+        _isSynchronizing=true;
         
         DownloadQueue::sharedInstance()->enqueueDownload(HTTPRequestGET(_metadata.url), _tempPathForDownloadingAsset(_metadata.downloadedMetadataPath), [=](DownloadTask::Status status, const HTTPResponse & response){
             if (status==DownloadTask::StatusCompleted){
@@ -57,7 +61,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
             }else{
                 mcbLog("Download metadata failed, keeping current version: %f",_metadata.version);
             }
+            _isSynchronizing=false;
         });
+        return true;
     }
     bool BundleFetcher::Metadata::updateDownloadedMetadata(){
         cocos2d::CCDictionary * m(nullptr);

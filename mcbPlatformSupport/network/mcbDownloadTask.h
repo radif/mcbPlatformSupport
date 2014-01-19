@@ -16,6 +16,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
     class DownloadTask : public NetworkTask{
         std::string _saveToPath;
     public:
+        
+        //completion will not have data, since the data will be written to a file
+        
         static pDownloadTask create(const HTTPRequest & request, const std::string & saveToPath, const completion_handle_t & completion, const progress_handle_t & progress=nullptr);
                 
         static void download(const HTTPRequest & request, const std::string & saveToPath, const completion_handle_t & completion, const progress_handle_t & progress=nullptr);
