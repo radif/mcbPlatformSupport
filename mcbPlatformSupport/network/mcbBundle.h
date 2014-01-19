@@ -34,7 +34,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         Bundle()=default;//avoiding make_shared in sake of hiding constructor to allow the creation of object through create func
 
     public:
-        typedef enum {StatusUndefined, StatusAvailable, StatusHasUpdate, StatusFetching, StatusUnavailable} Status;
+        typedef enum {StatusUndefined, StatusAvailableOnline, StatusDownloaded, StatusIsDownloading, StatusUpdateAvailableOnline, StatusScheduledForDeletion} Status;
     private:
         Status _status=StatusUndefined;
     public:

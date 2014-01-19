@@ -12,9 +12,14 @@
 #include "mcbFactory.h"
 #include "mcbHTTPRequest.h"
 #include "mcbBundle.h"
+#include "mcbNetworkTask.h"
 
 namespace mcb{namespace PlatformSupport{namespace network{
     extern const std::string kFetchedBundlesPathToken;
+    
+    extern const std::string kBundlesUpdatedNotificationName;
+    extern const std::string kBundlesMetadataUpdatedNotificationName;
+    
     typedef std::vector<pBundle> pBundles;
     class BundleFetcher : public SingletonFactory<BundleFetcher>{
         friend Bundle;
@@ -34,9 +39,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         std::string _tempPathForDownloadingAsset(const std::string & path){return path+".download";}
         
-        bool _isSynchronizing=false;
+        bool _isDownloadingBundles=false;
         
-        bool _fetchMetadata();
         
         void _createBundlesFromMetadata();
         void _saveBundlesUserdata();
@@ -45,13 +49,18 @@ namespace mcb{namespace PlatformSupport{namespace network{
         void _fetchBundle(pBundle bundle, const std::function<void(bool success)> & completion, const std::function<void(float progress)> & progress=nullptr);
         
     public:
+        
         //this will not have effect, once the initial connection with server is established. tokens injected onto mcbPath
         void initPreshippedDataWithPath(const std::string path);
-        void updateMetadataFromServer();//this will trigger synchronize with server if successful
-        bool synchronizeWithServer();//update or download bundles
-        bool isSynchronizingWithServer() const;
+        bool fetchMetadata(const std::function<void(bool hasNewVersion, NetworkTask::Status status)> & completion=nullptr);
+        
+        bool synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle)> & completionPerBundle=nullptr, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion=nullptr);//update or download bundles
+        bool synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle)> & completionPerBundle=nullptr, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion=nullptr);//update or download bundles
+        
+        bool isDownloadingBundles() const;
         pBundle bundleByIdentifier(const std::string & identifier) const;
         const pBundles & bundles() const;
+        std::vector<std::string> bundleIdentifiers() const;
 
         //once bundle is downloaded, new tokens will be injected to mcbPath
         void downloadAndUnzipBundle(const HTTPRequest & request, const std::string & bundlesDirectory, const std::function<void(const std::string & bundlePath, bool success)> & completion, const std::string & bundleID="", const std::function<void(float progress)> & progress=nullptr);

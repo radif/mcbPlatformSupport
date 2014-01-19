@@ -14,10 +14,11 @@ namespace mcb{namespace PlatformSupport{namespace network{
     
     static const std::map<Bundle::Status, std::string> kStatusEnumMap{
         {Bundle::StatusUndefined, "StatusUndefined"},
-        {Bundle::StatusAvailable, "StatusAvailable"},
-        {Bundle::StatusHasUpdate, "StatusHasUpdate"},
-        {Bundle::StatusFetching, "StatusFetching"},
-        {Bundle::StatusUnavailable, "StatusUnavailable"}
+        {Bundle::StatusAvailableOnline, "StatusAvailableOnline"},
+        {Bundle::StatusDownloaded, "StatusDownloaded"},
+        {Bundle::StatusIsDownloading, "StatusIsDownloading"},
+        {Bundle::StatusUpdateAvailableOnline, "StatusUpdateAvailableOnline"},
+        {Bundle::StatusScheduledForDeletion, "StatusScheduledForDeletion"}
     };
     
     static const std::string & stringFromStatus(Bundle::Status status){

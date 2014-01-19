@@ -15,6 +15,10 @@
 namespace mcb{namespace PlatformSupport{namespace network{
     const std::string kFetchedBundlesPathToken("$(FETCHED)");
 
+    
+    const std::string kBundlesUpdatedNotificationName("kBundlesUpdatedNotificationName");
+    const std::string kBundlesMetadataUpdatedNotificationName("kBundlesMetadataUpdatedNotificationName");
+    
     BundleFetcher::Metadata::~Metadata(){
         CC_SAFE_RELEASE(metadata);
     }
@@ -38,16 +42,16 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         mcbLog("metadata path \"%s\"",_metadata.downloadedMetadataPath.c_str());
         _metadata.updateDownloadedMetadata();
-        _fetchMetadata();
+        fetchMetadata();
         
     }
-    bool BundleFetcher::_fetchMetadata(){
+    bool BundleFetcher::fetchMetadata(const std::function<void(bool hasNewVersion, NetworkTask::Status status)> & completion){
         if (_metadata.url.empty())
             return false;
-        if (_isSynchronizing)
+        if (_isDownloadingBundles)
             return false;
         
-        _isSynchronizing=true;
+        _isDownloadingBundles=true;
         
         DownloadQueue::sharedInstance()->enqueueDownload(HTTPRequestGET(_metadata.url), _tempPathForDownloadingAsset(_metadata.downloadedMetadataPath), [=](DownloadTask::Status status, const HTTPResponse & response){
             if (status==DownloadTask::StatusCompleted){
@@ -55,13 +59,20 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 Functions::renameFile(_tempPathForDownloadingAsset(_metadata.downloadedMetadataPath), _metadata.downloadedMetadataPath);
                 if(_metadata.updateDownloadedMetadata()){
                     mcbLog("updated metadata to version %f!",_metadata.version);
+                    cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesMetadataUpdatedNotificationName.c_str());
+                    if (completion)
+                        completion(true, status);
                 }else{
                     mcbLog("Don't need to update metadata, keeping current version: %f",_metadata.version);
+                    if (completion)
+                        completion(false, status);
                 }
             }else{
                 mcbLog("Download metadata failed, keeping current version: %f",_metadata.version);
+                if (completion)
+                    completion(false, status);
             }
-            _isSynchronizing=false;
+            _isDownloadingBundles=false;
         });
         return true;
     }
@@ -78,7 +89,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
             m=PlatformSupport::dictionaryFromPlist(path);
         
         if(_metadata.setMetadata(m)){
-            _fetchMetadata();
+            fetchMetadata();
         }
     }
     void BundleFetcher::_createBundlesFromMetadata(){
@@ -115,21 +126,36 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
     }
 
-    bool BundleFetcher::isSynchronizingWithServer() const{
-        return _isSynchronizing;
+    bool BundleFetcher::isDownloadingBundles() const{
+        return _isDownloadingBundles;
     }
-    void BundleFetcher::updateMetadataFromServer(){
-        _fetchMetadata();
+    bool BundleFetcher::synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
+        return synchronizeBundlesWithServer(bundleIdentifiers(), completionPerBundle, completion);
     }
-    bool BundleFetcher::synchronizeWithServer(){
-        if (_isSynchronizing)
+    bool BundleFetcher::synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
+        if (_isDownloadingBundles)
             return false;
-        _isSynchronizing=true;
-        
+        _isDownloadingBundles=true;
+        bool hasNewBundles(false);
         
         {//other thread?
             
-            _isSynchronizing=false;
+            
+            //-------------------
+            //each (if so):
+            hasNewBundles=true;
+            cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
+            if (completionPerBundle)
+                completionPerBundle(nullptr);//bundle?
+            
+            //-------------------
+            
+            
+            //DONE:
+            _isDownloadingBundles=false;
+            cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
+            if (completion)
+                completion(hasNewBundles, NetworkTask::StatusCompleted);
         }
         
         return true;
@@ -163,6 +189,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
     }
     const pBundles & BundleFetcher::bundles() const{
         return _bundles;
+    }
+    std::vector<std::string> BundleFetcher::bundleIdentifiers() const{
+        std::vector<std::string> retVal;
+        retVal.reserve(_bundles.size());
+        for (const pBundle & b :_bundles)
+            retVal.emplace_back(b->identifier());
+        return retVal;
     }
     
     void BundleFetcher::_fetchBundle(pBundle bundle, const std::function<void(bool success)> & completion, const std::function<void(float progress)> & progress){
