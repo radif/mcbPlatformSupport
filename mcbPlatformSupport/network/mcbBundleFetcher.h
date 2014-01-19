@@ -59,7 +59,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
 
     protected:
         virtual void init() override;
-        
+        virtual void mcbLogFormatted(const std::string & message, unsigned int level=0, const std::string & category="")const override;
+
         BundleFetcher()=default;
         virtual ~BundleFetcher()=default;
     };

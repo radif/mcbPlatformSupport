@@ -12,6 +12,7 @@
 #include "mcbPath.h"
 #include "mcbPlatformSupport.h"
 #include "mcbPlatformSupportFunctions.h"
+#include "mcbLogger.h"
 
 namespace mcb{namespace PlatformSupport{
     
@@ -26,7 +27,7 @@ namespace mcb{namespace PlatformSupport{
     
     
     template<class C>
-    class Factory : protected virtual Path{
+    class Factory : protected virtual Path, protected virtual utils::Logger{
     public:
         static C * createInstance(const std::string & localPath, cocos2d::CCDictionary * data){
             auto retVal(new C);
@@ -56,7 +57,7 @@ namespace mcb{namespace PlatformSupport{
     
     
     template<class C>
-    class SingletonFactory{
+    class SingletonFactory : protected virtual utils::Logger{
     public:
         static C * sharedInstance(){
             static C * sharedInstance(nullptr);

@@ -46,12 +46,12 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 Functions::removeFile(_metadata.downloadedMetadataPath);
                 Functions::renameFile(_tempPathForDownloadingAsset(_metadata.downloadedMetadataPath), _metadata.downloadedMetadataPath);
                 if(_metadata.updateDownloadedMetadata()){
-                    cocos2d::CCLog("updated metadata to version %f!",_metadata.version);
+                    mcbLog("updated metadata to version %f!",_metadata.version);
                 }else{
-                    cocos2d::CCLog("Don't need to update metadata, keeping current version: %f",_metadata.version);
+                    mcbLog("Don't need to update metadata, keeping current version: %f",_metadata.version);
                 }
             }else{
-                cocos2d::CCLog("Download metadata failed, keeping current version: %f",_metadata.version);
+                mcbLog("Download metadata failed, keeping current version: %f",_metadata.version);
             }
         });
     }
@@ -266,6 +266,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
             setProgressL(kDownloadToUnpackProgressRatio * prog);
         });
         
+    }
+    
+    void BundleFetcher::mcbLogFormatted(const std::string & message, unsigned int level, const std::string & category)const{
+        if (category.empty())
+            utils::Logger::mcbLogFormatted(message, level, "BundleFetcher");
+        else
+            utils::Logger::mcbLogFormatted(message, level, category);
     }
     
 }}}
