@@ -60,10 +60,14 @@ namespace mcb{namespace PlatformSupport{
         const log_entries_t & logEntries(){
             return _logEntries;
         }
-        std::string logDump(){
+        std::string logDump(bool reversed){
             std::string retVal;
-            for (const LogEntry & logEntry : _logEntries)
-                retVal+=logEntry.stringValue();
+            if (reversed)
+                for (auto it(_logEntries.rbegin()); it!=_logEntries.rend(); ++it)
+                    retVal+=(*it).stringValue()+"\n";
+            else
+                for (auto it(_logEntries.begin()); it!=_logEntries.end(); ++it)
+                    retVal+=(*it).stringValue()+"\n";
             return retVal;
         }
         void eraseLogEntries(){
