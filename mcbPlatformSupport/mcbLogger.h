@@ -12,16 +12,16 @@
 #include <iostream>
 #include <vector>
 
-namespace mcb{namespace PlatformSupport{namespace utils{
+namespace mcb{namespace PlatformSupport{
     class Logger{
     protected:
         //override this to add class name as category (eg. if category.empty(), use the class name, call super)
         /*
          virtual void mcbLogFormatted(const std::string & message, unsigned int level=0, const std::string & category="")const{
          if (category.empty())
-         utils::Logger::mcbLogFormatted(message, level, __FILE__);
+         mcbLogger::mcbLogFormatted(message, level, __FILE__);
          else
-         utils::Logger::mcbLogFormatted(message, level, category);
+         mcbLogger::mcbLogFormatted(message, level, category);
          }
          */
         
@@ -58,6 +58,11 @@ namespace mcb{namespace PlatformSupport{namespace utils{
         void eraseLogEntries();
         
         void log(const std::string & message, unsigned int level=0, const std::string & category="");
+
+        void mcbLog(const std::string & format, ...);
+        void mcbLog(const std::string & category, const std::string & format, ...);
+        void mcbLog(const std::string & category, unsigned int level, const std::string & format, ...);
+
     }
-}}}
+}}
 #endif /* defined(__SoundSurfer__mcbLogger__) */

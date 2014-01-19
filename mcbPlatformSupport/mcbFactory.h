@@ -27,7 +27,7 @@ namespace mcb{namespace PlatformSupport{
     
     
     template<class C>
-    class Factory : protected virtual Path, protected virtual utils::Logger{
+    class Factory : protected virtual Path, protected virtual Logger{
     public:
         static C * createInstance(const std::string & localPath, cocos2d::CCDictionary * data){
             auto retVal(new C);
@@ -51,13 +51,14 @@ namespace mcb{namespace PlatformSupport{
             return createInstance(p, data);
         }
     protected:
+        typedef Logger mcbLogger;
         virtual bool init(cocos2d::CCDictionary * data)=0;
         virtual ~Factory()=default;
     };
     
     
     template<class C>
-    class SingletonFactory : protected virtual utils::Logger{
+    class SingletonFactory : protected virtual Logger{
     public:
         static C * sharedInstance(){
             static C * sharedInstance(nullptr);
@@ -71,6 +72,7 @@ namespace mcb{namespace PlatformSupport{
             return sharedInstance;
         }
     protected:
+        typedef Logger mcbLogger;
         virtual void init()=0;
         virtual ~SingletonFactory()=default;
     };
