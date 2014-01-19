@@ -15,11 +15,11 @@
 #include <vector>
 
 namespace mcb{namespace PlatformSupport{namespace network{
-    class BundleFetcher;
+    class BundleCatalog;
     class Bundle;
     typedef std::shared_ptr<Bundle> pBundle;
     class Bundle{
-        friend BundleFetcher;
+        friend BundleCatalog;
         float _version=0.f;
         const long long kTimestampUndefined=-1;
         long long _downloadTimestamp=kTimestampUndefined;

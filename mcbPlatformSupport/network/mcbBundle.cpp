@@ -8,7 +8,7 @@
 
 #include "mcbBundle.h"
 #include "mcbPlatformSupportFunctions.h"
-#include "mcbBundleFetcher.h"
+#include "mcbBundleCatalog.h"
 
 namespace mcb{namespace PlatformSupport{namespace network{
     
@@ -131,6 +131,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
     }
     
     void Bundle::serializeUserData(){
-        BundleFetcher::sharedInstance()->_saveBundles();
+        BundleCatalog::sharedInstance()->_saveBundles();
     }
 }}}

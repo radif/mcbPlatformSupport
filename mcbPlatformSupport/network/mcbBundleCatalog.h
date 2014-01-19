@@ -1,13 +1,13 @@
 //
-//  mcbBundleFetcher.h
+//  mcbBundleCatalog.h
 //  SoundSurfer
 //
 //  Created by Radif Sharafullin on 1/12/14.
 //
 //
 
-#ifndef __SoundSurfer__mcbBundleFetcher__
-#define __SoundSurfer__mcbBundleFetcher__
+#ifndef __SoundSurfer__mcbBundleCatalog__
+#define __SoundSurfer__mcbBundleCatalog__
 
 #include "mcbFactory.h"
 #include "mcbHTTPRequest.h"
@@ -21,9 +21,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
     extern const std::string kBundlesMetadataUpdatedNotificationName;
     
     typedef std::vector<pBundle> pBundles;
-    class BundleFetcher : public SingletonFactory<BundleFetcher>{
+    class BundleCatalog : public SingletonFactory<BundleCatalog>{
         friend Bundle;
-        friend SingletonFactory<BundleFetcher>;
+        friend SingletonFactory<BundleCatalog>;
         pBundles _bundles;
         
         struct Metadata{
@@ -71,9 +71,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
 
     protected:
         virtual void init() override;
-        BundleFetcher()=default;
-        virtual ~BundleFetcher()=default;
+        BundleCatalog()=default;
+        virtual ~BundleCatalog()=default;
     };
 }}}
 
-#endif /* defined(__SoundSurfer__mcbBundleFetcher__) */
+#endif /* defined(__SoundSurfer__mcbBundleCatalog__) */

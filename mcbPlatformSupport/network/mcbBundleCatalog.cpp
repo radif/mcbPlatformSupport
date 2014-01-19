@@ -1,12 +1,12 @@
 //
-//  mcbBundleFetcher.cpp
+//  mcbBundleCatalog.cpp
 //  SoundSurfer
 //
 //  Created by Radif Sharafullin on 1/12/14.
 //
 //
 
-#include "mcbBundleFetcher.h"
+#include "mcbBundleCatalog.h"
 #include "mcbDownloadQueue.h"
 #include "mcbUnzipQueue.h"
 #include "mcbPlatformSupport.h"
@@ -19,12 +19,12 @@ namespace mcb{namespace PlatformSupport{namespace network{
     const std::string kBundlesUpdatedNotificationName("kBundlesUpdatedNotificationName");
     const std::string kBundlesMetadataUpdatedNotificationName("kBundlesMetadataUpdatedNotificationName");
     
-    BundleFetcher::Metadata::~Metadata(){
+    BundleCatalog::Metadata::~Metadata(){
         CC_SAFE_RELEASE(metadata);
     }
-    void BundleFetcher::init(){
+    void BundleCatalog::init(){
         
-        _logPrefix="\n\n-----BundleFetcher------\n";
+        _logPrefix="\n\n-----BundleCatalog------\n";
         _logSuffix="\n------------------------\n\n";
         
         //generate bundle downloads path
@@ -45,7 +45,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         fetchMetadata();
         
     }
-    bool BundleFetcher::fetchMetadata(const std::function<void(bool hasNewVersion, NetworkTask::Status status)> & completion){
+    bool BundleCatalog::fetchMetadata(const std::function<void(bool hasNewVersion, NetworkTask::Status status)> & completion){
         if (_metadata.url.empty())
             return false;
         if (_isDownloadingBundles)
@@ -76,14 +76,14 @@ namespace mcb{namespace PlatformSupport{namespace network{
         });
         return true;
     }
-    bool BundleFetcher::Metadata::updateDownloadedMetadata(){
+    bool BundleCatalog::Metadata::updateDownloadedMetadata(){
         cocos2d::CCDictionary * m(nullptr);
         if (Functions::fileExists(downloadedMetadataPath))
             m=PlatformSupport::dictionaryFromPlist(downloadedMetadataPath);
         
         return setMetadata(m);
     }
-    void BundleFetcher::initPreshippedDataWithPath(const std::string path){
+    void BundleCatalog::initPreshippedDataWithPath(const std::string path){
         cocos2d::CCDictionary * m(nullptr);
         if (Functions::fileExists(path))
             m=PlatformSupport::dictionaryFromPlist(path);
@@ -92,7 +92,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
             fetchMetadata();
         }
     }
-    void BundleFetcher::_createBundlesFromMetadata(){
+    void BundleCatalog::_createBundlesFromMetadata(){
         if (!_metadata.hasMetadata())
             return;
         
@@ -119,22 +119,22 @@ namespace mcb{namespace PlatformSupport{namespace network{
         _bundles=std::move(newBundles);
         _restoreBundles();
     }
-    void BundleFetcher::_saveBundles(){
+    void BundleCatalog::_saveBundles(){
         //bundles
         //deleted bundles
     }
-    void BundleFetcher::_restoreBundles(){
+    void BundleCatalog::_restoreBundles(){
         //bundles
         //deleted bundles
     }
 
-    bool BundleFetcher::isDownloadingBundles() const{
+    bool BundleCatalog::isDownloadingBundles() const{
         return _isDownloadingBundles;
     }
-    bool BundleFetcher::synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
+    bool BundleCatalog::synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
         return synchronizeBundlesWithServer(bundleIdentifiers(), completionPerBundle, completion);
     }
-    bool BundleFetcher::synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
+    bool BundleCatalog::synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
         if (_isDownloadingBundles)
             return false;
         _isDownloadingBundles=true;
@@ -164,18 +164,18 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
     }
     
-    bool BundleFetcher::updatePendingBundles(){
+    bool BundleCatalog::updatePendingBundles(){
         //TODO: swap records for bundles to point to newly fetched bundles
         //TODO: add to deleted bundles
         return false;
     }
-    bool BundleFetcher::deleteUpdatedBundles(){
+    bool BundleCatalog::deleteUpdatedBundles(){
         //TODO: find deleted bundles and delete from disk their content
         //TODO: delete all unfinished downloads and un-unzipped bundles
         return false;
     }
     
-    bool BundleFetcher::Metadata::setMetadata(cocos2d::CCDictionary *m){
+    bool BundleCatalog::Metadata::setMetadata(cocos2d::CCDictionary *m){
         if (!m)
             return false;
         
@@ -188,22 +188,22 @@ namespace mcb{namespace PlatformSupport{namespace network{
             //update version and URL
             version=newVersion;
             url=PlatformSupport::Functions::stringForObjectKey(metadata, "url",url);
-            BundleFetcher::sharedInstance()->_createBundlesFromMetadata();
+            BundleCatalog::sharedInstance()->_createBundlesFromMetadata();
             return true;
         }
         return false;
     }
     
-    pBundle BundleFetcher::bundleByIdentifier(const std::string & identifier) const{
+    pBundle BundleCatalog::bundleByIdentifier(const std::string & identifier) const{
         for (const pBundle & b :_bundles)
             if (b->identifier()==identifier)
                 return b;
         return nullptr;
     }
-    const pBundles & BundleFetcher::bundles() const{
+    const pBundles & BundleCatalog::bundles() const{
         return _bundles;
     }
-    std::vector<std::string> BundleFetcher::bundleIdentifiers() const{
+    std::vector<std::string> BundleCatalog::bundleIdentifiers() const{
         std::vector<std::string> retVal;
         retVal.reserve(_bundles.size());
         for (const pBundle & b :_bundles)
@@ -211,7 +211,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         return retVal;
     }
     
-    void BundleFetcher::_fetchBundle(pBundle bundle, const std::function<void(bool success)> & completion, const std::function<void(float progress)> & progress){
+    void BundleCatalog::_fetchBundle(pBundle bundle, const std::function<void(bool success)> & completion, const std::function<void(float progress)> & progress){
         
         static const float kDownloadToUnpackProgressRatio(.7f);
         
@@ -268,7 +268,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     }
 
     
-    void BundleFetcher::downloadAndUnzipBundle(const HTTPRequest & request, const std::string & bundlesDirectory, const std::function<void(const std::string & bundlePath, bool success)> & completion, const std::string & bundleID, const std::function<void(float progress)> & progress){
+    void BundleCatalog::downloadAndUnzipBundle(const HTTPRequest & request, const std::string & bundlesDirectory, const std::function<void(const std::string & bundlePath, bool success)> & completion, const std::string & bundleID, const std::function<void(float progress)> & progress){
         
         static const float kDownloadToUnpackProgressRatio(.7f);
         
