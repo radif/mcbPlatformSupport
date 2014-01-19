@@ -14,11 +14,8 @@ namespace mcb{namespace PlatformSupport{
     void Logger::mcbLogFormatted(const std::string & message, unsigned int level, const std::string & category)const{
         Log::log(message, level, category);
     }
-    void Logger::mcbLog(const std::string & category, const std::string & format, ...) const{
-        Log::mcbLog(category, format);
-    }
-    void Logger::mcbLog(const std::string & category, unsigned int level, const std::string & format, ...) const{
-        Log::mcbLog(category, level, format);
+    void Logger::mcbLog(unsigned int level, const std::string & category, const std::string & format, ...) const{
+        Log::mcbLog(level, category, format);
     }
     void Logger::mcbLog(const std::string & format, ...) const{
         Log::mcbLog(format);
@@ -93,15 +90,7 @@ namespace mcb{namespace PlatformSupport{
             log(szBuf);
         }
         
-        void mcbLog(const std::string & category, const std::string & format, ...){
-            char szBuf[kMaxLogLen+1] = {0};
-            va_list ap;
-            va_start(ap, format);
-            vsnprintf(szBuf, kMaxLogLen, format.c_str(), ap);
-            va_end(ap);
-            log(szBuf, 0, category);
-        }
-        void mcbLog(const std::string & category, unsigned int level, const std::string & format, ...){
+        void mcbLog(unsigned int level, const std::string & category, const std::string & format, ...){
             char szBuf[kMaxLogLen+1] = {0};
             va_list ap;
             va_start(ap, format);

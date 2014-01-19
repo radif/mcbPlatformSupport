@@ -33,6 +33,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         //search for downloaded metadata
         _metadata.downloadedMetadataPath=PlatformSupport::Functions::stringByAppendingPathComponent(fetchedBundlesPath, "metadata.data");
         
+        Log::mcbLog("metadata path \"%s\"",_metadata.downloadedMetadataPath.c_str());
         _metadata.updateDownloadedMetadata();
         _fetchMetadata();
         

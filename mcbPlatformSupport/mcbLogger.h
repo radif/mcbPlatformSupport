@@ -29,8 +29,7 @@ namespace mcb{namespace PlatformSupport{
         
         //not recommended to override
         virtual void mcbLog(const std::string & format, ...) const;
-        virtual void mcbLog(const std::string & category, const std::string & format, ...) const;
-        virtual void mcbLog(const std::string & category, unsigned int level, const std::string & format, ...) const;
+        virtual void mcbLog(unsigned int level, const std::string & category, const std::string & format, ...) const;
     };
     
     //log level conventions:
@@ -60,8 +59,7 @@ namespace mcb{namespace PlatformSupport{
         void log(const std::string & message, unsigned int level=0, const std::string & category="");
 
         void mcbLog(const std::string & format, ...);
-        void mcbLog(const std::string & category, const std::string & format, ...);
-        void mcbLog(const std::string & category, unsigned int level, const std::string & format, ...);
+        void mcbLog(unsigned int level, const std::string & category, const std::string & format, ...);
 
     }
 }}
