@@ -51,7 +51,7 @@ namespace mcb{namespace PlatformSupport{
             return createInstance(p, data);
         }
     protected:
-        typedef Logger mcbLogger;
+        typedef Logger base_logger;
         virtual bool init(cocos2d::CCDictionary * data)=0;
         virtual ~Factory()=default;
     };
@@ -72,7 +72,7 @@ namespace mcb{namespace PlatformSupport{
             return sharedInstance;
         }
     protected:
-        typedef Logger mcbLogger;
+        typedef Logger base_logger;
         virtual void init()=0;
         virtual ~SingletonFactory()=default;
     };

@@ -270,9 +270,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
     
     void BundleFetcher::mcbLogFormatted(const std::string & message, unsigned int level, const std::string & category)const{
         if (category.empty())
-            mcbLogger::mcbLogFormatted(message, level, "BundleFetcher");
+            base_logger::mcbLogFormatted(message, level, "BundleFetcher");
         else
-            mcbLogger::mcbLogFormatted(message, level, category);
+            base_logger::mcbLogFormatted(message, level, category);
     }
     
 }}}

@@ -19,9 +19,9 @@ namespace mcb{namespace PlatformSupport{
         /*
          virtual void mcbLogFormatted(const std::string & message, unsigned int level=0, const std::string & category="")const{
          if (category.empty())
-         mcbLogger::mcbLogFormatted(message, level, __FILE__);
+         base_logger::mcbLogFormatted(message, level, "<myClassName>");
          else
-         mcbLogger::mcbLogFormatted(message, level, category);
+         base_logger::mcbLogFormatted(message, level, category);
          }
          */
         
