@@ -20,11 +20,14 @@ namespace mcb{namespace PlatformSupport{namespace network{
     extern const std::string kBundlesUpdatedNotificationName;
     extern const std::string kBundlesMetadataUpdatedNotificationName;
     
-    typedef std::vector<pBundle> pBundles;
+    typedef std::map<std::string, pBundle> pBundles;
+    
     class BundleCatalog : public SingletonFactory<BundleCatalog>{
         friend Bundle;
         friend SingletonFactory<BundleCatalog>;
         pBundles _bundles;
+        pBundles _deletedBundles;
+
         
         struct Metadata{
             cocos2d::CCDictionary * metadata=nullptr;//retained
@@ -62,7 +65,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         bool isDownloadingBundles() const;
         pBundle bundleByIdentifier(const std::string & identifier) const;
-        const pBundles & bundles() const;
+        std::vector<pBundle> bundles() const;
         std::vector<std::string> bundleIdentifiers() const;
 
         //once bundle is downloaded, new tokens will be injected to mcbPath

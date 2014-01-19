@@ -103,7 +103,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         cocos2d::CCArray * bundlesA((cocos2d::CCArray *)_metadata.metadata->objectForKey("bundles"));
         if (bundlesA) {
          
-            newBundles.reserve(bundlesA->count());
+            //newBundles.reserve(bundlesA->count());
             for (int i(0); i<bundlesA->count(); ++i) {
                 cocos2d::CCDictionary * bundleDict((cocos2d::CCDictionary *)bundlesA->objectAtIndex(i));
                 pBundle b(Bundle::create());
@@ -113,7 +113,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 
                 //??b->_version=PlatformSupport::Functions::floatForObjectKey(bundleDict, "version");
                 
-                newBundles.emplace_back(b);
+                newBundles[b->_identifier]=b;
             }
         }
         _bundles=std::move(newBundles);
@@ -195,19 +195,23 @@ namespace mcb{namespace PlatformSupport{namespace network{
     }
     
     pBundle BundleCatalog::bundleByIdentifier(const std::string & identifier) const{
-        for (const pBundle & b :_bundles)
-            if (b->identifier()==identifier)
-                return b;
+        auto it(_bundles.find(identifier));
+        if (it!=_bundles.end())
+            return (*it).second;
         return nullptr;
     }
-    const pBundles & BundleCatalog::bundles() const{
-        return _bundles;
+    std::vector<pBundle> BundleCatalog::bundles() const{
+        std::vector<pBundle> retVal;
+        retVal.reserve(_bundles.size());
+        for (const auto & p: _bundles)
+            retVal.emplace_back(p.second);
+        return retVal;;
     }
     std::vector<std::string> BundleCatalog::bundleIdentifiers() const{
         std::vector<std::string> retVal;
         retVal.reserve(_bundles.size());
-        for (const pBundle & b :_bundles)
-            retVal.emplace_back(b->identifier());
+        for (const auto & p: _bundles)
+            retVal.emplace_back(p.second->identifier());
         return retVal;
     }
     
