@@ -10,15 +10,26 @@
 #include "mcbPlatformSupportFunctions.h"
 
 namespace mcb{namespace PlatformSupport{
+    static const int kMaxLogLen = 16*1024;
 
     void Logger::mcbLogFormatted(const std::string & message, unsigned int level, const std::string & category)const{
-        Log::log(message, level, category);
+        Log::log(_logPrefix+message+_logSuffix, level, category);
     }
     void Logger::mcbLog(unsigned int level, const std::string & category, const std::string & format, ...) const{
-        Log::mcbLog(level, category, format);
+        char szBuf[kMaxLogLen+1] = {0};
+        va_list ap;
+        va_start(ap, format);
+        vsnprintf(szBuf, kMaxLogLen, format.c_str(), ap);
+        va_end(ap);
+        mcbLogFormatted(szBuf, level, category);
     }
     void Logger::mcbLog(const std::string & format, ...) const{
-        Log::mcbLog(format);
+        char szBuf[kMaxLogLen+1] = {0};
+        va_list ap;
+        va_start(ap, format);
+        vsnprintf(szBuf, kMaxLogLen, format.c_str(), ap);
+        va_end(ap);
+        mcbLogFormatted(szBuf);
     }
     
     
@@ -26,7 +37,6 @@ namespace mcb{namespace PlatformSupport{
         static unsigned int _logLevel(0);
         static bool _isRecordingLog(false);
         static log_entries_t _logEntries;
-        static const int kMaxLogLen = 16*1024;
 
         
         LogEntry::LogEntry(const std::string & m_message, const std::string & m_category, const unsigned int m_level)

@@ -20,6 +20,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
     }
     void BundleFetcher::init(){
         
+        _logPrefix="\n\n-----BundleFetcher------\n";
+        _logSuffix="\n------------------------\n\n";
+        
         //generate bundle downloads path
         const std::string fetchedBundlesPath(resolvePath("$(LIBRARY)/fetched_bundles/"));
         
@@ -33,7 +36,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         //search for downloaded metadata
         _metadata.downloadedMetadataPath=PlatformSupport::Functions::stringByAppendingPathComponent(fetchedBundlesPath, "metadata.data");
         
-        Log::mcbLog("metadata path \"%s\"",_metadata.downloadedMetadataPath.c_str());
+        mcbLog("metadata path \"%s\"",_metadata.downloadedMetadataPath.c_str());
         _metadata.updateDownloadedMetadata();
         _fetchMetadata();
         
@@ -268,12 +271,4 @@ namespace mcb{namespace PlatformSupport{namespace network{
         });
         
     }
-    
-    void BundleFetcher::mcbLogFormatted(const std::string & message, unsigned int level, const std::string & category)const{
-        if (category.empty())
-            base_logger::mcbLogFormatted(message, level, "BundleFetcher");
-        else
-            base_logger::mcbLogFormatted(message, level, category);
-    }
-    
 }}}

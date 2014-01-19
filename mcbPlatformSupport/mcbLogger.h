@@ -15,16 +15,12 @@
 namespace mcb{namespace PlatformSupport{
     class Logger{
     protected:
-        //override this to add class name as category (eg. if category.empty(), use the class name, call super)
-        /*
-         virtual void mcbLogFormatted(const std::string & message, unsigned int level=0, const std::string & category="")const{
-         if (category.empty())
-         base_logger::mcbLogFormatted(message, level, "<myClassName>");
-         else
-         base_logger::mcbLogFormatted(message, level, category);
-         }
-         */
+        //for example:
+        //_logPrefix="\n\n-----<MyClassNAme>------\n";
+        //_logSuffix("\n------------------------\n\n");
+        std::string _logPrefix, _logSuffix;
         
+        //override this to add implement your own logger for a particular class
         virtual void mcbLogFormatted(const std::string & message, unsigned int level=0, const std::string & category="")const;
         
         //not recommended to override
