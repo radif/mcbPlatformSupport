@@ -39,7 +39,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
             bool updateDownloadedMetadata(const std::string & downloadedPathOrEmpty="");
             bool hasMetadata() const{return metadata!=nullptr;}
             ~Metadata();
-        }_metadata;
+        }_catalogMetadata;
         
         std::string _tempPathForDownloadingAsset(const std::string & path){return path+".download";}
         

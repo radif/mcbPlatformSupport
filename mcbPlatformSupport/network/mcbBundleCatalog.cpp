@@ -70,40 +70,40 @@ namespace mcb{namespace PlatformSupport{namespace network{
         PlatformSupport::addTokenForPath(kFetchedBundlesPathToken, fetchedBundlesPath);
         
         //search for downloaded metadata
-        _metadata.downloadedMetadataPath=PlatformSupport::Functions::stringByAppendingPathComponent(fetchedBundlesPath, "catalog.data");
+        _catalogMetadata.downloadedMetadataPath=PlatformSupport::Functions::stringByAppendingPathComponent(fetchedBundlesPath, "catalog.data");
         
-        mcbLog("metadata path \"%s\"",_metadata.downloadedMetadataPath.c_str());
+        mcbLog("metadata path \"%s\"",_catalogMetadata.downloadedMetadataPath.c_str());
         
         
         _deserializeBundles();//get the previously saved bundles first
         
-        _metadata.updateDownloadedMetadata();
+        _catalogMetadata.updateDownloadedMetadata();
         fetchMetadata();
                 
     }
     bool BundleCatalog::fetchMetadata(const std::function<void(bool hasNewVersion, NetworkTask::Status status)> & completion){
-        if (_metadata.url.empty())
+        if (_catalogMetadata.url.empty())
             return false;
         if (_isDownloadingBundles)
             return false;
         
         _isDownloadingBundles=true;
         
-        DownloadQueue::sharedInstance()->enqueueDownload(HTTPRequestGET(_metadata.url), _tempPathForDownloadingAsset(_metadata.downloadedMetadataPath), [=](DownloadTask::Status status, const HTTPResponse & response){
+        DownloadQueue::sharedInstance()->enqueueDownload(HTTPRequestGET(_catalogMetadata.url), _tempPathForDownloadingAsset(_catalogMetadata.downloadedMetadataPath), [=](DownloadTask::Status status, const HTTPResponse & response){
             if (status==DownloadTask::StatusCompleted){
                 
-                if(_metadata.updateDownloadedMetadata(_tempPathForDownloadingAsset(_metadata.downloadedMetadataPath))){
-                    mcbLog("updated metadata to version %f!",_metadata.version);
+                if(_catalogMetadata.updateDownloadedMetadata(_tempPathForDownloadingAsset(_catalogMetadata.downloadedMetadataPath))){
+                    mcbLog("updated metadata to version %f!",_catalogMetadata.version);
                     cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesMetadataUpdatedNotificationName.c_str());
                     if (completion)
                         completion(true, status);
                 }else{
-                    mcbLog("Don't need to update metadata, keeping current version: %f",_metadata.version);
+                    mcbLog("Don't need to update metadata, keeping current version: %f",_catalogMetadata.version);
                     if (completion)
                         completion(false, status);
                 }
             }else{
-                mcbLog("Download metadata failed, keeping current version: %f",_metadata.version);
+                mcbLog("Download metadata failed, keeping current version: %f",_catalogMetadata.version);
                 if (completion)
                     completion(false, status);
             }
@@ -138,15 +138,15 @@ namespace mcb{namespace PlatformSupport{namespace network{
         return retVal;
     }
     void BundleCatalog::initPreshippedDataWithPath(const std::string path){
-        if(_metadata.updateDownloadedMetadata(path))
+        if(_catalogMetadata.updateDownloadedMetadata(path))
             fetchMetadata();
     }
     void BundleCatalog::_applyMetadataToBundles(){
-        if (!_metadata.hasMetadata())
+        if (!_catalogMetadata.hasMetadata())
             return;
         using namespace cocos2d;
         
-        cocos2d::CCArray * bundlesA((cocos2d::CCArray *)_metadata.metadata->objectForKey("bundles"));
+        cocos2d::CCArray * bundlesA((cocos2d::CCArray *)_catalogMetadata.metadata->objectForKey("bundles"));
         if (bundlesA) {
             for (int i(0); i<bundlesA->count(); ++i) {
                 cocos2d::CCDictionary * bundleDict((cocos2d::CCDictionary *)bundlesA->objectAtIndex(i));
