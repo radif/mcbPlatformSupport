@@ -30,7 +30,8 @@ namespace mcb{namespace PlatformSupport{
     
     //log level conventions:
     //0 - 3 - dev;
-    //4 - iNF - prod
+    //4 - iNF - prod & analytics
+    
     namespace Log{
         struct LogEntry{
             LogEntry(const std::string & message, const std::string & category, const unsigned int level);
@@ -41,16 +42,26 @@ namespace mcb{namespace PlatformSupport{
             std::string stringValue() const;
         };
         typedef std::vector<const LogEntry> log_entries_t;
-        
+        typedef std::function<void(const LogEntry & logEntry)> log_analytics_handler_t;
+
         void setLogLevel(unsigned int level);//to disable log, just set the level too high
         unsigned int logLevel();
-        
+
+        /*
+            @log dump
+         */
         void setRecordingLog(bool recordLog);//default is false
         bool isLogRecorded();
         
         const log_entries_t & logEntries();
         std::string logDump(bool reversed=true);
         void eraseLogEntries();
+        
+        /*
+         @Analytics
+         */
+        //will be called every time the log is made, it is up to implementer to decide which log level is necessary for analytics
+        void setAnalyticsHandler(const log_analytics_handler_t &handler);
         
         void log(const std::string & message, unsigned int level=0, const std::string & category="");
 

@@ -11,9 +11,12 @@
 #include "mcbUnzipQueue.h"
 #include "mcbPlatformSupport.h"
 #include "mcbPlatformSupportFunctions.h"
+
+//json
 #include "rapidjson.h"
 #include "prettywriter.h"	// for stringify JSON
 #include "filestream.h"	// wrapper of C stream for prettywriter as output
+#include "document.h"
 
 namespace mcb{namespace PlatformSupport{namespace network{
     const std::string kFetchedBundlesPathToken("$(FETCHED)");
@@ -67,7 +70,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         PlatformSupport::addTokenForPath(kFetchedBundlesPathToken, fetchedBundlesPath);
         
         //search for downloaded metadata
-        _metadata.downloadedMetadataPath=PlatformSupport::Functions::stringByAppendingPathComponent(fetchedBundlesPath, "metadata.data");
+        _metadata.downloadedMetadataPath=PlatformSupport::Functions::stringByAppendingPathComponent(fetchedBundlesPath, "catalog.data");
         
         mcbLog("metadata path \"%s\"",_metadata.downloadedMetadataPath.c_str());
         
@@ -184,10 +187,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 writeStringL("version");
                 writer.Double(b->_version);
                 
-                //timestamp
+                //download timestamp
                 writeStringL("download_timestamp");
                 writer.Int(b->_downloadTimestamp);
                 
+                //status
+                writeStringL("status");
+                writeStringL(stringFromStatus(b->_status));
                 
                 //localPath
                 writeStringL("local_path");
@@ -197,6 +203,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 writeStringL("remote_url");
                 writeStringL(b->_remoteURL);
 
+                //preshipped
+                writeStringL("preshipped");
+                writer.Bool(b->_preshipped);
                 
                 //content labels
                 writeStringL("content_labels");
@@ -221,7 +230,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
             });
             
             writer.StartObject();
-            
+
             writeStringL("Bundles");
             writer.StartArray();
             //put bundles here:
@@ -247,23 +256,62 @@ namespace mcb{namespace PlatformSupport{namespace network{
     }
     void BundleCatalog::_deserializeBundles(){
         const std::string kJsonPath(_jsonPath);
-        
-        //clear all
-        pBundles clearBundles;
-        std::swap(_bundles, clearBundles);
-        pBundles clearDeletedBundles;
-        std::swap(_deletedBundles, clearDeletedBundles);
+        using namespace rapidjson;
+
+        //do we clear all bundles regardless?
         
         //bail out if none detected, starting with no bundles, letting restore from metadata create bundles
-        if (!Functions::fileExists(kJsonPath))
+        if (!Functions::fileExists(kJsonPath)){
+            mcbLog("saved bundles not found");
             return;
+        }
+        
         
         std::string jsonString(cocos2d::CCString::createWithContentsOfFile(kJsonPath.c_str())->m_sString);
-        mcbLog("has string %s",jsonString.c_str());
         
-        //create from json string:
-        //1. bundles
-        //2. deleted bundles
+        Document document;
+        
+        //checking for errors
+        if (document.Parse<0>(jsonString.c_str()).HasParseError()){
+            mcbLog("saved bundles has errors, ignoring");
+            return;
+        }
+        
+        if (!document.IsObject()) {
+            mcbLog("malformed json, ignoring");
+            return;
+        }
+        
+        
+        //we have a valid json, let's parse it:
+        
+        auto parseBundleL([&](const Value& bundleV)->pBundle{
+            pBundle retVal(nullptr);
+            if (bundleV.IsObject()) {
+             
+                mcbLog("!!");
+            }
+            return retVal;
+        });
+        
+        auto parseBundlesL([&](const std::string & key)->pBundles{
+            pBundles retVal;
+            if (document.HasMember(key.c_str())) {
+                const Value& bundlesV(document[key.c_str()]);
+                if (bundlesV.IsArray())
+                    for (SizeType i(0); i < bundlesV.Size(); ++i){
+                        pBundle b(parseBundleL(bundlesV[i]));
+                        if (b)
+                            retVal[b->_identifier]=std::move(b);
+                    }
+                
+            }
+            return retVal;
+        });
+        
+        //grand scheme of things: clearing bundles and assigning new ones
+        _bundles=parseBundlesL("Bundles");
+        _deletedBundles=parseBundlesL("Deleted");
     }
 
     bool BundleCatalog::isDownloadingBundles() const{

@@ -27,7 +27,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         std::string _localPath;//tokenized, need to process with mcbPath
         std::string _remoteURL;
         std::string _title;
-        
+        bool _preshipped=false;
         std::map<std::string, std::string> _userMetadata;
         std::vector<std::string> _contentLabels;//these are coming from the server
         
@@ -39,6 +39,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         Status _status=StatusUndefined;
     public:
         
+        bool isPreshipped() const{return _preshipped;}
         const std::string & title() const{return _title;}
         const std::string & identifier() const{return _identifier;}
         const std::string & localPath() const{return _localPath;}//always tokenized!, need to process with mcbPath
