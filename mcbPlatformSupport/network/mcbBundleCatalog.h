@@ -72,6 +72,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         bool isDownloadingBundles() const;
         
         //get bundles
+        //bundles, once given will not be modified by sdk. SDK will create new bundles if updated from server. However, the user metadata will be merged if saved
         pBundle bundleByIdentifier(const std::string & identifier) const;
         std::vector<pBundle> bundles() const;
         std::vector<std::string> bundleIdentifiers() const;

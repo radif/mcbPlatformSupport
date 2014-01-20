@@ -83,6 +83,15 @@ namespace mcb{namespace PlatformSupport{namespace network{
     }
     
     void Bundle::serializeUserData(){
+        pBundle b(BundleCatalog::sharedInstance()->bundleByIdentifier(_identifier));
+        
+        //in case, this bundle is outdated and not part of circulating sdk, it will sync both metadatas and save
+        if (b && b.get()!=this) {
+            for (const auto &p : _userMetadata)
+                b->_userMetadata[p.first]=p.second;
+            
+            _userMetadata=b->_userMetadata;
+        }
         BundleCatalog::sharedInstance()->_serializeBundles();
     }
 }}}
