@@ -14,6 +14,23 @@ namespace mcb{namespace PlatformSupport{namespace network{
     pBundle Bundle::create(){
         return pBundle(new Bundle);
     }
+    pBundle Bundle::createByCopy(const pBundle & existing){
+        pBundle retVal(create());
+        
+        retVal->_identifier=existing->_identifier;
+        retVal->_version=existing->_version;
+        retVal->_status=existing->_status;
+        retVal->_downloadTimestamp=existing->_downloadTimestamp;
+        retVal->_localPath=existing->_localPath;
+        retVal->_remoteURL=existing->_remoteURL;
+        retVal->_title=existing->_title;
+        retVal->_preshipped=existing->_preshipped;
+        retVal->_userMetadata=existing->_userMetadata;
+        retVal->_contentLabels=existing->_contentLabels;
+        
+        return retVal;
+    }
+
    
 #pragma mark user metadata
     bool Bundle::boolForKey(const std::string & key, bool defaultVal) const{

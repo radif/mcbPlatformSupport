@@ -14,6 +14,7 @@
 #include <map>
 #include <vector>
 #include <math.h>
+#include <unordered_set>
 
 namespace mcb{namespace PlatformSupport{namespace network{
     class BundleCatalog;
@@ -30,12 +31,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
         std::string _title;
         bool _preshipped=false;
         std::map<std::string, std::string> _userMetadata;
-        std::vector<std::string> _contentLabels;//these are coming from the server
+        std::unordered_set<std::string> _contentLabels;//these are coming from the server
         
         Bundle()=default;//avoiding make_shared in sake of hiding constructor to allow the creation of object through create func
         static pBundle create();//only bundle catalog can create bundles!
+        static pBundle createByCopy(const pBundle & existing);//only bundle catalog can create bundles!
     public:
-        typedef enum {StatusUndefined, StatusAvailableOnline, StatusDownloaded, StatusIsDownloading, StatusUpdateAvailableOnline, StatusScheduledForDeletion} Status;
+        typedef enum {StatusUndefined, StatusAvailableOnline, StatusDownloaded, StatusUpdateAvailableOnline, StatusScheduledForDeletion} Status;
     private:
         Status _status=StatusUndefined;
     public:
@@ -45,7 +47,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         const std::string & identifier() const{return _identifier;}
         const std::string & localPath() const{return _localPath;}//always tokenized!, need to process with mcbPath
         const std::string & remoteURL() const{return _remoteURL;}
-        const std::vector<std::string> & contentLabels() const{return _contentLabels;}
+        const std::unordered_set<std::string> & contentLabels() const{return _contentLabels;}
 
         
         Status status() const{return _status;}

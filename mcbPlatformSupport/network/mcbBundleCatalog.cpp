@@ -31,7 +31,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
         {Bundle::StatusUndefined, "StatusUndefined"},
         {Bundle::StatusAvailableOnline, "StatusAvailableOnline"},
         {Bundle::StatusDownloaded, "StatusDownloaded"},
-        {Bundle::StatusIsDownloading, "StatusIsDownloading"},
         {Bundle::StatusUpdateAvailableOnline, "StatusUpdateAvailableOnline"},
         {Bundle::StatusScheduledForDeletion, "StatusScheduledForDeletion"}
     };
@@ -156,92 +155,72 @@ namespace mcb{namespace PlatformSupport{namespace network{
                     continue;
                 float version(Functions::floatForObjectKey(bundleDict, "version",-HUGE_VALF));
                 pBundle b(bundleByIdentifier(identifier));
-                bool isExistingBundle(b);
-                if (isExistingBundle) {
+                pBundle newBundle(b?Bundle::createByCopy(b):Bundle::create());
+                
+                auto mergeUserInfo([&](){
+                    //merge content labels
+                    CCArray * labelsA(dynamic_cast<CCArray *>(bundleDict->objectForKey("content_labels")));
+                    if (labelsA && labelsA->count()) {
+                        mcbForEachBegin(CCString *, s, labelsA)
+                            newBundle->_contentLabels.emplace(s->m_sString);
+                        mcbForEachEnd
+                    }
+                    
+                    //merge user metadata
+                    CCDictionary * userMetadataD(dynamic_cast<CCDictionary *>(bundleDict->objectForKey("user_metadata")));
+                    if (userMetadataD) {
+                        CCDictElement *e(nullptr);
+                        CCDICT_FOREACH(userMetadataD, e)
+                            newBundle->_userMetadata[e->getStrKey()]=((CCString *)e->getObject())->m_sString;
+                    }
+                });
+                if (b) {
                     //exisitng bundle
-                    if (b->_version<version){
+                    if (newBundle->_version<version){
                         //if downloaded, then
-                        if (b->_status==Bundle::StatusDownloaded)
-                            b->_status=Bundle::StatusUpdateAvailableOnline;
-                    }if (b->_version==version) {
+                        if (newBundle->_status==Bundle::StatusDownloaded)
+                            newBundle->_status=Bundle::StatusUpdateAvailableOnline;
+                    }if (newBundle->_version==version) {
                         //update all settings
-                        b->_title=Functions::stringForObjectKey(bundleDict, "title");
-                        b->_preshipped=Functions::boolForObjectKey(bundleDict, "preshipped",b->_preshipped);
-                        if (b->_preshipped){
-                            //local pathis only applicable to preshipped
-                            b->_localPath=Functions::stringForObjectKey(bundleDict, "local_path", b->_localPath);
+                        newBundle->_title=Functions::stringForObjectKey(bundleDict, "title");
+                        newBundle->_preshipped=Functions::boolForObjectKey(bundleDict, "preshipped",newBundle->_preshipped);
+                        if (newBundle->_preshipped){
+                            newBundle->_status=Bundle::StatusDownloaded;
                         }
                         
                         //this is a post download case
-                        if (b->_status==Bundle::StatusDownloaded) {
-                            //update content labels
-                            CCArray * labelsA(dynamic_cast<CCArray *>(bundleDict->objectForKey("content_labels")));
-                            if (labelsA && labelsA->count()) {
-                                decltype(b->_contentLabels) contentLabels;
-                                contentLabels.reserve(labelsA->count());
-                                mcbForEachBegin(CCString *, s, labelsA)
-                                contentLabels.emplace_back(s->m_sString);
-                                mcbForEachEnd
-                                b->_contentLabels=std::move(contentLabels);
-                            }
-                            
-                            //merge user metadata
-                            CCDictionary * userMetadataD(dynamic_cast<CCDictionary *>(bundleDict->objectForKey("user_metadata")));
-                            if (userMetadataD) {
-                                CCDictElement *e(nullptr);
-                                CCDICT_FOREACH(userMetadataD, e)
-                                    b->_userMetadata[e->getStrKey()]=((CCString *)e->getObject())->m_sString;
+                        if (newBundle->_status==Bundle::StatusDownloaded){
+                            mergeUserInfo();
+                            if (newBundle->_preshipped){
+                                //local paths only applicable to preshipped and once downloaded
+                                newBundle->_localPath=Functions::stringForObjectKey(bundleDict, "local_path", newBundle->_localPath);
                             }
                         }
-                        
-                        
-                        
-                        
-                        
                     }
                     
                     
                 }else{
                     //new bundle
-                    b=Bundle::create();
-                    b->_identifier=identifier;
-                    b->_title=Functions::stringForObjectKey(bundleDict, "title");
-                    b->_version=version;
-                    b->_preshipped=Functions::boolForObjectKey(bundleDict, "preshipped",b->_preshipped);
-                    if (b->_preshipped){
-                        b->_status=Bundle::StatusDownloaded;
-                        b->_downloadTimestamp=time(0);
+                    newBundle->_identifier=identifier;
+                    newBundle->_title=Functions::stringForObjectKey(bundleDict, "title");
+                    newBundle->_version=version;
+                    newBundle->_preshipped=Functions::boolForObjectKey(bundleDict, "preshipped",newBundle->_preshipped);
+                    if (newBundle->_preshipped){
+                        newBundle->_status=Bundle::StatusDownloaded;
+                        newBundle->_downloadTimestamp=time(0);
                         //local pathis only applicable to preshipped
-                        b->_localPath=Functions::stringForObjectKey(bundleDict, "local_path", b->_localPath);
+                        newBundle->_localPath=Functions::stringForObjectKey(bundleDict, "local_path", newBundle->_localPath);
                     }else
-                        b->_status=Bundle::StatusAvailableOnline;
+                        newBundle->_status=Bundle::StatusAvailableOnline;
                     
-                    //content labels
-                    CCArray * labelsA(dynamic_cast<CCArray *>(bundleDict->objectForKey("content_labels")));
-                    if (labelsA && labelsA->count()) {
-                        decltype(b->_contentLabels) contentLabels;
-                        contentLabels.reserve(labelsA->count());
-                        mcbForEachBegin(CCString *, s, labelsA)
-                            contentLabels.emplace_back(s->m_sString);
-                        mcbForEachEnd
-                        b->_contentLabels=std::move(contentLabels);
-                    }
-                    //user metadata
-                    CCDictionary * userMetadataD(dynamic_cast<CCDictionary *>(bundleDict->objectForKey("user_metadata")));
-                    if (userMetadataD) {
-                        decltype(b->_userMetadata) userMetadata;
-                        CCDictElement *e(nullptr);
-                        CCDICT_FOREACH(userMetadataD, e)
-                            userMetadata[e->getStrKey()]=((CCString *)e->getObject())->m_sString;
-                        b->_userMetadata=std::move(userMetadata);
-                    }
+                    mergeUserInfo();
                     
                 }
                 //always keep this current for upgrades
-                b->_remoteURL=Functions::stringForObjectKey(bundleDict, "remote_url", b->_remoteURL);
+                newBundle->_remoteURL=Functions::stringForObjectKey(bundleDict, "remote_url", newBundle->_remoteURL);
 
              
-                _bundles[b->_identifier]=std::move(b);
+                _bundles[newBundle->_identifier]=std::move(newBundle);
             }
         }
         
@@ -407,7 +386,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
                         decltype(retVal->_contentLabels) contentLabels;
                         contentLabels.reserve(contentLabelsV.Size());
                         for (SizeType i(0); i < contentLabelsV.Size(); ++i)
-                            contentLabels.emplace_back(contentLabelsV[i].GetString());
+                            contentLabels.emplace(contentLabelsV[i].GetString());
                         retVal->_contentLabels=std::move(contentLabels);
                     }
                 }
@@ -459,6 +438,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         _isDownloadingBundles=true;
         bool hasNewBundles(false);
         
+        //the updated or downloaded bundles will be newly created bundles
+        
         {//other thread?
             
             
@@ -483,15 +464,24 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
     }
     
-    bool BundleCatalog::updatePendingBundles(){
-        //TODO: swap records for bundles to point to newly fetched bundles
-        //TODO: add to deleted bundles
-        return false;
-    }
     bool BundleCatalog::deleteUpdatedBundles(){
-        //TODO: find deleted bundles and delete from disk their content
+        bool deletedBundles(false);
+        //find deleted bundles and delete from disk their content
+        for (const auto & p : _deletedBundles){
+            Functions::removeFile(p.second->_localPath);
+            deletedBundles=true;
+        }
+        
+        //flush
+        decltype(_deletedBundles) cleanVector;
+        std::swap(_deletedBundles, cleanVector);
+        
+        _serializeBundles();
+        
         //TODO: delete all unfinished downloads and un-unzipped bundles
-        return false;
+        
+        
+        return deletedBundles;
     }
     
     bool BundleCatalog::Metadata::setMetadata(cocos2d::CCDictionary *m){
