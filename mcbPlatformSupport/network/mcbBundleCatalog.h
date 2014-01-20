@@ -36,7 +36,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
             std::string url;
             std::string downloadedMetadataPath;
             bool setMetadata(cocos2d::CCDictionary *metadata);//return true if updated, nullptr will be ignored, previous data kept
-            bool updateDownloadedMetadata();
+            bool updateDownloadedMetadata(const std::string & downloadedPathOrEmpty="");
             bool hasMetadata() const{return metadata!=nullptr;}
             ~Metadata();
         }_metadata;

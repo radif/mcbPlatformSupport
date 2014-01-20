@@ -91,9 +91,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         DownloadQueue::sharedInstance()->enqueueDownload(HTTPRequestGET(_metadata.url), _tempPathForDownloadingAsset(_metadata.downloadedMetadataPath), [=](DownloadTask::Status status, const HTTPResponse & response){
             if (status==DownloadTask::StatusCompleted){
-                Functions::removeFile(_metadata.downloadedMetadataPath);
-                Functions::renameFile(_tempPathForDownloadingAsset(_metadata.downloadedMetadataPath), _metadata.downloadedMetadataPath);
-                if(_metadata.updateDownloadedMetadata()){
+                
+                if(_metadata.updateDownloadedMetadata(_tempPathForDownloadingAsset(_metadata.downloadedMetadataPath))){
                     mcbLog("updated metadata to version %f!",_metadata.version);
                     cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesMetadataUpdatedNotificationName.c_str());
                     if (completion)
@@ -112,21 +111,35 @@ namespace mcb{namespace PlatformSupport{namespace network{
         });
         return true;
     }
-    bool BundleCatalog::Metadata::updateDownloadedMetadata(){
+    bool BundleCatalog::Metadata::updateDownloadedMetadata(const std::string & downloadedPathOrEmpty){
         cocos2d::CCDictionary * m(nullptr);
-        if (Functions::fileExists(downloadedMetadataPath))
-            m=PlatformSupport::dictionaryFromPlist(downloadedMetadataPath);
         
-        return setMetadata(m);
-    }
-    void BundleCatalog::initPreshippedDataWithPath(const std::string path){
-        cocos2d::CCDictionary * m(nullptr);
+        //copying file if downloadedPathOrEmpty is in fact valid and has an update
+        bool needsCopyFileIfValid(false);
+        std::string path;
+        if (downloadedPathOrEmpty.empty()) 
+            path=downloadedMetadataPath;
+        else{
+            if (downloadedPathOrEmpty!=downloadedMetadataPath)
+                needsCopyFileIfValid=true;
+            
+            path=downloadedPathOrEmpty;
+        }
+        
         if (Functions::fileExists(path))
             m=PlatformSupport::dictionaryFromPlist(path);
         
-        if(_metadata.setMetadata(m)){
+        bool retVal(setMetadata(m));
+        //move file if qualified
+        if (retVal && needsCopyFileIfValid)
+            Functions::renameFile(downloadedPathOrEmpty, downloadedMetadataPath);
+        else
+            Functions::removeFile(downloadedPathOrEmpty);
+        return retVal;
+    }
+    void BundleCatalog::initPreshippedDataWithPath(const std::string path){
+        if(_metadata.updateDownloadedMetadata(path))
             fetchMetadata();
-        }
     }
     void BundleCatalog::_applyMetadataToBundles(){
         if (!_metadata.hasMetadata())
