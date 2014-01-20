@@ -10,7 +10,7 @@
 #include <vector>
 
 #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
-#error this code is only tested on little endian machines
+#error this code has only been tested on little endian machines
 #endif
 
 
