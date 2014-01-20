@@ -67,14 +67,22 @@ namespace mcb{namespace PlatformSupport{
         const log_entries_t & logEntries(){
             return _logEntries;
         }
-        std::string logDump(bool reversed){
+        std::string logDump(bool reversed, size_t maxLength){
             std::string retVal;
             if (reversed)
-                for (auto it(_logEntries.rbegin()); it!=_logEntries.rend(); ++it)
+                for (auto it(_logEntries.rbegin()); it!=_logEntries.rend(); ++it){
                     retVal+=it->stringValue()+"\n";
+                    if (maxLength!=-1)
+                        if (retVal.length()>=maxLength)
+                            break;
+                }
             else
-                for (auto it(_logEntries.begin()); it!=_logEntries.end(); ++it)
+                for (auto it(_logEntries.begin()); it!=_logEntries.end(); ++it){
                     retVal+=it->stringValue()+"\n";
+                    if (maxLength!=-1)
+                        if (retVal.length()>=maxLength)
+                            break;
+                }
             return retVal;
         }
         void eraseLogEntries(){

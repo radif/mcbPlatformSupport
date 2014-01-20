@@ -54,7 +54,7 @@ namespace mcb{namespace PlatformSupport{
         bool isLogRecorded();
         
         const log_entries_t & logEntries();
-        std::string logDump(bool reversed=true);
+        std::string logDump(bool reversed=true, size_t maxLength=-1);
         void eraseLogEntries();
         
         /*
