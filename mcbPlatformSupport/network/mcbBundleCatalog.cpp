@@ -429,6 +429,30 @@ namespace mcb{namespace PlatformSupport{namespace network{
     bool BundleCatalog::isDownloadingBundles() const{
         return _isDownloadingBundles;
     }
+    
+    void BundleCatalog::completeSynchronize(const std::function<bool()> & canDeleteBundles, const std::function<void()> & completion){
+        auto canDeleteL([=]()->bool{
+            if (!canDeleteBundles)
+                return false;
+            return canDeleteBundles();
+        });
+        if (canDeleteL())
+            deleteUpdatedBundles();
+        fetchMetadata([=](bool hasNewVersion, NetworkTask::Status status){
+            if (canDeleteL())
+                deleteUpdatedBundles();
+            synchronizeAllBundlesWithServer(nullptr, [=](bool hasNewBundles, NetworkTask::Status status){
+                if (canDeleteL())
+                    deleteUpdatedBundles();
+
+                if (completion)
+                    completion();
+            });
+            
+            
+        });
+        
+    }
     bool BundleCatalog::synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
         return synchronizeBundlesWithServer(bundleIdentifiers(), completionPerBundle, completion);
     }
