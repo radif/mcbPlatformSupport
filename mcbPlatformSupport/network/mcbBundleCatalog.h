@@ -69,10 +69,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
         bool deleteUpdatedBundles();
         void serializeBundles(){_serializeBundles();}
         bool isDownloadingBundles() const;
-        pBundle bundleByIdentifier(const std::string & identifier) const;
         
+        //get bundles
+        pBundle bundleByIdentifier(const std::string & identifier) const;
         std::vector<pBundle> bundles() const;
         std::vector<std::string> bundleIdentifiers() const;
+        std::vector<pBundle> bundlesWithContentLabel(const std::string & label);
+        
     protected:
         virtual void init() override;
         BundleCatalog()=default;

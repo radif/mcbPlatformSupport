@@ -533,7 +533,14 @@ namespace mcb{namespace PlatformSupport{namespace network{
             retVal.emplace_back(p.second->identifier());
         return retVal;
     }
-    
+    std::vector<pBundle> BundleCatalog::bundlesWithContentLabel(const std::string & label){
+        std::vector<pBundle> retVal;
+        for (const auto & p: _bundles)
+            for (const std::string & pLabel : p.second->_contentLabels)
+                if (pLabel==label)
+                    retVal.emplace_back(p.second);
+        return retVal;;
+    }
     void BundleCatalog::_fetchBundle(pBundle bundle, const std::function<void(bool success)> & completion, const std::function<void(float progress)> & progress){
         
         static const float kDownloadToUnpackProgressRatio(.7f);
@@ -646,4 +653,5 @@ namespace mcb{namespace PlatformSupport{namespace network{
         });
         
     }
+    
 }}}
