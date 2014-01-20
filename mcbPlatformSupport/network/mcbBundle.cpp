@@ -19,7 +19,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     bool Bundle::boolForKey(const std::string & key, bool defaultVal) const{
         auto it(_userMetadata.find(key));
         if (it!=_userMetadata.end())
-            return PlatformSupport::Functions::boolFromString((*it).second);
+            return PlatformSupport::Functions::boolFromString(it->second);
         return defaultVal;
     }
     void Bundle::setBoolForKey(const std::string & key, bool value){
@@ -29,7 +29,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     int Bundle::intForKey(const std::string & key, int defaultVal) const{
         auto it(_userMetadata.find(key));
         if (it!=_userMetadata.end())
-            return PlatformSupport::Functions::intFromString((*it).second);
+            return PlatformSupport::Functions::intFromString(it->second);
         return defaultVal;
     }
     void Bundle::setIntForKey(const std::string & key, int value){
@@ -39,7 +39,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     long Bundle::longForKey(const std::string & key, long defaultVal) const{
         auto it(_userMetadata.find(key));
         if (it!=_userMetadata.end())
-            return PlatformSupport::Functions::longFromString((*it).second);
+            return PlatformSupport::Functions::longFromString(it->second);
         return defaultVal;
     }
     void Bundle::setLongForKey(const std::string & key, long value){
@@ -49,7 +49,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     float Bundle::floatForKey(const std::string & key, float defaultVal) const{
         auto it(_userMetadata.find(key));
         if (it!=_userMetadata.end())
-            return PlatformSupport::Functions::floatFromString((*it).second);
+            return PlatformSupport::Functions::floatFromString(it->second);
         return defaultVal;
     }
     void Bundle::setFloatForKey(const std::string & key, float value){
@@ -58,7 +58,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     std::string Bundle::stringForKey(const std::string & key, const std::string & defaultVal) const{
         auto it(_userMetadata.find(key));
         if (it!=_userMetadata.end())
-            return (*it).second;
+            return it->second;
         return defaultVal;
     }
     void Bundle::setStringForKey(const std::string & key, const std::string & value){

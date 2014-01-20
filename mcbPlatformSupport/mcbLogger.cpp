@@ -71,10 +71,10 @@ namespace mcb{namespace PlatformSupport{
             std::string retVal;
             if (reversed)
                 for (auto it(_logEntries.rbegin()); it!=_logEntries.rend(); ++it)
-                    retVal+=(*it).stringValue()+"\n";
+                    retVal+=it->stringValue()+"\n";
             else
                 for (auto it(_logEntries.begin()); it!=_logEntries.end(); ++it)
-                    retVal+=(*it).stringValue()+"\n";
+                    retVal+=it->stringValue()+"\n";
             return retVal;
         }
         void eraseLogEntries(){

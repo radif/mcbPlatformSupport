@@ -40,12 +40,12 @@ namespace mcb{ namespace PlatformSupport{
     void AnimationSprite::setAnimationFrameDelayForAnimationKey(float frameDelay, const std::string & key){
         auto it (_animations.find(key));
         if (it!=_animations.end())
-            (*it).second->_frameDelay=frameDelay;
+            it->second->_frameDelay=frameDelay;
     }
     void AnimationSprite::playAnimationForKey(const std::string & key, const std::function<void()> & cycleCompletion, bool reset){
         auto it (_animations.find(key));
         if (it!=_animations.end()){
-            _currentAnimation=(*it).second;
+            _currentAnimation=it->second;
             if (reset)
                 _currentAnimation->reset();
             _currentAnimation->_cycleCompletion=cycleCompletion;

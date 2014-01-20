@@ -11,7 +11,9 @@
 #include "mcbUnzipQueue.h"
 #include "mcbPlatformSupport.h"
 #include "mcbPlatformSupportFunctions.h"
-#include "Json.h"
+#include "rapidjson.h"
+#include "prettywriter.h"	// for stringify JSON
+#include "filestream.h"	// wrapper of C stream for prettywriter as output
 
 namespace mcb{namespace PlatformSupport{namespace network{
     const std::string kFetchedBundlesPathToken("$(FETCHED)");
@@ -34,7 +36,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     static const std::string & stringFromStatus(Bundle::Status status){
         auto it(kStatusEnumMap.find(status));
         if (it!=kStatusEnumMap.end())
-            return (*it).second;
+            return it->second;
         return (*kStatusEnumMap.cbegin()).second;
     }
     static Bundle::Status statusFromString(const std::string & statusString){
@@ -74,10 +76,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         _metadata.updateDownloadedMetadata();
         fetchMetadata();
-        
-        
-        //TODO:remove me
-        _serializeBundles();
+                
     }
     bool BundleCatalog::fetchMetadata(const std::function<void(bool hasNewVersion, NetworkTask::Status status)> & completion){
         if (_metadata.url.empty())
@@ -154,17 +153,96 @@ namespace mcb{namespace PlatformSupport{namespace network{
     }
     void BundleCatalog::_serializeBundles(){
         const std::string kJsonPath(_jsonPath);
-        using namespace cocos2d::extension;
-        Json * root(Json_create("{\"bundles\":[], \"deleted\":[]}"));
-        Json * bundles(root->child);
-        Json * deleted(bundles->next);
+        const std::string kTempJsonPath(_jsonPath+"_temp");
+
+        using namespace rapidjson;
+
+        if (Functions::fileExists(kTempJsonPath))
+            Functions::removeFile(kTempJsonPath);
         
-        //bundles
-        //deleted bundles
-        std::string jsonString(parse_object(root, "root", "{}"));
-        Json_dispose(root);
         
-        mcbLog("%s",jsonString.c_str());
+        FILE *f(fopen(kTempJsonPath.c_str(), "wb"));
+        if (f){
+            FileStream s(f);
+            PrettyWriter<FileStream> writer(s);
+            
+            auto writeStringL([&](const std::string & string){writer.String(string.c_str(), string.size());});
+            
+            auto serializeBundleL([&](const pBundle & b){
+                //open
+                writer.StartObject();
+                
+                //identifier
+                writeStringL("identifier");
+                writeStringL(b->_identifier);
+                
+                //title
+                writeStringL("title");
+                writeStringL(b->_title);
+                
+                //version
+                writeStringL("version");
+                writer.Double(b->_version);
+                
+                //timestamp
+                writeStringL("download_timestamp");
+                writer.Int(b->_downloadTimestamp);
+                
+                
+                //localPath
+                writeStringL("local_path");
+                writeStringL(b->_localPath);
+                
+                //remoteURL
+                writeStringL("remote_url");
+                writeStringL(b->_remoteURL);
+
+                
+                //content labels
+                writeStringL("content_labels");
+                writer.StartArray();
+                for (const std::string & contentLabel : b->_contentLabels)
+                    writeStringL(contentLabel);
+                writer.EndArray();
+                
+                //user metadata
+                writeStringL("user_metadata");
+                writer.StartObject();
+                for (const auto & p :b->_userMetadata) {
+                    writeStringL(p.first);
+                    writeStringL(p.second);
+                }
+                writer.EndObject();
+                
+                
+                //close
+                writer.EndObject();
+                
+            });
+            
+            writer.StartObject();
+            
+            writeStringL("Bundles");
+            writer.StartArray();
+            //put bundles here:
+            for (const auto & p: _bundles)
+                serializeBundleL(p.second);
+            writer.EndArray();
+            
+            
+            writeStringL("Deleted");
+            writer.StartArray();
+            //put deleted here:
+            for (const auto & p: _deletedBundles)
+                serializeBundleL(p.second);
+            writer.EndArray();
+
+            writer.EndObject();
+            
+            fclose(f);
+            
+            Functions::renameFile(kTempJsonPath, kJsonPath);
+        }
         
     }
     void BundleCatalog::_deserializeBundles(){
@@ -257,7 +335,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     pBundle BundleCatalog::bundleByIdentifier(const std::string & identifier) const{
         auto it(_bundles.find(identifier));
         if (it!=_bundles.end())
-            return (*it).second;
+            return it->second;
         return nullptr;
     }
     std::vector<pBundle> BundleCatalog::bundles() const{

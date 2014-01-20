@@ -158,7 +158,7 @@ namespace mcb{namespace PlatformSupport{
     std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> ViewBuilder::factoryForKey(const std::string & key){
         auto it(_generators.find(key));
         if (it!=_generators.end())
-            return (*it).second;
+            return it->second;
         return nullptr;
     }
     void ViewBuilder::buildViewWithSceneData(cocos2d::CCDictionary * sceneData){

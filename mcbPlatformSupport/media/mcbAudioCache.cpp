@@ -21,8 +21,8 @@ namespace mcb{namespace PlatformSupport{
             retVal=std::make_shared<AudioPlayer>(path);
             _players[pathOrKey]={retVal,1};//initial retain count is 1
         }else{
-            (*it).second.second++;//bump up the retain count
-            retVal=(*it).second.first;
+            it->second.second++;//bump up the retain count
+            retVal=it->second.first;
         }
         
         return retVal;
@@ -32,7 +32,7 @@ namespace mcb{namespace PlatformSupport{
         auto it(_players.find(pathOrKey));
         if (it==_players.end())
             return nullptr;
-        return (*it).second.first;
+        return it->second.first;
     }
     
     pAudioPlayer AudioCache::playAudioSound(const std::string & pathOrKey){
@@ -62,10 +62,10 @@ namespace mcb{namespace PlatformSupport{
         if (it==_players.end())
             return;//failing silently
         
-        if ((*it).second.second<=1)
+        if (it->second.second<=1)
             _players.erase(it);
         else
-            (*it).second.second--;
+            it->second.second--;
         
     }
     void AudioCache::drain(){
