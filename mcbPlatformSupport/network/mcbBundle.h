@@ -32,15 +32,12 @@ namespace mcb{namespace PlatformSupport{namespace network{
         std::vector<std::string> _contentLabels;//these are coming from the server
         
         Bundle()=default;//avoiding make_shared in sake of hiding constructor to allow the creation of object through create func
-
+        static pBundle create();//only bundle catalog can create bundles!
     public:
         typedef enum {StatusUndefined, StatusAvailableOnline, StatusDownloaded, StatusIsDownloading, StatusUpdateAvailableOnline, StatusScheduledForDeletion} Status;
     private:
         Status _status=StatusUndefined;
     public:
-        static pBundle create();
-        static pBundle createWithJSONRepresentation(const std::string & JSONString);
-        std::string JSONRepresentation() const;
         
         const std::string & title() const{return _title;}
         const std::string & identifier() const{return _identifier;}

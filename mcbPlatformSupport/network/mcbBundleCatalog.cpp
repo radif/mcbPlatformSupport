@@ -11,13 +11,38 @@
 #include "mcbUnzipQueue.h"
 #include "mcbPlatformSupport.h"
 #include "mcbPlatformSupportFunctions.h"
+#include "Json.h"
 
 namespace mcb{namespace PlatformSupport{namespace network{
     const std::string kFetchedBundlesPathToken("$(FETCHED)");
-
-    
     const std::string kBundlesUpdatedNotificationName("kBundlesUpdatedNotificationName");
     const std::string kBundlesMetadataUpdatedNotificationName("kBundlesMetadataUpdatedNotificationName");
+    
+    //serialization
+    static const std::string kLocalStorageFilePath("$(LIBRARY)/fetched_bundles/");
+    static const std::string kLocalStorageJSONName("bundles.data");
+    
+    static const std::map<Bundle::Status, std::string> kStatusEnumMap{
+        {Bundle::StatusUndefined, "StatusUndefined"},
+        {Bundle::StatusAvailableOnline, "StatusAvailableOnline"},
+        {Bundle::StatusDownloaded, "StatusDownloaded"},
+        {Bundle::StatusIsDownloading, "StatusIsDownloading"},
+        {Bundle::StatusUpdateAvailableOnline, "StatusUpdateAvailableOnline"},
+        {Bundle::StatusScheduledForDeletion, "StatusScheduledForDeletion"}
+    };
+    
+    static const std::string & stringFromStatus(Bundle::Status status){
+        auto it(kStatusEnumMap.find(status));
+        if (it!=kStatusEnumMap.end())
+            return (*it).second;
+        return (*kStatusEnumMap.cbegin()).second;
+    }
+    static Bundle::Status statusFromString(const std::string & statusString){
+        for (const auto & p: kStatusEnumMap)
+            if (p.second==statusString)
+                return p.first;
+        return Bundle::StatusUndefined;
+    }
     
     BundleCatalog::Metadata::~Metadata(){
         CC_SAFE_RELEASE(metadata);
@@ -28,7 +53,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
         _logSuffix="\n------------------------\n\n";
         
         //generate bundle downloads path
-        const std::string fetchedBundlesPath(resolvePath("$(LIBRARY)/fetched_bundles/"));
+        const std::string fetchedBundlesPath(resolvePath(kLocalStorageFilePath));
+        
+        _jsonPath=Functions::stringByAppendingPathComponent(resolvePath(kLocalStorageFilePath), kLocalStorageJSONName);
         
         //create if doesn't exist
         if(!Functions::fileExists(fetchedBundlesPath))
@@ -41,9 +68,16 @@ namespace mcb{namespace PlatformSupport{namespace network{
         _metadata.downloadedMetadataPath=PlatformSupport::Functions::stringByAppendingPathComponent(fetchedBundlesPath, "metadata.data");
         
         mcbLog("metadata path \"%s\"",_metadata.downloadedMetadataPath.c_str());
+        
+        
+        _deserializeBundles();//get the previously saved bundles first
+        
         _metadata.updateDownloadedMetadata();
         fetchMetadata();
         
+        
+        //TODO:remove me
+        _serializeBundles();
     }
     bool BundleCatalog::fetchMetadata(const std::function<void(bool hasNewVersion, NetworkTask::Status status)> & completion){
         if (_metadata.url.empty())
@@ -92,12 +126,12 @@ namespace mcb{namespace PlatformSupport{namespace network{
             fetchMetadata();
         }
     }
-    void BundleCatalog::_createBundlesFromMetadata(){
+    void BundleCatalog::_applyMetadataToBundles(){
         if (!_metadata.hasMetadata())
             return;
         
-        _saveBundles();
-        //create new bundles
+        _serializeBundles();
+        //TODO: remove create new bundles
         pBundles newBundles;
         
         cocos2d::CCArray * bundlesA((cocos2d::CCArray *)_metadata.metadata->objectForKey("bundles"));
@@ -117,15 +151,41 @@ namespace mcb{namespace PlatformSupport{namespace network{
             }
         }
         _bundles=std::move(newBundles);
-        _restoreBundles();
     }
-    void BundleCatalog::_saveBundles(){
+    void BundleCatalog::_serializeBundles(){
+        const std::string kJsonPath(_jsonPath);
+        using namespace cocos2d::extension;
+        Json * root(Json_create("{\"bundles\":[], \"deleted\":[]}"));
+        Json * bundles(root->child);
+        Json * deleted(bundles->next);
+        
         //bundles
         //deleted bundles
+        std::string jsonString(parse_object(root, "root", "{}"));
+        Json_dispose(root);
+        
+        mcbLog("%s",jsonString.c_str());
+        
     }
-    void BundleCatalog::_restoreBundles(){
-        //bundles
-        //deleted bundles
+    void BundleCatalog::_deserializeBundles(){
+        const std::string kJsonPath(_jsonPath);
+        
+        //clear all
+        pBundles clearBundles;
+        std::swap(_bundles, clearBundles);
+        pBundles clearDeletedBundles;
+        std::swap(_deletedBundles, clearDeletedBundles);
+        
+        //bail out if none detected, starting with no bundles, letting restore from metadata create bundles
+        if (!Functions::fileExists(kJsonPath))
+            return;
+        
+        std::string jsonString(cocos2d::CCString::createWithContentsOfFile(kJsonPath.c_str())->m_sString);
+        mcbLog("has string %s",jsonString.c_str());
+        
+        //create from json string:
+        //1. bundles
+        //2. deleted bundles
     }
 
     bool BundleCatalog::isDownloadingBundles() const{
@@ -188,7 +248,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
             //update version and URL
             version=newVersion;
             url=PlatformSupport::Functions::stringForObjectKey(metadata, "url",url);
-            BundleCatalog::sharedInstance()->_createBundlesFromMetadata();
+            BundleCatalog::sharedInstance()->_applyMetadataToBundles();
             return true;
         }
         return false;
@@ -271,7 +331,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
     }
 
-    
+    //deprecate?
     void BundleCatalog::downloadAndUnzipBundle(const HTTPRequest & request, const std::string & bundlesDirectory, const std::function<void(const std::string & bundlePath, bool success)> & completion, const std::string & bundleID, const std::function<void(float progress)> & progress){
         
         static const float kDownloadToUnpackProgressRatio(.7f);

@@ -28,6 +28,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         pBundles _bundles;
         pBundles _deletedBundles;
 
+        std::string _jsonPath;
         
         struct Metadata{
             cocos2d::CCDictionary * metadata=nullptr;//retained
@@ -45,12 +46,16 @@ namespace mcb{namespace PlatformSupport{namespace network{
         bool _isDownloadingBundles=false;
         
         
-        void _createBundlesFromMetadata();
-        void _saveBundles();
-        void _restoreBundles();
+        void _serializeBundles();
+        void _deserializeBundles();
+        void _applyMetadataToBundles();
         
         void _fetchBundle(pBundle bundle, const std::function<void(bool success)> & completion, const std::function<void(float progress)> & progress=nullptr);
         
+        //deprecate?
+        //once bundle is downloaded, new tokens will be injected to mcbPath
+        void downloadAndUnzipBundle(const HTTPRequest & request, const std::string & bundlesDirectory, const std::function<void(const std::string & bundlePath, bool success)> & completion, const std::string & bundleID="", const std::function<void(float progress)> & progress=nullptr);
+
     public:
         
         //this will not have effect, once the initial connection with server is established. tokens injected onto mcbPath
@@ -62,16 +67,12 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         bool updatePendingBundles();
         bool deleteUpdatedBundles();
-        
+        void serializeBundles(){_serializeBundles();}
         bool isDownloadingBundles() const;
         pBundle bundleByIdentifier(const std::string & identifier) const;
+        
         std::vector<pBundle> bundles() const;
         std::vector<std::string> bundleIdentifiers() const;
-
-        //once bundle is downloaded, new tokens will be injected to mcbPath
-        void downloadAndUnzipBundle(const HTTPRequest & request, const std::string & bundlesDirectory, const std::function<void(const std::string & bundlePath, bool success)> & completion, const std::string & bundleID="", const std::function<void(float progress)> & progress=nullptr);
-        
-
     protected:
         virtual void init() override;
         BundleCatalog()=default;
