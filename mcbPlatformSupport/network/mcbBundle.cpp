@@ -94,4 +94,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
         }
         BundleCatalog::sharedInstance()->_serializeBundles();
     }
+    bool Bundle::isDisjointedFromCatalog() const{
+        pBundle b(BundleCatalog::sharedInstance()->bundleByIdentifier(_identifier));
+        return b.get()!=this;
+    }
+    bool Bundle::hasLocalAssets() const{
+        if (_localPath.empty())
+            return false;
+        return Functions::fileExists(_localPath);
+    }
 }}}

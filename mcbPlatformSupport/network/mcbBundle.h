@@ -70,7 +70,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
         std::string stringForKey(const std::string & key, const std::string & defaultVal="") const;
         void setStringForKey(const std::string & key, const std::string & value);
 
+        //this will merge with the official bundle's user metadata, if disjointed. If catalog no longer has it, the data won't be saved
         void serializeUserData();
+        
+        //does catalog have a different instance of the same bundle? If so, it may be modified, but it is good to keep the current reference to continue accessing it's assets. Disjointed bundles have to be deleted once they are deleted by catalog due to upgrade or deletion. look for StatusScheduledForDeletion
+        bool isDisjointedFromCatalog() const;
+        
+        bool hasLocalAssets() const;
         
         virtual ~Bundle()=default;
     };
