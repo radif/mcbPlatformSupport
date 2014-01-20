@@ -13,6 +13,7 @@
 #include <memory>
 #include <map>
 #include <vector>
+#include <math.h>
 
 namespace mcb{namespace PlatformSupport{namespace network{
     class BundleCatalog;
@@ -20,7 +21,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     typedef std::shared_ptr<Bundle> pBundle;
     class Bundle{
         friend BundleCatalog;
-        float _version=0.f;
+        float _version=-HUGE_VALF;
         const long long kTimestampUndefined=-1;
         long long _downloadTimestamp=kTimestampUndefined;
         std::string _identifier;

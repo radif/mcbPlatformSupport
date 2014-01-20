@@ -131,28 +131,108 @@ namespace mcb{namespace PlatformSupport{namespace network{
     void BundleCatalog::_applyMetadataToBundles(){
         if (!_metadata.hasMetadata())
             return;
-        
-        _serializeBundles();
-        //TODO: remove create new bundles
-        pBundles newBundles;
+        using namespace cocos2d;
         
         cocos2d::CCArray * bundlesA((cocos2d::CCArray *)_metadata.metadata->objectForKey("bundles"));
         if (bundlesA) {
-         
-            //newBundles.reserve(bundlesA->count());
             for (int i(0); i<bundlesA->count(); ++i) {
                 cocos2d::CCDictionary * bundleDict((cocos2d::CCDictionary *)bundlesA->objectAtIndex(i));
-                pBundle b(Bundle::create());
-                b->_identifier=PlatformSupport::Functions::stringForObjectKey(bundleDict, "identifier");
-                b->_localPath=PlatformSupport::Functions::stringByAppendingPathComponent(kFetchedBundlesPathToken, b->_identifier);
-                b->_title=PlatformSupport::Functions::stringForObjectKey(bundleDict, "title");
                 
-                //??b->_version=PlatformSupport::Functions::floatForObjectKey(bundleDict, "version");
-                
-                newBundles[b->_identifier]=b;
+                std::string identifier(Functions::stringForObjectKey(bundleDict, "identifier"));
+                if (identifier.empty())
+                    continue;
+                float version(Functions::floatForObjectKey(bundleDict, "version",-HUGE_VALF));
+                pBundle b(bundleByIdentifier(identifier));
+                bool isExistingBundle(b);
+                if (isExistingBundle) {
+                    //exisitng bundle
+                    if (b->_version<version){
+                        //if downloaded, then
+                        if (b->_status==Bundle::StatusDownloaded)
+                            b->_status=Bundle::StatusUpdateAvailableOnline;
+                    }if (b->_version==version) {
+                        //update all settings
+                        b->_title=Functions::stringForObjectKey(bundleDict, "title");
+                        b->_preshipped=Functions::boolForObjectKey(bundleDict, "preshipped",b->_preshipped);
+                        if (b->_preshipped){
+                            //local pathis only applicable to preshipped
+                            b->_localPath=Functions::stringForObjectKey(bundleDict, "local_path", b->_localPath);
+                        }
+                        
+                        //this is a post download case
+                        if (b->_status==Bundle::StatusDownloaded) {
+                            //update content labels
+                            CCArray * labelsA(dynamic_cast<CCArray *>(bundleDict->objectForKey("content_labels")));
+                            if (labelsA && labelsA->count()) {
+                                decltype(b->_contentLabels) contentLabels;
+                                contentLabels.reserve(labelsA->count());
+                                mcbForEachBegin(CCString *, s, labelsA)
+                                contentLabels.emplace_back(s->m_sString);
+                                mcbForEachEnd
+                                b->_contentLabels=std::move(contentLabels);
+                            }
+                            
+                            //merge user metadata
+                            CCDictionary * userMetadataD(dynamic_cast<CCDictionary *>(bundleDict->objectForKey("user_metadata")));
+                            if (userMetadataD) {
+                                CCDictElement *e(nullptr);
+                                CCDICT_FOREACH(userMetadataD, e)
+                                    b->_userMetadata[e->getStrKey()]=((CCString *)e->getObject())->m_sString;
+                            }
+                        }
+                        
+                        
+                        
+                        
+                        
+                    }
+                    
+                    
+                }else{
+                    //new bundle
+                    b=Bundle::create();
+                    b->_identifier=identifier;
+                    b->_title=Functions::stringForObjectKey(bundleDict, "title");
+                    b->_version=version;
+                    b->_preshipped=Functions::boolForObjectKey(bundleDict, "preshipped",b->_preshipped);
+                    if (b->_preshipped){
+                        b->_status=Bundle::StatusDownloaded;
+                        b->_downloadTimestamp=time(0);
+                        //local pathis only applicable to preshipped
+                        b->_localPath=Functions::stringForObjectKey(bundleDict, "local_path", b->_localPath);
+                    }else
+                        b->_status=Bundle::StatusAvailableOnline;
+                    
+                    //content labels
+                    CCArray * labelsA(dynamic_cast<CCArray *>(bundleDict->objectForKey("content_labels")));
+                    if (labelsA && labelsA->count()) {
+                        decltype(b->_contentLabels) contentLabels;
+                        contentLabels.reserve(labelsA->count());
+                        mcbForEachBegin(CCString *, s, labelsA)
+                            contentLabels.emplace_back(s->m_sString);
+                        mcbForEachEnd
+                        b->_contentLabels=std::move(contentLabels);
+                    }
+                    //user metadata
+                    CCDictionary * userMetadataD(dynamic_cast<CCDictionary *>(bundleDict->objectForKey("user_metadata")));
+                    if (userMetadataD) {
+                        decltype(b->_userMetadata) userMetadata;
+                        CCDictElement *e(nullptr);
+                        CCDICT_FOREACH(userMetadataD, e)
+                            userMetadata[e->getStrKey()]=((CCString *)e->getObject())->m_sString;
+                        b->_userMetadata=std::move(userMetadata);
+                    }
+                    
+                }
+                //always keep this current for upgrades
+                b->_remoteURL=Functions::stringForObjectKey(bundleDict, "remote_url", b->_remoteURL);
+
+             
+                _bundles[b->_identifier]=std::move(b);
             }
         }
-        _bundles=std::move(newBundles);
+        
+        _serializeBundles();
     }
     void BundleCatalog::_serializeBundles(){
         const std::string kJsonPath(_jsonPath);
@@ -287,9 +367,49 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         auto parseBundleL([&](const Value& bundleV)->pBundle{
             pBundle retVal(nullptr);
-            if (bundleV.IsObject()) {
-             
-                mcbLog("!!");
+            if (bundleV.IsObject() && bundleV.HasMember("identifier")) {
+                retVal=Bundle::create();
+                //identifier
+                retVal->_identifier=bundleV["identifier"].GetString();
+                
+                if (bundleV.HasMember("title"))
+                    retVal->_title=bundleV["title"].GetString();
+                if (bundleV.HasMember("version"))
+                    retVal->_version=bundleV["version"].GetDouble();
+                if (bundleV.HasMember("download_timestamp"))
+                    retVal->_downloadTimestamp=bundleV["download_timestamp"].GetInt();
+                if (bundleV.HasMember("status"))
+                    retVal->_status=statusFromString(bundleV["status"].GetString());
+                if (bundleV.HasMember("local_path"))
+                    retVal->_localPath=bundleV["local_path"].GetString();
+                if (bundleV.HasMember("remote_url"))
+                    retVal->_remoteURL=bundleV["remote_url"].GetString();
+                if (bundleV.HasMember("preshipped"))
+                    retVal->_preshipped=bundleV["preshipped"].GetBool();
+                
+                //content labels
+                if (bundleV.HasMember("content_labels")){
+                    const Value & contentLabelsV(bundleV["content_labels"]);
+                    if (contentLabelsV.IsArray()) {
+                        decltype(retVal->_contentLabels) contentLabels;
+                        contentLabels.reserve(contentLabelsV.Size());
+                        for (SizeType i(0); i < contentLabelsV.Size(); ++i)
+                            contentLabels.emplace_back(contentLabelsV[i].GetString());
+                        retVal->_contentLabels=std::move(contentLabels);
+                    }
+                }
+                //user metadata
+                if (bundleV.HasMember("user_metadata")){
+                    const Value & userMetadataV(bundleV["user_metadata"]);
+                    if (userMetadataV.IsObject()) {
+                        decltype(retVal->_userMetadata) userMetadata;
+                        for (auto itr(userMetadataV.MemberBegin()); itr!=userMetadataV.MemberEnd();++itr)
+                            userMetadata[itr->name.GetString()]=itr->value.GetString();
+                        retVal->_userMetadata=std::move(userMetadata);
+                    }
+                }
+                
+                
             }
             return retVal;
         });
