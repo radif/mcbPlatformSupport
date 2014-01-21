@@ -44,8 +44,10 @@ namespace mcb{namespace PlatformSupport{
         __platformSpecificDeletePlayer();
     }
     
-    void AudioPlayer::playOneShot(const std::string & audioFile, const std::function<void()> & completion){
+    void AudioPlayer::playOneShot(const std::string & audioFile, const std::function<void()> & completion, const std::function<void(AudioPlayer * player)> playerSetupHandle){
         AudioPlayer *p(new AudioPlayer(audioFile));
+        if (playerSetupHandle)
+            playerSetupHandle(p);
         p->m_playerCompletion=[=](AudioPlayer *m_p){if(completion) completion(); delete m_p;};
         p->play();
     }
