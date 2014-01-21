@@ -24,18 +24,16 @@ namespace mcb{namespace PlatformSupport{namespace crypto{
     typedef unsigned int uint;
     typedef unsigned long long ullint;
     
-    static inline std::string fromDecimal(ullint n, ullint b){
+    static inline std::string fromDecimal(ullint n, const ullint b, const uint length){
         static const std::string chars("0123456789abcdefghijklmnopqrstuvwxyz");
         std::string result;
-        while(n>0){
-            result=chars.at((size_t)n%b)+result;
+        for (int pass(0); pass<length; ++pass){
+            result=chars.at(n%b)+result;
             n/=b;
         }
         return result;
     }
-    
     namespace sha512helpers{
-        
         
         static const ullint K[80] = {
             0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL,
@@ -210,7 +208,7 @@ namespace mcb{namespace PlatformSupport{namespace crypto{
         
         std::string retVal;
         for(uint i(0); i<8; ++i)
-            retVal+=fromDecimal(H[i], 16);
+            retVal+=fromDecimal(H[i], 16, 16);
         return retVal;
     }
     
@@ -271,7 +269,7 @@ namespace mcb{namespace PlatformSupport{namespace crypto{
         }
         
         
-
+        
         
         static inline uint ch(uint x, uint y, uint z){
             return (x&y) ^ (~x&z);
@@ -296,9 +294,9 @@ namespace mcb{namespace PlatformSupport{namespace crypto{
         static inline uint sigma1(uint x){
             return rotr32(x, 17) ^ rotr32(x, 19) ^ shr32(x, 10);
         }
-                
+        
     }
-
+    
     std::string sha256(const std::string & str){
         using namespace sha256helpers;
         std::string msg_arr(str);
@@ -350,11 +348,11 @@ namespace mcb{namespace PlatformSupport{namespace crypto{
                 H[i] = work[i] + H[i];
 		}
 		
-       
+        
         
         std::string retVal;
         for(uint i(0); i<8; ++i)
-            retVal+=fromDecimal(H[i], 16);
+            retVal+=fromDecimal(H[i], 16, 8);
         return retVal;
     }
     
