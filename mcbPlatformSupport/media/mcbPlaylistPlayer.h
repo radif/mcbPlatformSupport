@@ -21,7 +21,7 @@ namespace mcb{namespace PlatformSupport{
         const std::string _playlistName;
         pAudioPlayer _player=nullptr;
         const std::vector<std::string> _audioFiles;
-        int _audioItemIndex=0;
+        unsigned int _audioItemIndex=0;
         
         void _playNextItemInQueue();
         
@@ -36,12 +36,15 @@ namespace mcb{namespace PlatformSupport{
         void pause();           /* pauses playback, but remains ready to play. */
         void stop();            /* stops playback. no longer ready to play. */
         
+        bool playNext();        /* force to play the next sound if available*/
+        unsigned int currentSoundIndex() const;
+        unsigned int totalSoundsCount() const;
         
         /* properties */
         bool getIsPlaying() const; /* is it playing or not? */
         
         void setMeteringEnabled(bool enabled);/* turns level metering on or off. default is off. */
-        bool isMeteringEnabled();
+        bool isMeteringEnabled() const;
         
         void updateMeters();/* call to refresh meter values */
         
@@ -51,6 +54,9 @@ namespace mcb{namespace PlatformSupport{
         
         //this is guaranted to be called
         std::function<void(PlaylistPlayer *player, const std::string & playlistName)> onPlaylistCompletedHandle=nullptr;
+        
+        //setup every player's property here, the m_playerCompletion and isMeteringEnabled will be overridden by this class. It is safe to form a weak_ptr to the player passed
+        std::function<void(pAudioPlayer player, const std::string & audioFile, const unsigned int index)> onEachPlayerSetup=nullptr;
         
         void setSuspended(bool suspended);
         

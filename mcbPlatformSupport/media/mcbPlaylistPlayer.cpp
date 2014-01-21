@@ -22,7 +22,10 @@ namespace mcb{namespace PlatformSupport{
             stop();
             return;
         }else{
-            _player= std::make_shared<AudioPlayer>("tts", _audioFiles.at(_audioItemIndex), 0, 1, 0);
+            _player= std::make_shared<AudioPlayer>("next", _audioFiles.at(_audioItemIndex), 0, 1, 0);
+            if (onEachPlayerSetup)
+                onEachPlayerSetup(_player, _audioFiles.at(_audioItemIndex), _audioItemIndex);
+            
             _player->setMeteringEnabled(_isMeteringEnabled);
             _player->prepareToPlay();
             _player->m_playerCompletion=[=](AudioPlayer * p){_playNextItemInQueue();};
@@ -30,7 +33,6 @@ namespace mcb{namespace PlatformSupport{
         }
         _audioItemIndex++;
     }
-    
     
     void PlaylistPlayer::play(){
         stop();
@@ -51,8 +53,21 @@ namespace mcb{namespace PlatformSupport{
         }
     }
     
-    
+    bool PlaylistPlayer::playNext(){
+        if(_audioItemIndex>=_audioFiles.size())
+            return false;
+        _playNextItemInQueue();
+        return true;
+    }
+        
     /* properties */
+    unsigned int PlaylistPlayer::currentSoundIndex() const{
+        return _audioItemIndex;
+    }
+    unsigned int PlaylistPlayer::totalSoundsCount() const{
+        return _audioFiles.size();
+    }
+    
     bool PlaylistPlayer::getIsPlaying() const{
         if (_player)
             return _player->getIsPlaying();
@@ -65,7 +80,7 @@ namespace mcb{namespace PlatformSupport{
             _player->setMeteringEnabled(_isMeteringEnabled);
         
     }
-    bool PlaylistPlayer::isMeteringEnabled(){
+    bool PlaylistPlayer::isMeteringEnabled() const{
         return _isMeteringEnabled;
     }
     

@@ -35,7 +35,7 @@ namespace mcb{namespace PlatformSupport{
         virtual ~AudioPlayer();
         
         
-        static void playOneShot(const std::string & audioFile);
+        static void playOneShot(const std::string & audioFile, const std::function<void()> & completion=nullptr);
         
         /* transport control */
         /* methods that return bool return true on success and false on failure. */
