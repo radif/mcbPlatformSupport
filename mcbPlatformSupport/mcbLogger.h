@@ -16,10 +16,10 @@
 namespace mcb{namespace PlatformSupport{
     
     //log level conventions:
-    //0 - 3 - dev;
-    //4 - iNF - prod
+    //0 - 99 - dev;
+    //100 - iNF - prod
     //777 - Analytics
-    enum {LogLevelDeveloper=0, LogLevelProduction=4, LogLevelAnalytics=777};
+    enum {LogLevelDeveloper=0, LogLevelProduction=100, LogLevelAnalytics=777};
     
     class Logger{
     protected:
@@ -53,8 +53,9 @@ namespace mcb{namespace PlatformSupport{
 
         /*
             @log dump
+            this will start the log dump, it will dump all logs, including analytics
          */
-        void setRecordingLog(bool recordLog);//default is false
+        void setRecordingLog(bool recordLog);
         bool isLogRecorded();
         
         const log_entries_t & logEntries();
@@ -66,7 +67,7 @@ namespace mcb{namespace PlatformSupport{
         /*
          @Analytics
          */
-        //will be called every time the log is made, it is up to implementer to decide which log level is necessary for analytics
+        //will be called every time the log with leve LogLevelAnalytics is made
         void setAnalyticsHandler(const log_analytics_handler_t &handler);
         
         void log(const std::string & message, unsigned int level=LogLevelDeveloper, const std::string & category="");

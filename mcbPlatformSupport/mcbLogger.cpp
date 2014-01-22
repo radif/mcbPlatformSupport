@@ -37,7 +37,7 @@ namespace mcb{namespace PlatformSupport{
         static unsigned int _logLevel(LogLevelDeveloper);
         static bool _isRecordingLog(false);
         static log_entries_t _logEntries;
-        static log_analytics_handler_t _analyticsLandler(nullptr);
+        static log_analytics_handler_t _analyticsHandler(nullptr);
         
         LogEntry::LogEntry(const std::string & m_message, const std::string & m_category, const unsigned int m_level)
         :message(m_message)
@@ -93,7 +93,7 @@ namespace mcb{namespace PlatformSupport{
         }
         
         void setAnalyticsHandler(const log_analytics_handler_t &handler){
-        
+            _analyticsHandler=handler;
         }
         
         void log(const std::string & message, unsigned int level, const std::string & category){
@@ -102,8 +102,8 @@ namespace mcb{namespace PlatformSupport{
             if (_logLevel<=logEntry.level)
                 std::cout << "mcbLog: "<< logEntry.stringValue() << std::endl;
 
-            if (_analyticsLandler) {
-                _analyticsLandler(logEntry);
+            if (_analyticsHandler && level==LogLevelAnalytics) {
+                _analyticsHandler(logEntry);
                 
             if (_isRecordingLog)
                 _logEntries.emplace_back(std::move(logEntry));
