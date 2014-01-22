@@ -45,7 +45,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         bool _isDownloadingBundles=false;
         
-        
+        void _addToDeletedBundles(pBundle b);
         void _serializeBundles();
         void _deserializeBundles();
         void _applyMetadataToBundles();
@@ -80,6 +80,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
         std::vector<pBundle> bundles() const;
         std::vector<std::string> bundleIdentifiers() const;
         std::vector<pBundle> bundlesWithContentLabel(const std::string & label);
+        
+        //already updated or deleted bundles, that were not physically deleted from disk
+        std::vector<pBundle> deletedBundles() const;
         
     protected:
         virtual void init() override;

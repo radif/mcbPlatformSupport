@@ -233,12 +233,21 @@ namespace mcb{namespace PlatformSupport{namespace network{
             
             for (const auto & p : _bundles)
                 if (!foundInNewBundlesL(p.second->_identifier))
-                    _deletedBundles[p.second->_identifier]=p.second;
+                    _addToDeletedBundles(p.second);
             
             _bundles=std::move(newBundles);
         }
         
         _serializeBundles();
+    }
+    void BundleCatalog::_addToDeletedBundles(pBundle b){
+        //make sure it is not in bundles
+//        auto it(_bundles.find(b->_identifier));
+//        if (it!=_bundles.end())
+ //           _bundles.erase(it);
+            
+        b->_status=Bundle::StatusScheduledForDeletion;
+        _deletedBundles[b->_identifier]=b;
     }
     void BundleCatalog::_serializeBundles(){
         const std::string kJsonPath(_jsonPath);
@@ -503,11 +512,15 @@ namespace mcb{namespace PlatformSupport{namespace network{
     }
     
     bool BundleCatalog::deleteUpdatedBundles(){
-        bool deletedBundles(false);
+        bool retVal(false);
         //find deleted bundles and delete from disk their content
         for (const auto & p : _deletedBundles){
-            Functions::removeFile(p.second->_localPath);
-            deletedBundles=true;
+            if (!p.second->_preshipped && Functions::fileExists(p.second->_localPath))
+                Functions::removeFile(p.second->_localPath);
+            
+            //TODO: delete all unfinished downloads and un-unzipped bundles
+            
+            retVal=true;
         }
         
         //flush
@@ -518,8 +531,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         //TODO: delete all unfinished downloads and un-unzipped bundles
         
-        
-        return deletedBundles;
+        return retVal;
     }
     
     bool BundleCatalog::Metadata::setMetadata(cocos2d::CCDictionary *m){
@@ -552,7 +564,14 @@ namespace mcb{namespace PlatformSupport{namespace network{
         retVal.reserve(_bundles.size());
         for (const auto & p: _bundles)
             retVal.emplace_back(p.second);
-        return retVal;;
+        return retVal;
+    }
+    std::vector<pBundle> BundleCatalog::deletedBundles() const{
+        std::vector<pBundle> retVal;
+        retVal.reserve(_deletedBundles.size());
+        for (const auto & p: _deletedBundles)
+            retVal.emplace_back(p.second);
+        return retVal;
     }
     std::vector<std::string> BundleCatalog::bundleIdentifiers() const{
         std::vector<std::string> retVal;
