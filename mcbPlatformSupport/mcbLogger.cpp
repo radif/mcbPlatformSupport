@@ -34,7 +34,7 @@ namespace mcb{namespace PlatformSupport{
     
     
     namespace Log{
-        static unsigned int _logLevel(0);
+        static unsigned int _logLevel(LogLevelDeveloper);
         static bool _isRecordingLog(false);
         static log_entries_t _logEntries;
         static log_analytics_handler_t _analyticsLandler(nullptr);
@@ -67,18 +67,20 @@ namespace mcb{namespace PlatformSupport{
         const log_entries_t & logEntries(){
             return _logEntries;
         }
-        std::string logDump(bool reversed, size_t maxLength){
+        std::string logDump(bool reversed, size_t maxLength, unsigned int minLogLevel,  unsigned int maxLogLevel){
             std::string retVal;
             if (reversed)
                 for (auto it(_logEntries.rbegin()); it!=_logEntries.rend(); ++it){
-                    retVal+=it->stringValue()+"\n";
+                    if (it->level>=minLogLevel && it->level<=maxLogLevel)
+                        retVal+=it->stringValue()+"\n";
                     if (maxLength!=-1)
                         if (retVal.length()>=maxLength)
                             break;
                 }
             else
                 for (auto it(_logEntries.begin()); it!=_logEntries.end(); ++it){
-                    retVal+=it->stringValue()+"\n";
+                    if (it->level>=minLogLevel && it->level<=maxLogLevel)
+                        retVal+=it->stringValue()+"\n";
                     if (maxLength!=-1)
                         if (retVal.length()>=maxLength)
                             break;
