@@ -147,6 +147,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         cocos2d::CCArray * bundlesA((cocos2d::CCArray *)_catalogMetadata.metadata->objectForKey("bundles"));
         if (bundlesA) {
+            
+            pBundles newBundles;
+            
             for (int i(0); i<bundlesA->count(); ++i) {
                 cocos2d::CCDictionary * bundleDict((cocos2d::CCDictionary *)bundlesA->objectAtIndex(i));
                 
@@ -220,8 +223,19 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 newBundle->_remoteURL=Functions::stringForObjectKey(bundleDict, "remote_url", newBundle->_remoteURL);
 
              
-                _bundles[newBundle->_identifier]=std::move(newBundle);
+                newBundles[newBundle->_identifier]=std::move(newBundle);
             }
+            
+            //mark the rest as deleted
+            auto foundInNewBundlesL([&](const std::string & identifier){
+                return newBundles.find(identifier)!=newBundles.end();
+            });
+            
+            for (const auto & p : _bundles)
+                if (!foundInNewBundlesL(p.second->_identifier))
+                    _deletedBundles[p.second->_identifier]=p.second;
+            
+            _bundles=std::move(newBundles);
         }
         
         _serializeBundles();
