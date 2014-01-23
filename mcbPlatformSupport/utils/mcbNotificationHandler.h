@@ -44,7 +44,8 @@ namespace mcb{ namespace PlatformSupport{
             }
         }
         virtual ~NotificationHandler(){
-            for (const auto &p : _handlers)
+            auto handlersCopy(_handlers);
+            for (const auto &p : handlersCopy)
                 removeNotificationHandler(p.first);
         }
     };
