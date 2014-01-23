@@ -103,4 +103,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
             return false;
         return Functions::fileExists(_localPath);
     }
+    std::string Bundle::suggestedStorageName() const{
+        return _identifier+"_v"+Functions::t_to_string(_nextAvailableVersion);
+    }
 }}}

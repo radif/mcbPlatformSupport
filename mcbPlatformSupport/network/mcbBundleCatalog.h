@@ -31,6 +31,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         pBundles _deletedBundles;
 
         std::string _jsonPath;
+        std::string _fetchedPath;
         
         struct Metadata{
             cocos2d::CCDictionary * metadata=nullptr;//retained
@@ -58,6 +59,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
         //once bundle is downloaded, new tokens will be injected to mcbPath
         void downloadAndUnzipBundle(const HTTPRequest & request, const std::string & bundlesDirectory, const std::function<void(const std::string & bundlePath, bool success)> & completion, const std::string & bundleID="", const std::function<void(float progress)> & progress=nullptr);
 
+        
+        std::string _pathForBundleZipfile(const pBundle & b) const;
+        std::string _pathForBundleStorageDirectory(const pBundle & b) const;
     public:
         
         //this will not have effect, once the initial connection with server is established. tokens injected onto mcbPath

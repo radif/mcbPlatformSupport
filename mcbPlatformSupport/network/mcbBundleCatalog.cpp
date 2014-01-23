@@ -60,7 +60,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         //generate bundle downloads path
         const std::string fetchedBundlesPath(resolvePath(kLocalStorageFilePath));
         
-        _jsonPath=Functions::stringByAppendingPathComponent(resolvePath(kLocalStorageFilePath), kLocalStorageJSONName);
+        _fetchedPath=resolvePath(kLocalStorageFilePath);
+        _jsonPath=Functions::stringByAppendingPathComponent(_fetchedPath, kLocalStorageJSONName);
         
         //create if doesn't exist
         if(!Functions::fileExists(fetchedBundlesPath))
@@ -185,8 +186,12 @@ namespace mcb{namespace PlatformSupport{namespace network{
                         //if downloaded, then
                         if (newBundle->_status==Bundle::StatusDownloaded)
                             newBundle->_status=Bundle::StatusUpdateAvailableOnline;
-                    }if (newBundle->_version==version) {
+                        
+                        newBundle->_nextAvailableVersion=version;
+                        
+                    }else if (newBundle->_version==version) {
                         //update all settings
+                        newBundle->_nextAvailableVersion=version;
                         newBundle->_title=Functions::stringForObjectKey(bundleDict, "title");
                         newBundle->_preshipped=Functions::boolForObjectKey(bundleDict, "preshipped",newBundle->_preshipped);
                         if (newBundle->_preshipped){
@@ -209,6 +214,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
                     newBundle->_identifier=identifier;
                     newBundle->_title=Functions::stringForObjectKey(bundleDict, "title");
                     newBundle->_version=version;
+                    newBundle->_nextAvailableVersion=version;
                     newBundle->_preshipped=Functions::boolForObjectKey(bundleDict, "preshipped",newBundle->_preshipped);
                     if (newBundle->_preshipped){
                         newBundle->_status=Bundle::StatusDownloaded;
@@ -283,6 +289,10 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 //version
                 writeStringL("version");
                 writer.Double(b->_version);
+                
+                //next version
+                writeStringL("nextAvailableVersion");
+                writer.Double(b->_nextAvailableVersion);
                 
                 //download timestamp
                 writeStringL("download_timestamp");
@@ -393,6 +403,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
                     retVal->_title=bundleV["title"].GetString();
                 if (bundleV.HasMember("version"))
                     retVal->_version=bundleV["version"].GetDouble();
+                if (bundleV.HasMember("nextAvailableVersion"))
+                    retVal->_nextAvailableVersion=bundleV["nextAvailableVersion"].GetDouble();
                 if (bundleV.HasMember("download_timestamp"))
                     retVal->_downloadTimestamp=bundleV["download_timestamp"].GetInt();
                 if (bundleV.HasMember("status"))
@@ -509,6 +521,47 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         bool hasNewBundles(false);
         
+        
+        for (pBundle b :bundlesNeedUpdating) {
+            
+            std::string bundleZipPath(_pathForBundleZipfile(b));
+            std::string bundleUnZipPath(_pathForBundleStorageDirectory(b));
+            std::string remoteURL(b->remoteURL());
+            auto callCompletionL([=](bool success){
+                if (success) {
+                    mcbLog("!!!!");
+                }
+            });
+            
+            Functions::removeFile(bundleZipPath);
+            Functions::removeFile(bundleUnZipPath);
+            
+            DownloadQueue::sharedInstance()->enqueueDownload(HTTPRequestGET(remoteURL), bundleZipPath, [=](NetworkTask::Status status, const HTTPResponse & response){
+                if (status==NetworkTask::StatusCompleted) {
+                    
+                    Functions::createDirectory(bundleUnZipPath);
+                    
+                    UnzipQueue::sharedInstance()->enqueueUnzip(bundleZipPath, bundleUnZipPath, [=](UnzipTask::Status status){
+                        Functions::removeFile(bundleZipPath);
+                        if (status==UnzipTask::StatusCompleted) {
+                            callCompletionL(true);
+                        }else{
+                            Functions::removeFile(bundleUnZipPath);
+                            callCompletionL(false);
+                        }
+                    });
+                }else{
+                    Functions::removeFile(bundleUnZipPath);
+                    Functions::removeFile(bundleUnZipPath);
+                    callCompletionL(false);
+                }
+                
+            });
+        }
+        
+       
+        return true;
+        
         _fetchBundle(bundlesNeedUpdating.front(), [=](bool success){
         
             _isDownloadingBundles=false;
@@ -550,11 +603,19 @@ namespace mcb{namespace PlatformSupport{namespace network{
     bool BundleCatalog::deleteUpdatedBundles(){
         bool retVal(false);
         //find deleted bundles and delete from disk their content
+        
+        auto deleteConditionallyL([](const std::string & path){
+            if (Functions::fileExists(path))
+                Functions::removeFile(path);
+        });
+        
         for (const auto & p : _deletedBundles){
             if (!p.second->_preshipped && Functions::fileExists(p.second->_localPath))
                 Functions::removeFile(p.second->_localPath);
             
-            //TODO: delete all unfinished downloads and un-unzipped bundles
+            //deleting the unfinished downloads if any
+            deleteConditionallyL(_pathForBundleZipfile(p.second));
+            deleteConditionallyL(_pathForBundleStorageDirectory(p.second));
             
             retVal=true;
         }
@@ -564,8 +625,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
         std::swap(_deletedBundles, cleanVector);
         
         _serializeBundles();
-        
-        //TODO: delete all unfinished downloads and un-unzipped bundles
         
         return retVal;
     }
@@ -763,5 +822,11 @@ namespace mcb{namespace PlatformSupport{namespace network{
         });
         
     }
-    
+    std::string BundleCatalog::_pathForBundleZipfile(const pBundle & b) const{
+        return Functions::stringByAppendingPathComponent(_fetchedPath, b->suggestedStorageName()+".download");
+    }
+    std::string BundleCatalog::_pathForBundleStorageDirectory(const pBundle & b) const{
+        return Functions::stringByAppendingPathComponent(_fetchedPath, b->suggestedStorageName())+"/";
+    }
+
 }}}

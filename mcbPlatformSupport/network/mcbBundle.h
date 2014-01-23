@@ -23,6 +23,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     class Bundle{
         friend BundleCatalog;
         float _version=-HUGE_VALF;
+        float _nextAvailableVersion=-HUGE_VALF;
         const long long kTimestampUndefined=-1;
         long long _downloadTimestamp=kTimestampUndefined;
         std::string _identifier;
@@ -43,6 +44,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
     public:
         bool isLocallyAvailable() const{return _status==StatusDownloaded || _status==StatusUpdateAvailableOnline;}
         bool needsFetch() const{return _status==StatusAvailableOnline || _status==StatusUpdateAvailableOnline;}
+        std::string suggestedStorageName() const;
         bool isPreshipped() const{return _preshipped;}
         const std::string & title() const{return _title;}
         const std::string & identifier() const{return _identifier;}

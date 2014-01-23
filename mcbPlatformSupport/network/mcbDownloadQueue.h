@@ -14,7 +14,7 @@
 
 namespace mcb{namespace PlatformSupport{namespace network{
     class DownloadQueue : public SingletonFactory<DownloadQueue>{
-        int _maxConcurrentDownloads=8;
+        int _maxConcurrentDownloads=3;
         std::vector<pDownloadTask> _queue;
         friend SingletonFactory<DownloadQueue>;
     public:
