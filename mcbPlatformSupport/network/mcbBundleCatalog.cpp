@@ -453,7 +453,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         return _isDownloadingBundles;
     }
     
-    void BundleCatalog::completeSynchronize(const std::function<bool()> & canDeleteBundles, const std::function<void()> & completion){
+    void BundleCatalog::completeSynchronize(const std::function<bool()> & canDeleteBundles, const std::function<void(bool hasNewBundles)> & completion){
         auto canDeleteL([=]()->bool{
             if (!canDeleteBundles)
                 return false;
@@ -469,17 +469,17 @@ namespace mcb{namespace PlatformSupport{namespace network{
                     deleteUpdatedBundles();
 
                 if (completion)
-                    completion();
+                    completion(hasNewBundles);
             });
             
             
         });
         
     }
-    bool BundleCatalog::synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
+    bool BundleCatalog::synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle, bool & stop)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
         return synchronizeBundlesWithServer(bundleIdentifiers(), completionPerBundle, completion);
     }
-    bool BundleCatalog::synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
+    bool BundleCatalog::synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle, bool & stop)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
         if (_isDownloadingBundles)
             return false;
         _isDownloadingBundles=true;
@@ -494,8 +494,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
             //each (if so):
             hasNewBundles=true;
             cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
-            if (completionPerBundle)
-                completionPerBundle(nullptr);//bundle?
+            if (completionPerBundle){
+                bool shouldStop(false);
+                completionPerBundle(nullptr, shouldStop);//bundle?
+                if (shouldStop) {
+                    //TODO: finish up
+                }
+            }
             
             //-------------------
             

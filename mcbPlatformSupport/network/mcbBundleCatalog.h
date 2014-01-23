@@ -64,12 +64,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         
         //the updated or downloaded bundles will be newly created bundles, so you can continue using the old one until you delete their assets by calling deleteUpdatedBundles();
-        bool synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle)> & completionPerBundle=nullptr, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion=nullptr);//update or download bundles
-        bool synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle)> & completionPerBundle=nullptr, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion=nullptr);//update or download bundles
+        bool synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle, bool & stop)> & completionPerBundle=nullptr, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion=nullptr);//update or download bundles
+        bool synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle, bool & stop)> & completionPerBundle=nullptr, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion=nullptr);//update or download bundles
         
         //will fetch catalog metadata, then update/download all bundles, delete from disk, if allowed by first argument's return
-        void completeSynchronize(const std::function<bool()> & canDeleteBundles=nullptr, const std::function<void()> & completion=nullptr);
+        void completeSynchronize(const std::function<bool()> & canDeleteBundles=nullptr, const std::function<void(bool hasNewBundles)> & completion=nullptr);
         
+        bool hasDeletedBundles() const{return !_deletedBundles.empty();}
         bool deleteUpdatedBundles();
         void serializeBundles(){_serializeBundles();}
         bool isDownloadingBundles() const;
