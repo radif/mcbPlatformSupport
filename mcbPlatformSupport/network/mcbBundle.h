@@ -42,6 +42,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         Status _status=StatusUndefined;
     public:
         bool isLocallyAvailable() const{return _status==StatusDownloaded || _status==StatusUpdateAvailableOnline;}
+        bool needsFetch() const{return _status==StatusAvailableOnline || _status==StatusUpdateAvailableOnline;}
         bool isPreshipped() const{return _preshipped;}
         const std::string & title() const{return _title;}
         const std::string & identifier() const{return _identifier;}

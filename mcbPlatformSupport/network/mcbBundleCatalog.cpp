@@ -11,6 +11,7 @@
 #include "mcbUnzipQueue.h"
 #include "mcbPlatformSupport.h"
 #include "mcbPlatformSupportFunctions.h"
+#include "mcbMainThreadCaller.h"
 
 //json
 #include "rapidjson.h"
@@ -77,7 +78,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
         _deserializeBundles();//get the previously saved bundles first
         
         _catalogMetadata.updateDownloadedMetadata();
-        fetchMetadata();
+
+        //this calss doesn't fetch automatically
+        //fetchMetadata();
                 
     }
     bool BundleCatalog::fetchMetadata(const std::function<void(bool hasNewVersion, NetworkTask::Status status)> & completion){
@@ -89,8 +92,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         _isDownloadingBundles=true;
         
         DownloadQueue::sharedInstance()->enqueueDownload(HTTPRequestGET(_catalogMetadata.url), _tempPathForDownloadingAsset(_catalogMetadata.downloadedMetadataPath), [=](DownloadTask::Status status, const HTTPResponse & response){
+            _isDownloadingBundles=false;
             if (status==DownloadTask::StatusCompleted){
-                
                 if(_catalogMetadata.updateDownloadedMetadata(_tempPathForDownloadingAsset(_catalogMetadata.downloadedMetadataPath))){
                     mcbLog("updated metadata to version %f!",_catalogMetadata.version);
                     cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesMetadataUpdatedNotificationName.c_str());
@@ -106,7 +109,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 if (completion)
                     completion(false, status);
             }
-            _isDownloadingBundles=false;
         });
         return true;
     }
@@ -482,11 +484,40 @@ namespace mcb{namespace PlatformSupport{namespace network{
     bool BundleCatalog::synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle, bool & stop)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
         if (_isDownloadingBundles)
             return false;
-        _isDownloadingBundles=true;
-        bool hasNewBundles(false);
         
         //the updated or downloaded bundles will be newly created bundles
+        std::vector<pBundle> bundlesNeedUpdating;
+        for (const std::string & identifier : bundleIdentifiers) {
+            pBundle b(bundleByIdentifier(identifier));
+            if (!b)
+                continue;
+            
+            if (b->needsFetch())
+                bundlesNeedUpdating.emplace_back(std::move(b));
+        }
+
         
+        if(bundlesNeedUpdating.empty()){
+            call_on_main_thread([=](){
+                if (completion)
+                    completion(false, NetworkTask::StatusUndef);
+            });
+            return false;
+        }
+        
+        _isDownloadingBundles=true;
+        
+        bool hasNewBundles(false);
+        
+        _fetchBundle(bundlesNeedUpdating.front(), [=](bool success){
+        
+            _isDownloadingBundles=false;
+            cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
+            if (completion)
+                completion(hasNewBundles, NetworkTask::StatusCompleted);
+        });
+        
+        return true;
         {//other thread?
             
             
