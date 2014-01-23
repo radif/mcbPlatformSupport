@@ -523,7 +523,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
             //----per bundle
             if (success) {
                 hasNewBundles=true;
-                
+                mcbLog("downloaded bundle: %s, v%f",b->_identifier.c_str(), b->_nextAvailableVersion);
                 //create a new bundle for the new version
                 _addToDeletedBundles(b);
                 b=Bundle::createByCopy(b);
@@ -548,6 +548,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
             //----Done:
             if (bundlesNeedUpdating.empty()) {
                 _isDownloadingBundles=false;
+                mcbLog("download bundles finished; has new bundles:%s", hasNewBundles?"true":"false");
                 cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
                 if (completion)
                     completion(hasNewBundles, NetworkTask::StatusCompleted);
