@@ -65,12 +65,14 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     
     
     //filesystem
-    bool fileExists(const std::string& fileName);
-    void copyFile(const std::string& fileNameFrom, const std::string& fileNameTo);
-    void renameFile(const std::string& fileNameFrom, const std::string& fileNameTo);
-    void createDirectory(const std::string& dirName);
-    void removeFile(const std::string& fileName);
-    
+    bool fileExists(const std::string& filePath);
+    void copyFile(const std::string& filePathFrom, const std::string& filePathTo);
+    void renameFile(const std::string& filePathFrom, const std::string& filePathTo);
+    void createDirectory(const std::string& dirPath);
+    void removeFile(const std::string& filePath);
+    void removeDirectoryRecursive(std::string dirPath);
+    bool isDirectory(const std::string & dirPath);
+    void safeRemoveFileOrDirectoryAtPath(const std::string & path);
     
     //parser
     

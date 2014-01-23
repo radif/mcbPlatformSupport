@@ -13,6 +13,8 @@
 #include <iomanip>      // std::setprecision
 #include <fstream> //file exists
 #include <sys/stat.h> //mkdir
+#include <sys/types.h>
+#include <dirent.h>
 
 using namespace cocos2d;
 namespace mcb{namespace PlatformSupport{namespace Functions{
@@ -381,9 +383,9 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         return retVal;
     }
 #pragma mark filesystem
-    bool fileExists(const std::string& fileName){
+    bool fileExists(const std::string& filePath){
         std::fstream file;
-        file.open(fileName.c_str(), std::ios::in);
+        file.open(filePath.c_str(), std::ios::in);
         if (file.is_open() == true){
             file.close();
             return true;
@@ -391,22 +393,59 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         file.close();
         return false;
     }
-    void copyFile(const std::string& fileNameFrom, const std::string& fileNameTo){
-        assert(fileExists(fileNameFrom));
-        std::ifstream in (fileNameFrom.c_str());
-        std::ofstream out (fileNameTo.c_str());
+    void copyFile(const std::string& filePathFrom, const std::string& filePathTo){
+        assert(fileExists(filePathFrom));
+        std::ifstream in (filePathFrom.c_str());
+        std::ofstream out (filePathTo.c_str());
         out << in.rdbuf();
         out.close();
         in.close();
     }
-    void renameFile(const std::string& fileNameFrom, const std::string& fileNameTo){
-        std::rename(fileNameFrom.c_str(), fileNameTo.c_str());
+    void renameFile(const std::string& filePathFrom, const std::string& filePathTo){
+        std::rename(filePathFrom.c_str(), filePathTo.c_str());
     }
-    void createDirectory(const std::string& dirName){
-        mkdir(dirName.c_str(),0777);
+    void createDirectory(const std::string& dirPath){
+        mkdir(dirPath.c_str(),0777);
     }
-    void removeFile(const std::string& fileName){
-        std::remove(fileName.c_str());
+    void removeFile(const std::string& filePath){
+        std::remove(filePath.c_str());
+    }
+    void removeDirectoryRecursive(std::string dirPath){
+        _removeLastSlashInPath(dirPath);
+        if (!isDirectory(dirPath))
+            return;
+        
+        DIR*            dp;
+        struct dirent*  ep;
+        
+        dp = opendir(dirPath.c_str());
+        
+        while ((ep = readdir(dp)) != NULL) {
+            std::string name(ep->d_name);
+            if (name!="." && name!="..") {
+                std::string fullPath(stringByAppendingPathComponent(dirPath, name));
+                if (isDirectory(fullPath))
+                    removeDirectoryRecursive(fullPath);
+                else
+                    removeFile(fullPath);                
+            }
+        }
+        closedir(dp);
+        removeFile(dirPath.c_str());
+    }
+    bool isDirectory(const std::string & dirPath){
+        struct stat s_buf;
+        if (stat(dirPath.c_str(), &s_buf))
+            return 0;
+        return S_ISDIR(s_buf.st_mode);
+    }
+    void safeRemoveFileOrDirectoryAtPath(const std::string & path){
+        if (fileExists(path)){
+            if (isDirectory(path))
+                removeDirectoryRecursive(path);
+            else
+                removeFile(path);
+        }
     }
 
 }}}

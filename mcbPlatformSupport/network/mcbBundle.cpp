@@ -19,6 +19,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         retVal->_identifier=existing->_identifier;
         retVal->_version=existing->_version;
+        retVal->_nextAvailableVersion=existing->_nextAvailableVersion;
         retVal->_status=existing->_status;
         retVal->_downloadTimestamp=existing->_downloadTimestamp;
         retVal->_localPath=existing->_localPath;
@@ -104,6 +105,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
         return Functions::fileExists(_localPath);
     }
     std::string Bundle::suggestedStorageName() const{
-        return _identifier+"_v"+Functions::t_to_string(_nextAvailableVersion);
+        return _identifier+"_v"+Functions::t_to_string(_status==StatusScheduledForDeletion?_version:_nextAvailableVersion);
     }
 }}}

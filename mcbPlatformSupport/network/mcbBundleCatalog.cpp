@@ -136,7 +136,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         if (retVal && needsCopyFileIfValid)
             Functions::renameFile(downloadedPathOrEmpty, downloadedMetadataPath);
         else
-            Functions::removeFile(downloadedPathOrEmpty);
+            Functions::safeRemoveFileOrDirectoryAtPath(downloadedPathOrEmpty);
         return retVal;
     }
     void BundleCatalog::initPreshippedDataWithPath(const std::string path){
@@ -229,8 +229,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 }
                 //always keep this current for upgrades
                 newBundle->_remoteURL=Functions::stringForObjectKey(bundleDict, "remote_url", newBundle->_remoteURL);
-
-             
+                
                 newBundles[newBundle->_identifier]=std::move(newBundle);
             }
             
@@ -249,11 +248,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
         _serializeBundles();
     }
     void BundleCatalog::_addToDeletedBundles(pBundle b){
-        //make sure it is not in bundles
-//        auto it(_bundles.find(b->_identifier));
-//        if (it!=_bundles.end())
- //           _bundles.erase(it);
-            
         b->_status=Bundle::StatusScheduledForDeletion;
         _deletedBundles[b->_identifier]=b;
     }
@@ -263,9 +257,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
 
         using namespace rapidjson;
 
-        if (Functions::fileExists(kTempJsonPath))
-            Functions::removeFile(kTempJsonPath);
-        
+        Functions::safeRemoveFileOrDirectoryAtPath(kTempJsonPath);
         
         FILE *f(fopen(kTempJsonPath.c_str(), "wb"));
         if (f){
@@ -490,10 +482,10 @@ namespace mcb{namespace PlatformSupport{namespace network{
         });
         
     }
-    bool BundleCatalog::synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle, bool & stop)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
+    bool BundleCatalog::synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
         return synchronizeBundlesWithServer(bundleIdentifiers(), completionPerBundle, completion);
     }
-    bool BundleCatalog::synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle, bool & stop)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
+    bool BundleCatalog::synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
         if (_isDownloadingBundles)
             return false;
         
@@ -521,20 +513,59 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         bool hasNewBundles(false);
         
+        auto completionPL(std::make_shared<std::function<void(pBundle b, bool success)>>([=](pBundle b, bool success) mutable{
+            
+            //erase from the list
+            auto it(std::find(bundlesNeedUpdating.begin(), bundlesNeedUpdating.end(), b));
+            if (it!=bundlesNeedUpdating.end())
+                bundlesNeedUpdating.erase(it);
+            
+            //----per bundle
+            if (success) {
+                hasNewBundles=true;
+                
+                //create a new bundle for the new version
+                _addToDeletedBundles(b);
+                b=Bundle::createByCopy(b);
+                b->_version=b->_nextAvailableVersion;
+                b->_status=Bundle::StatusDownloaded;
+                b->_localPath=_pathForBundleStorageDirectory(b);
+                if (b->_downloadTimestamp==b->kTimestampUndefined)
+                    b->_downloadTimestamp=time(0);
+                _bundles[b->_identifier]=b;
+                
+                _serializeBundles();
+            }
+            cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
+            if (completionPerBundle){
+                completionPerBundle(b);
+            }
+            
+            
+            
+            
+            
+            //----Done:
+            if (bundlesNeedUpdating.empty()) {
+                _isDownloadingBundles=false;
+                cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
+                if (completion)
+                    completion(hasNewBundles, NetworkTask::StatusCompleted);
+            }
+        }));
+        
+        auto callCompletionL([=](const pBundle & b, bool success){
+            (*completionPL)(b, success);
+        });
         
         for (pBundle b :bundlesNeedUpdating) {
             
             std::string bundleZipPath(_pathForBundleZipfile(b));
             std::string bundleUnZipPath(_pathForBundleStorageDirectory(b));
             std::string remoteURL(b->remoteURL());
-            auto callCompletionL([=](bool success){
-                if (success) {
-                    mcbLog("!!!!");
-                }
-            });
             
-            Functions::removeFile(bundleZipPath);
-            Functions::removeFile(bundleUnZipPath);
+            Functions::safeRemoveFileOrDirectoryAtPath(bundleZipPath);
+            Functions::safeRemoveFileOrDirectoryAtPath(bundleUnZipPath);
             
             DownloadQueue::sharedInstance()->enqueueDownload(HTTPRequestGET(remoteURL), bundleZipPath, [=](NetworkTask::Status status, const HTTPResponse & response){
                 if (status==NetworkTask::StatusCompleted) {
@@ -542,18 +573,18 @@ namespace mcb{namespace PlatformSupport{namespace network{
                     Functions::createDirectory(bundleUnZipPath);
                     
                     UnzipQueue::sharedInstance()->enqueueUnzip(bundleZipPath, bundleUnZipPath, [=](UnzipTask::Status status){
-                        Functions::removeFile(bundleZipPath);
+                        Functions::safeRemoveFileOrDirectoryAtPath(bundleZipPath);
                         if (status==UnzipTask::StatusCompleted) {
-                            callCompletionL(true);
+                            callCompletionL(b, true);
                         }else{
-                            Functions::removeFile(bundleUnZipPath);
-                            callCompletionL(false);
+                            Functions::safeRemoveFileOrDirectoryAtPath(bundleUnZipPath);
+                            callCompletionL(b, false);
                         }
                     });
                 }else{
-                    Functions::removeFile(bundleUnZipPath);
-                    Functions::removeFile(bundleUnZipPath);
-                    callCompletionL(false);
+                    Functions::safeRemoveFileOrDirectoryAtPath(bundleZipPath);
+                    Functions::safeRemoveFileOrDirectoryAtPath(bundleUnZipPath);
+                    callCompletionL(b, false);
                 }
                 
             });
@@ -561,61 +592,19 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
        
         return true;
-        
-        _fetchBundle(bundlesNeedUpdating.front(), [=](bool success){
-        
-            _isDownloadingBundles=false;
-            cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
-            if (completion)
-                completion(hasNewBundles, NetworkTask::StatusCompleted);
-        });
-        
-        return true;
-        {//other thread?
-            
-            
-            //-------------------
-            //each (if so):
-            hasNewBundles=true;
-            cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
-            if (completionPerBundle){
-                bool shouldStop(false);
-                completionPerBundle(nullptr, shouldStop);//bundle?
-                if (shouldStop) {
-                    //TODO: finish up
-                }
-            }
-            
-            //-------------------
-            
-            
-            //DONE:
-            _isDownloadingBundles=false;
-            cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
-            if (completion)
-                completion(hasNewBundles, NetworkTask::StatusCompleted);
-        }
-        
-        return true;
-        
     }
     
     bool BundleCatalog::deleteUpdatedBundles(){
         bool retVal(false);
         //find deleted bundles and delete from disk their content
         
-        auto deleteConditionallyL([](const std::string & path){
-            if (Functions::fileExists(path))
-                Functions::removeFile(path);
-        });
-        
         for (const auto & p : _deletedBundles){
             if (!p.second->_preshipped && Functions::fileExists(p.second->_localPath))
-                Functions::removeFile(p.second->_localPath);
+                Functions::safeRemoveFileOrDirectoryAtPath(p.second->_localPath);
             
             //deleting the unfinished downloads if any
-            deleteConditionallyL(_pathForBundleZipfile(p.second));
-            deleteConditionallyL(_pathForBundleStorageDirectory(p.second));
+            Functions::safeRemoveFileOrDirectoryAtPath(_pathForBundleZipfile(p.second));
+            Functions::safeRemoveFileOrDirectoryAtPath(_pathForBundleStorageDirectory(p.second));
             
             retVal=true;
         }
@@ -710,118 +699,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
         return retVal;;
     }
     
-    void BundleCatalog::_fetchBundle(pBundle bundle, const std::function<void(bool success)> & completion, const std::function<void(float progress)> & progress){
-        
-        static const float kDownloadToUnpackProgressRatio(.7f);
-        
-        auto setProgressL([=](float p){
-            if (progress)
-                progress(p);
-        });
-        
-        
-        
-        std::string bundleHash(bundle->identifier());
-        std::string bundlePath(bundle->localPath());
-        std::string bundleZipPath(bundlePath+".zip");
-        std::string bundleUnZipPath(bundlePath+"/");
-        
-        auto callCompletionL([=](bool success){
-            if (completion)
-                completion(success);
-        });
-        
-        auto cleanupL([=](bool both){
-            remove(bundleZipPath.c_str());
-            if (both)
-                remove(bundleUnZipPath.c_str());
-        });
-        
-        cleanupL(true);
-        DownloadQueue::sharedInstance()->enqueueDownload(HTTPRequestGET(bundle->remoteURL()), bundleZipPath, [=](NetworkTask::Status status, const HTTPResponse & response){
-            
-            if (status==NetworkTask::StatusCompleted) {
-                UnzipQueue::sharedInstance()->enqueueUnzip(bundleZipPath, bundleUnZipPath, [=](UnzipTask::Status status){
-                    
-                    if (status==UnzipTask::StatusCompleted) {
-                        cleanupL(false);
-                        setProgressL(1.f);
-                        callCompletionL(true);
-                    }else{
-                        callCompletionL(false);
-                        cleanupL(true);
-                    }
-                    
-                },[=](float prog){//progress
-                    setProgressL(kDownloadToUnpackProgressRatio + (1.f-kDownloadToUnpackProgressRatio) * prog);
-                });
-            }else{
-                callCompletionL(false);
-                cleanupL(false);
-            }
-            
-        },[=](float prog){//progress
-            setProgressL(kDownloadToUnpackProgressRatio * prog);
-        });
-        
-    }
-
-    //deprecate?
-    void BundleCatalog::downloadAndUnzipBundle(const HTTPRequest & request, const std::string & bundlesDirectory, const std::function<void(const std::string & bundlePath, bool success)> & completion, const std::string & bundleID, const std::function<void(float progress)> & progress){
-        
-        static const float kDownloadToUnpackProgressRatio(.7f);
-        
-        auto setProgressL([=](float p){
-            if (progress)
-                progress(p);
-        });
-        
-        
-        
-        std::string bundleHash(bundleID.empty()?Functions::generateRandomAlphanumericString():bundleID);
-        std::string bundlePath(Functions::stringByAppendingPathComponent(bundlesDirectory, bundleHash));
-        std::string bundleZipPath(bundlePath+".zip");
-        std::string bundleUnZipPath(bundlePath+"/");
-        
-        auto callCompletionL([=](bool success){
-            if (completion)
-                completion(bundleUnZipPath, success);
-        });
-        
-        auto cleanupL([=](bool both){
-            remove(bundleZipPath.c_str());
-            if (both)
-                remove(bundleUnZipPath.c_str());
-        });
-        
-        cleanupL(true);
-        DownloadQueue::sharedInstance()->enqueueDownload(request, bundleZipPath, [=](NetworkTask::Status status, const HTTPResponse & response){
-            
-            if (status==NetworkTask::StatusCompleted) {
-                UnzipQueue::sharedInstance()->enqueueUnzip(bundleZipPath, bundleUnZipPath, [=](UnzipTask::Status status){
-                    
-                    if (status==UnzipTask::StatusCompleted) {
-                        cleanupL(false);
-                        setProgressL(1.f);
-                        callCompletionL(true);
-                    }else{
-                        callCompletionL(false);
-                        cleanupL(true);
-                    }
-                    
-                },[=](float prog){//progress
-                    setProgressL(kDownloadToUnpackProgressRatio + (1.f-kDownloadToUnpackProgressRatio) * prog);
-                });
-            }else{
-                callCompletionL(false);
-                cleanupL(false);
-            }
-            
-        },[=](float prog){//progress
-            setProgressL(kDownloadToUnpackProgressRatio * prog);
-        });
-        
-    }
     std::string BundleCatalog::_pathForBundleZipfile(const pBundle & b) const{
         return Functions::stringByAppendingPathComponent(_fetchedPath, b->suggestedStorageName()+".download");
     }
