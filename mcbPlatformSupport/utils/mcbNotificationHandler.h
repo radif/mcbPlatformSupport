@@ -49,5 +49,21 @@ namespace mcb{ namespace PlatformSupport{
                 removeNotificationHandler(p.first);
         }
     };
+    
+    //base class for more convenience
+    class Notification{
+        pNotificationHandler _notificationHandler=nullptr;
+    public:
+        Notification(){_notificationHandler=NotificationHandler::create();}
+        virtual ~Notification()=default;
+    protected:
+        virtual void addNotificationHandler(const std::string & name, const std::function<void()>& handler){
+            _notificationHandler->addNotificationHandler(name, handler);
+        }
+        virtual void removeNotificationHandler(const std::string & name){
+            _notificationHandler->removeNotificationHandler(name);
+        }
+    };
+
 }}
 #endif /* defined(__mcb__utils__mcbNotificationHandler__) */
