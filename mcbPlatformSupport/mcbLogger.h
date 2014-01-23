@@ -11,8 +11,16 @@
 
 #include <iostream>
 #include <vector>
+#include <math.h>
 
 namespace mcb{namespace PlatformSupport{
+    
+    //log level conventions:
+    //0 - 99 - dev;
+    //100 - iNF - prod
+    //777 - Analytics
+    enum {LogLevelDeveloper=0, LogLevelProduction=100, LogLevelAnalytics=777};
+    
     class Logger{
     protected:
         //for example:
@@ -21,16 +29,12 @@ namespace mcb{namespace PlatformSupport{
         std::string _logPrefix, _logSuffix;
         
         //override this to add implement your own logger for a particular class
-        virtual void mcbLogFormatted(const std::string & message, unsigned int level=0, const std::string & category="")const;
+        virtual void mcbLogFormatted(const std::string & message, unsigned int level=LogLevelDeveloper, const std::string & category="")const;
         
         //not recommended to override
         virtual void mcbLog(const std::string & format, ...) const;
         virtual void mcbLog(unsigned int level, const std::string & category, const std::string & format, ...) const;
     };
-    
-    //log level conventions:
-    //0 - 3 - dev;
-    //4 - iNF - prod & analytics
     
     namespace Log{
         struct LogEntry{
@@ -49,21 +53,24 @@ namespace mcb{namespace PlatformSupport{
 
         /*
             @log dump
+            this will start the log dump, it will dump all logs, including analytics
          */
-        void setRecordingLog(bool recordLog);//default is false
+        void setRecordingLog(bool recordLog);
         bool isLogRecorded();
         
         const log_entries_t & logEntries();
-        std::string logDump(bool reversed=true, size_t maxLength=-1);
+        std::string logDump(bool reversed=true, size_t maxLength=-1, unsigned int minLogLevel=0,  unsigned int maxLogLevel=HUGE_VAL);
+        static std::string logDumpForLogLevel(unsigned int logLevel, bool reversed=true, size_t maxLength=-1){return logDump(reversed, maxLength, logLevel, logLevel);}
+        static std::string logDumpForAnalytics(unsigned int logLevel=LogLevelAnalytics, bool reversed=true, size_t maxLength=-1){return logDump(reversed, maxLength, logLevel, logLevel);}
         void eraseLogEntries();
         
         /*
          @Analytics
          */
-        //will be called every time the log is made, it is up to implementer to decide which log level is necessary for analytics
+        //will be called every time the log with leve LogLevelAnalytics is made
         void setAnalyticsHandler(const log_analytics_handler_t &handler);
         
-        void log(const std::string & message, unsigned int level=0, const std::string & category="");
+        void log(const std::string & message, unsigned int level=LogLevelDeveloper, const std::string & category="");
 
         void mcbLog(const std::string & format, ...);
         void mcbLog(unsigned int level, const std::string & category, const std::string & format, ...);

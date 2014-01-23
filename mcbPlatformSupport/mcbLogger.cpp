@@ -34,10 +34,10 @@ namespace mcb{namespace PlatformSupport{
     
     
     namespace Log{
-        static unsigned int _logLevel(0);
+        static unsigned int _logLevel(LogLevelDeveloper);
         static bool _isRecordingLog(false);
         static log_entries_t _logEntries;
-        static log_analytics_handler_t _analyticsLandler(nullptr);
+        static log_analytics_handler_t _analyticsHandler(nullptr);
         
         LogEntry::LogEntry(const std::string & m_message, const std::string & m_category, const unsigned int m_level)
         :message(m_message)
@@ -67,18 +67,20 @@ namespace mcb{namespace PlatformSupport{
         const log_entries_t & logEntries(){
             return _logEntries;
         }
-        std::string logDump(bool reversed, size_t maxLength){
+        std::string logDump(bool reversed, size_t maxLength, unsigned int minLogLevel,  unsigned int maxLogLevel){
             std::string retVal;
             if (reversed)
                 for (auto it(_logEntries.rbegin()); it!=_logEntries.rend(); ++it){
-                    retVal+=it->stringValue()+"\n";
+                    if (it->level>=minLogLevel && it->level<=maxLogLevel)
+                        retVal+=it->stringValue()+"\n";
                     if (maxLength!=-1)
                         if (retVal.length()>=maxLength)
                             break;
                 }
             else
                 for (auto it(_logEntries.begin()); it!=_logEntries.end(); ++it){
-                    retVal+=it->stringValue()+"\n";
+                    if (it->level>=minLogLevel && it->level<=maxLogLevel)
+                        retVal+=it->stringValue()+"\n";
                     if (maxLength!=-1)
                         if (retVal.length()>=maxLength)
                             break;
@@ -91,7 +93,7 @@ namespace mcb{namespace PlatformSupport{
         }
         
         void setAnalyticsHandler(const log_analytics_handler_t &handler){
-        
+            _analyticsHandler=handler;
         }
         
         void log(const std::string & message, unsigned int level, const std::string & category){
@@ -100,8 +102,8 @@ namespace mcb{namespace PlatformSupport{
             if (_logLevel<=logEntry.level)
                 std::cout << "mcbLog: "<< logEntry.stringValue() << std::endl;
 
-            if (_analyticsLandler) {
-                _analyticsLandler(logEntry);
+            if (_analyticsHandler && level==LogLevelAnalytics) {
+                _analyticsHandler(logEntry);
                 
             if (_isRecordingLog)
                 _logEntries.emplace_back(std::move(logEntry));
