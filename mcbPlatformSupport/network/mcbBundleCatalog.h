@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __SoundSurfer__mcbBundleCatalog__
-#define __SoundSurfer__mcbBundleCatalog__
+#ifndef __mcb__network__mcbBundleCatalog__
+#define __mcb__network__mcbBundleCatalog__
 
 #include "mcbFactory.h"
 #include "mcbHTTPRequest.h"
@@ -103,4 +103,4 @@ namespace mcb{namespace PlatformSupport{namespace network{
     };
 }}}
 
-#endif /* defined(__SoundSurfer__mcbBundleCatalog__) */
+#endif /* defined(__mcb__network__mcbBundleCatalog__) */

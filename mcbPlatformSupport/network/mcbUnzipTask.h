@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __SoundSurfer__mcbUnzipTask__
-#define __SoundSurfer__mcbUnzipTask__
+#ifndef __mcb__network__mcbUnzipTask__
+#define __mcb__network__mcbUnzipTask__
 
 #include <iostream>
 namespace mcb{namespace PlatformSupport{namespace network{
@@ -49,4 +49,4 @@ namespace mcb{namespace PlatformSupport{namespace network{
         UnzipTask()=default;
     };
 }}}
-#endif /* defined(__SoundSurfer__mcbUnzipTask__) */
+#endif /* defined(__mcb__network__mcbUnzipTask__) */

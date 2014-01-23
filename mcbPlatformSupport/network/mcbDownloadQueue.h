@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __SoundSurfer__mcbDownloadQueue__
-#define __SoundSurfer__mcbDownloadQueue__
+#ifndef __mcb__network__mcbDownloadQueue__
+#define __mcb__network__mcbDownloadQueue__
 
 #include <mcbFactory.h>
 #include "mcbDownloadTask.h"
@@ -39,4 +39,4 @@ namespace mcb{namespace PlatformSupport{namespace network{
 
     };
 }}}
-#endif /* defined(__SoundSurfer__mcbDownloadQueue__) */
+#endif /* defined(__mcb__network__mcbDownloadQueue__) */

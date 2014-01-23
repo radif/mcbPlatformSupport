@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __SoundSurfer__mcbBundle__
-#define __SoundSurfer__mcbBundle__
+#ifndef __mcb__network__mcbBundle__
+#define __mcb__network__mcbBundle__
 
 #include <iostream>
 #include <memory>
@@ -84,4 +84,4 @@ namespace mcb{namespace PlatformSupport{namespace network{
         virtual ~Bundle()=default;
     };
 }}}
-#endif /* defined(__SoundSurfer__mcbBundle__) */
+#endif /* defined(__mcb__network__mcbBundle__) */

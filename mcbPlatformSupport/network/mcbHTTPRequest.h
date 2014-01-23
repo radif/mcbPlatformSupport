@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __SoundSurfer__mcbHTTPRequest__
-#define __SoundSurfer__mcbHTTPRequest__
+#ifndef __mcb__network__mcbHTTPRequest__
+#define __mcb__network__mcbHTTPRequest__
 
 #include <iostream>
 #include <vector>
@@ -31,4 +31,4 @@ namespace mcb{namespace PlatformSupport{namespace network{
         std::string errorBuffer;   /// if _responseCode != 200, please read this to find the reason
     };
 }}}
-#endif /* defined(__SoundSurfer__mcbHTTPRequest__) */
+#endif /* defined(__mcb__network__mcbHTTPRequest__) */

@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __SoundSurfer__mcbUnzipQueue__
-#define __SoundSurfer__mcbUnzipQueue__
+#ifndef __mcb__network__mcbUnzipQueue__
+#define __mcb__network__mcbUnzipQueue__
 
 #include "mcbFactory.h"
 #include <mcbUnzipTask.h>
@@ -30,4 +30,4 @@ namespace mcb{namespace PlatformSupport{namespace network{
     };
 }}}
 
-#endif /* defined(__SoundSurfer__mcbUnzipQueue__) */
+#endif /* defined(__mcb__network__mcbUnzipQueue__) */

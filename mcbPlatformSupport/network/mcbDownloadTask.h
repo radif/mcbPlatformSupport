@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __SoundSurfer__mcbDownloadTask__
-#define __SoundSurfer__mcbDownloadTask__
+#ifndef __mcb__network__mcbDownloadTask__
+#define __mcb__network__mcbDownloadTask__
 
 #include "mcbNetworkTask.h"
 namespace mcb{namespace PlatformSupport{namespace network{
@@ -30,4 +30,4 @@ namespace mcb{namespace PlatformSupport{namespace network{
         DownloadTask()=default;//only to be used with the shared_ptr through create factory
     };
 }}}
-#endif /* defined(__SoundSurfer__mcbDownloadTask__) */
+#endif /* defined(__mcb__network__mcbDownloadTask__) */

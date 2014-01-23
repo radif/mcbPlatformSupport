@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __SoundSurfer__mcbNetworkTask__
-#define __SoundSurfer__mcbNetworkTask__
+#ifndef __mcb__network__mcbNetworkTask__
+#define __mcb__network__mcbNetworkTask__
 
 #include <iostream>
 #include "mcbHTTPRequest.h"
@@ -59,4 +59,4 @@ namespace mcb{namespace PlatformSupport{namespace network{
         NetworkTask()=default;//only to be used with the shared_ptr through create factory
     };
 }}}
-#endif /* defined(__SoundSurfer__mcbNetworkTask__) */
+#endif /* defined(__mcb__network__mcbNetworkTask__) */
