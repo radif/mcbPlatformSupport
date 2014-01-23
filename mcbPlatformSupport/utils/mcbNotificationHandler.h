@@ -6,8 +6,8 @@
 //
 //
 
-#ifndef __SoundSurfer__mcbNotificationHandler__
-#define __SoundSurfer__mcbNotificationHandler__
+#ifndef __mcb__utils__mcbNotificationHandler__
+#define __mcb__utils__mcbNotificationHandler__
 
 #include "cocos2d.h"
 namespace mcb{ namespace PlatformSupport{
@@ -49,4 +49,4 @@ namespace mcb{ namespace PlatformSupport{
         }
     };
 }}
-#endif /* defined(__SoundSurfer__mcbNotificationHandler__) */
+#endif /* defined(__mcb__utils__mcbNotificationHandler__) */
