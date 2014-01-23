@@ -482,10 +482,10 @@ namespace mcb{namespace PlatformSupport{namespace network{
         });
         
     }
-    bool BundleCatalog::synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
+    bool BundleCatalog::synchronizeAllBundlesWithServer(const std::function<void(pBundle bundle, bool success)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
         return synchronizeBundlesWithServer(bundleIdentifiers(), completionPerBundle, completion);
     }
-    bool BundleCatalog::synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
+    bool BundleCatalog::synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle, bool success)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
         if (_isDownloadingBundles)
             return false;
         
@@ -535,11 +535,11 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 _bundles[b->_identifier]=b;
                 
                 _serializeBundles();
+                cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
+                
             }
-            cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
-            if (completionPerBundle){
-                completionPerBundle(b);
-            }
+            if (completionPerBundle)
+                completionPerBundle(b, success);
             
             
             
@@ -549,7 +549,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
             if (bundlesNeedUpdating.empty()) {
                 _isDownloadingBundles=false;
                 mcbLog("download bundles finished; has new bundles:%s", hasNewBundles?"true":"false");
-                cocos2d::CCNotificationCenter::sharedNotificationCenter()->postNotification(kBundlesUpdatedNotificationName.c_str());
                 if (completion)
                     completion(hasNewBundles, NetworkTask::StatusCompleted);
             }
