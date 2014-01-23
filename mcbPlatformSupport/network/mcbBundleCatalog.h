@@ -26,6 +26,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         friend Bundle;
         friend SingletonFactory<BundleCatalog>;
         pBundles _bundles;
+        
+        //has to be different map as it may have the identifiers of the updated ones
         pBundles _deletedBundles;
 
         std::string _jsonPath;
@@ -78,9 +80,21 @@ namespace mcb{namespace PlatformSupport{namespace network{
         //get bundles
         //bundles, once given will not be modified by sdk. SDK will create new bundles if updated from server. However, the user metadata will be merged if saved
         pBundle bundleByIdentifier(const std::string & identifier) const;
+        
+        //all
         std::vector<pBundle> bundles() const;
+        //downloaded, updated, preshipped
+        std::vector<pBundle> localBundles() const;
+        
+        //all
         std::vector<std::string> bundleIdentifiers() const;
+        //downloaded, updated, preshipped
+        std::vector<std::string> localBundleIdentifiers() const;
+        
+        //all
         std::vector<pBundle> bundlesWithContentLabel(const std::string & label);
+        //downloaded, updated, preshipped
+        std::vector<pBundle> localBundlesWithContentLabel(const std::string & label);
         
         //already updated or deleted bundles, that were not physically deleted from disk
         std::vector<pBundle> deletedBundles() const;

@@ -571,6 +571,15 @@ namespace mcb{namespace PlatformSupport{namespace network{
             retVal.emplace_back(p.second);
         return retVal;
     }
+    std::vector<pBundle> BundleCatalog::localBundles() const{
+        std::vector<pBundle> retVal;
+        retVal.reserve(_bundles.size());
+        for (const auto & p: _bundles){
+            if (p.second->isLocallyAvailable())
+                retVal.emplace_back(p.second);
+        }
+        return retVal;
+    }
     std::vector<pBundle> BundleCatalog::deletedBundles() const{
         std::vector<pBundle> retVal;
         retVal.reserve(_deletedBundles.size());
@@ -585,14 +594,32 @@ namespace mcb{namespace PlatformSupport{namespace network{
             retVal.emplace_back(p.second->identifier());
         return retVal;
     }
+    std::vector<std::string> BundleCatalog::localBundleIdentifiers() const{
+        std::vector<std::string> retVal;
+        retVal.reserve(_bundles.size());
+        for (const auto & p: _bundles)
+            if (p.second->isLocallyAvailable())
+                retVal.emplace_back(p.second->identifier());
+        return retVal;
+    }
     std::vector<pBundle> BundleCatalog::bundlesWithContentLabel(const std::string & label){
         std::vector<pBundle> retVal;
         for (const auto & p: _bundles)
             for (const std::string & pLabel : p.second->_contentLabels)
                 if (pLabel==label)
                     retVal.emplace_back(p.second);
+        return retVal;
+    }
+    std::vector<pBundle> BundleCatalog::localBundlesWithContentLabel(const std::string & label){
+        std::vector<pBundle> retVal;
+        for (const auto & p: _bundles)
+            if (p.second->isLocallyAvailable())
+                for (const std::string & pLabel : p.second->_contentLabels)
+                    if (pLabel==label)
+                        retVal.emplace_back(p.second);
         return retVal;;
     }
+    
     void BundleCatalog::_fetchBundle(pBundle bundle, const std::function<void(bool success)> & completion, const std::function<void(float progress)> & progress){
         
         static const float kDownloadToUnpackProgressRatio(.7f);
