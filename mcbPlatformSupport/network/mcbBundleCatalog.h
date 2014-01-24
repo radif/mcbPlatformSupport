@@ -25,6 +25,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
     class BundleCatalog : public SingletonFactory<BundleCatalog>{
         friend Bundle;
         friend SingletonFactory<BundleCatalog>;
+        
+        const bool kUsesBase64Serialization=true;
+        
         pBundles _bundles;
         
         //has to be different map as it may have the identifiers of the updated ones
@@ -54,7 +57,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         void _applyMetadataToBundles();
         
         std::string _pathForBundleZipfile(const pBundle & b) const;
-        std::string _pathForBundleStorageDirectory(const pBundle & b) const;
+        std::string _pathForBundleStorageDirectory(const pBundle & b, bool tokenized=false) const;
     public:
         
         //this will not have effect, once the initial connection with server is established. tokens injected onto mcbPath

@@ -16,7 +16,9 @@
 //json
 #include "rapidjson.h"
 #include "prettywriter.h"	// for stringify JSON
-#include "filestream.h"	// wrapper of C stream for prettywriter as output
+#include "stringbuffer.h"
+#include "mcbBase64.h"
+#include <fstream>
 #include "document.h"
 
 namespace mcb{namespace PlatformSupport{namespace network{
@@ -258,99 +260,102 @@ namespace mcb{namespace PlatformSupport{namespace network{
         using namespace rapidjson;
 
         Functions::safeRemoveFileOrDirectoryAtPath(kTempJsonPath);
+
+       
+            
+        StringBuffer s;
+        PrettyWriter<StringBuffer> writer(s);
         
-        FILE *f(fopen(kTempJsonPath.c_str(), "wb"));
-        if (f){
-            FileStream s(f);
-            PrettyWriter<FileStream> writer(s);
-            
-            auto writeStringL([&](const std::string & string){writer.String(string.c_str(), string.size());});
-            
-            auto serializeBundleL([&](const pBundle & b){
-                //open
-                writer.StartObject();
-                
-                //identifier
-                writeStringL("identifier");
-                writeStringL(b->_identifier);
-                
-                //title
-                writeStringL("title");
-                writeStringL(b->_title);
-                
-                //version
-                writeStringL("version");
-                writer.Double(b->_version);
-                
-                //next version
-                writeStringL("nextAvailableVersion");
-                writer.Double(b->_nextAvailableVersion);
-                
-                //download timestamp
-                writeStringL("download_timestamp");
-                writer.Int(b->_downloadTimestamp);
-                
-                //status
-                writeStringL("status");
-                writeStringL(stringFromStatus(b->_status));
-                
-                //localPath
-                writeStringL("local_path");
-                writeStringL(b->_localPath);
-                
-                //remoteURL
-                writeStringL("remote_url");
-                writeStringL(b->_remoteURL);
-
-                //preshipped
-                writeStringL("preshipped");
-                writer.Bool(b->_preshipped);
-                
-                //content labels
-                writeStringL("content_labels");
-                writer.StartArray();
-                for (const std::string & contentLabel : b->_contentLabels)
-                    writeStringL(contentLabel);
-                writer.EndArray();
-                
-                //user metadata
-                writeStringL("user_metadata");
-                writer.StartObject();
-                for (const auto & p :b->_userMetadata) {
-                    writeStringL(p.first);
-                    writeStringL(p.second);
-                }
-                writer.EndObject();
-                
-                
-                //close
-                writer.EndObject();
-                
-            });
-            
+        auto writeStringL([&](const std::string & string){writer.String(string.c_str(), string.size());});
+        
+        auto serializeBundleL([&](const pBundle & b){
+            //open
             writer.StartObject();
+            
+            //identifier
+            writeStringL("identifier");
+            writeStringL(b->_identifier);
+            
+            //title
+            writeStringL("title");
+            writeStringL(b->_title);
+            
+            //version
+            writeStringL("version");
+            writer.Double(b->_version);
+            
+            //next version
+            writeStringL("nextAvailableVersion");
+            writer.Double(b->_nextAvailableVersion);
+            
+            //download timestamp
+            writeStringL("download_timestamp");
+            writer.Int(b->_downloadTimestamp);
+            
+            //status
+            writeStringL("status");
+            writeStringL(stringFromStatus(b->_status));
+            
+            //localPath
+            writeStringL("local_path");
+            writeStringL(b->_localPath);
+            
+            //remoteURL
+            writeStringL("remote_url");
+            writeStringL(b->_remoteURL);
 
-            writeStringL("Bundles");
+            //preshipped
+            writeStringL("preshipped");
+            writer.Bool(b->_preshipped);
+            
+            //content labels
+            writeStringL("content_labels");
             writer.StartArray();
-            //put bundles here:
-            for (const auto & p: _bundles)
-                serializeBundleL(p.second);
+            for (const std::string & contentLabel : b->_contentLabels)
+                writeStringL(contentLabel);
             writer.EndArray();
             
-            
-            writeStringL("Deleted");
-            writer.StartArray();
-            //put deleted here:
-            for (const auto & p: _deletedBundles)
-                serializeBundleL(p.second);
-            writer.EndArray();
-
+            //user metadata
+            writeStringL("user_metadata");
+            writer.StartObject();
+            for (const auto & p :b->_userMetadata) {
+                writeStringL(p.first);
+                writeStringL(p.second);
+            }
             writer.EndObject();
             
-            fclose(f);
             
-            Functions::renameFile(kTempJsonPath, kJsonPath);
-        }
+            //close
+            writer.EndObject();
+            
+        });
+        
+        writer.StartObject();
+
+        writeStringL("Bundles");
+        writer.StartArray();
+        //put bundles here:
+        for (const auto & p: _bundles)
+            serializeBundleL(p.second);
+        writer.EndArray();
+        
+        
+        writeStringL("Deleted");
+        writer.StartArray();
+        //put deleted here:
+        for (const auto & p: _deletedBundles)
+            serializeBundleL(p.second);
+        writer.EndArray();
+
+        writer.EndObject();
+        
+        
+        std::ofstream out(kTempJsonPath);
+        out << (kUsesBase64Serialization?crypto::base64Encode(s.GetString()):s.GetString());
+        out.close();
+        
+        
+        Functions::renameFile(kTempJsonPath, kJsonPath);
         
     }
     void BundleCatalog::_deserializeBundles(){
@@ -367,6 +372,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         
         std::string jsonString(cocos2d::CCString::createWithContentsOfFile(kJsonPath.c_str())->m_sString);
+        if (kUsesBase64Serialization)
+            jsonString=crypto::base64DecodeS(jsonString);
         
         Document document;
         
@@ -529,7 +536,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 b=Bundle::createByCopy(b);
                 b->_version=b->_nextAvailableVersion;
                 b->_status=Bundle::StatusDownloaded;
-                b->_localPath=_pathForBundleStorageDirectory(b);
+                b->_localPath=_pathForBundleStorageDirectory(b, true);
                 if (b->_downloadTimestamp==b->kTimestampUndefined)
                     b->_downloadTimestamp=time(0);
                 _bundles[b->_identifier]=b;
@@ -702,8 +709,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
     std::string BundleCatalog::_pathForBundleZipfile(const pBundle & b) const{
         return Functions::stringByAppendingPathComponent(_fetchedPath, b->suggestedStorageName()+".download");
     }
-    std::string BundleCatalog::_pathForBundleStorageDirectory(const pBundle & b) const{
-        return Functions::stringByAppendingPathComponent(_fetchedPath, b->suggestedStorageName())+"/";
+    std::string BundleCatalog::_pathForBundleStorageDirectory(const pBundle & b, bool tokenized) const{
+        return Functions::stringByAppendingPathComponent(tokenized?kFetchedBundlesPathToken:_fetchedPath, b->suggestedStorageName())+"/";
     }
 
 }}}
