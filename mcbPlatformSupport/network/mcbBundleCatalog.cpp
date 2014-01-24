@@ -220,7 +220,6 @@ namespace mcb{namespace PlatformSupport{namespace network{
                     newBundle->_preshipped=Functions::boolForObjectKey(bundleDict, "preshipped",newBundle->_preshipped);
                     if (newBundle->_preshipped){
                         newBundle->_status=Bundle::StatusDownloaded;
-                        newBundle->_downloadTimestamp=time(0);
                         //local pathis only applicable to preshipped
                         newBundle->_localPath=Functions::stringForObjectKey(bundleDict, "local_path", newBundle->_localPath);
                     }else
@@ -534,6 +533,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
                 //create a new bundle for the new version
                 _addToDeletedBundles(b);
                 b=Bundle::createByCopy(b);
+                b->_preshipped=false;//it is downloaded now
                 b->_version=b->_nextAvailableVersion;
                 b->_status=Bundle::StatusDownloaded;
                 b->_localPath=_pathForBundleStorageDirectory(b, true);
