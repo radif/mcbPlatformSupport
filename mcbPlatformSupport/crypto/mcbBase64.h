@@ -11,8 +11,12 @@
 
 //usage:
 /*
- auto s=mcb::PlatformSupport::crypto::base64Encode("Hello World!");
- auto ret=mcb::PlatformSupport::crypto::base64DecodeS(s);
+ std::string original("Hello World!");
+ 
+ auto s(mcb::PlatformSupport::crypto::base64Encode(original));
+ auto ret(mcb::PlatformSupport::crypto::base64DecodeS(s));
+ 
+ assert(original==ret);
  
  std::cout <<s<<std::endl;
  std::cout <<ret<<std::endl;
