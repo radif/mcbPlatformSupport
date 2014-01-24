@@ -606,8 +606,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
         //find deleted bundles and delete from disk their content
         
         for (const auto & p : _deletedBundles){
-            if (!p.second->_preshipped && Functions::fileExists(p.second->_localPath))
-                Functions::safeRemoveFileOrDirectoryAtPath(p.second->_localPath);
+            if (!p.second->_preshipped)
+                Functions::safeRemoveFileOrDirectoryAtPath(resolvePath(p.second->_localPath));
             
             //deleting the unfinished downloads if any
             Functions::safeRemoveFileOrDirectoryAtPath(_pathForBundleZipfile(p.second));
