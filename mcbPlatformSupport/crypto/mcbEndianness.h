@@ -1,13 +1,13 @@
 //
 //  mcbEndianness.h
-//  sha
+//  crypto
 //
 //  Created by Radif Sharafullin on 1/20/14.
 //  Copyright (c) 2014 Radif Sharafullin. All rights reserved.
 //
 
-#ifndef __sha__mcbEndianness__
-#define __sha__mcbEndianness__
+#ifndef __mcb__crypto__mcbEndianness__
+#define __mcb__crypto__mcbEndianness__
 
 #include <iostream>
 
@@ -19,4 +19,4 @@ namespace mcb{namespace PlatformSupport{namespace crypto{
     bool isBigEndian();
     bool isPDPEndian();
 }}}
-#endif /* defined(__sha__mcbEndianness__) */
+#endif /* defined(__mcb__crypto__mcbEndianness__) */

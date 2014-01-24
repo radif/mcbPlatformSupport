@@ -1,6 +1,6 @@
 //
 //  mcbEndianness.cpp
-//  sha
+//  crypto
 //
 //  Created by Radif Sharafullin on 1/20/14.
 //  Copyright (c) 2014 Radif Sharafullin. All rights reserved.
