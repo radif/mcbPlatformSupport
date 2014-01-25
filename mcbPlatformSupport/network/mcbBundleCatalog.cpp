@@ -350,7 +350,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         
         
         std::ofstream out(kTempJsonPath);
-        out << (kUsesBase64Serialization?crypto::base64Encode(s.GetString()):s.GetString());
+        out << (kUsesBase64Serialization?crypto::base64EncodeS(s.GetString()):s.GetString());
         out.close();
         
         
