@@ -13,7 +13,7 @@
 /*
  std::string original("Hello World!");
  
- auto s(mcb::PlatformSupport::crypto::base64Encode(original));
+ auto s(mcb::PlatformSupport::crypto::base64EncodeS(original));
  auto ret(mcb::PlatformSupport::crypto::base64DecodeS(s));
  
  assert(original==ret);
