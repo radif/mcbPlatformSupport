@@ -81,16 +81,23 @@ namespace mcb{namespace PlatformSupport{namespace network{
         _deserializeBundles();//get the previously saved bundles first
         
         _catalogMetadata.updateDownloadedMetadata();
-
-        //this calss doesn't fetch automatically
-        //fetchMetadata();
                 
     }
     bool BundleCatalog::fetchMetadata(const std::function<void(bool hasNewVersion, NetworkTask::Status status)> & completion){
-        if (_catalogMetadata.url.empty())
+        if (_catalogMetadata.url.empty()){
+            call_on_main_thread([=](){
+                if (completion)
+                    completion(false, NetworkTask::StatusUndef);
+            });
             return false;
-        if (_isDownloadingBundles)
+        }
+        if (_isDownloadingBundles){
+            call_on_main_thread([=](){
+                if (completion)
+                    completion(false, NetworkTask::StatusUndef);
+            });
             return false;
+        }
         
         _isDownloadingBundles=true;
         
@@ -142,8 +149,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         return retVal;
     }
     void BundleCatalog::initPreshippedDataWithPath(const std::string path){
-        if(_catalogMetadata.updateDownloadedMetadata(path))
-            fetchMetadata();
+        _catalogMetadata.updateDownloadedMetadata(path);
     }
     void BundleCatalog::_applyMetadataToBundles(){
         if (!_catalogMetadata.hasMetadata())
@@ -492,8 +498,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
         return synchronizeBundlesWithServer(bundleIdentifiers(), completionPerBundle, completion);
     }
     bool BundleCatalog::synchronizeBundlesWithServer(const std::vector<std::string> & bundleIdentifiers, const std::function<void(pBundle bundle, bool success)> & completionPerBundle, const std::function<void(bool hasNewBundles, NetworkTask::Status status)> & completion){
-        if (_isDownloadingBundles)
+        if (_isDownloadingBundles){
+            call_on_main_thread([=](){
+                if (completion)
+                    completion(false, NetworkTask::StatusUndef);
+            });
             return false;
+        }
         
         //the updated or downloaded bundles will be newly created bundles
         std::vector<pBundle> bundlesNeedUpdating;

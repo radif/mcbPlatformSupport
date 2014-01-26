@@ -7,6 +7,8 @@
 //
 
 #include "mcbDownloadQueue.h"
+#include "mcbMainThreadCaller.h"
+
 namespace mcb{namespace PlatformSupport{namespace network{
     void DownloadQueue::init(){
         
@@ -21,8 +23,13 @@ namespace mcb{namespace PlatformSupport{namespace network{
         return false;
     }
     bool DownloadQueue::enqueueDownload(const HTTPRequest & request, const std::string & saveToPath, const DownloadTask::completion_handle_t & completion, const DownloadTask::progress_handle_t & progress){
-        if (isDownloading(request))
+        if (isDownloading(request)){
+            call_on_main_thread([=]{
+                if (completion)
+                    completion(NetworkTask::StatusUndef, {request});//response code and succeed? should we care?
+            });
             return false;
+        }
         
         pDownloadTask task(DownloadTask::create(request, saveToPath, [=](NetworkTask::Status status, const HTTPResponse & response){
             if (completion)
