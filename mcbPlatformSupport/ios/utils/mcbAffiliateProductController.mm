@@ -20,6 +20,7 @@
     __strong NSString *_productId, *_callbackUrl;
     __strong MCBGeneralPurposeBlock _completion;
     __strong mcbAffiliateProductController *_strongSelf;
+    __weak UIActivityIndicatorView * _spinner;
 }
 +(BOOL)isAvailable{
     return [SKStoreProductViewController class]!=Nil;
@@ -76,6 +77,7 @@
         productViewController.delegate=self;
         NSDictionary *storeParameters(@{SKStoreProductParameterITunesItemIdentifier: _productId});
         UIActivityIndicatorView *spinner([[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle: UIActivityIndicatorViewStyleGray]);
+        _spinner=spinner;
         __weak SKStoreProductViewController * weakProductViewController(productViewController);
         __weak UIActivityIndicatorView * weakSpinner(spinner);
         // Present the product view controller
@@ -110,5 +112,11 @@
             _completion();
         _strongSelf=nil;
     }];
+}
+-(void)dealloc{
+    if (_spinner) {
+        [_spinner stopAnimating];
+        [_spinner removeFromSuperview];
+    }
 }
 @end
