@@ -9,11 +9,6 @@
 #include "mcbNetworkMonitor.h"
 namespace mcb{namespace PlatformSupport{namespace network{
     extern const std::string kConnectionTypeChangedNotificationName("kConnectionTypeChangedNotificationName");
-    void NetworkMonitor::init(){
-        startMonitoring();
-    }
-    
-    
     
 #pragma mark -
 #pragma mark NetworkNotifier

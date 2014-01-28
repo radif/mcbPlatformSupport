@@ -21,6 +21,8 @@ namespace mcb{namespace PlatformSupport{namespace network{
     
     class NetworkMonitor : public SingletonFactory<NetworkMonitor>{
         bool _isMonitoring=false;
+        void * _nativeHandleHolder=nullptr;
+        void * _nativeListenerHolder=nullptr;
     public:
         typedef enum{ConnectionTypeUnknown, ConnectionTypeNone, ConnectionTypeCellular, ConnectionTypeWifi} ConnectionType;
         void init() override;
@@ -31,9 +33,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
         bool isMonitoring() const{return _isMonitoring;}
         bool isConnected() const{return connectionType()==ConnectionTypeCellular || connectionType()==ConnectionTypeWifi;}
         //unreliable if the connection monitor is blocked
-        ConnectionType connectionType() const{return _connectionType;}
-    private:
-        ConnectionType _connectionType=ConnectionTypeUnknown;        
+        ConnectionType connectionType() const;
+
+        virtual ~NetworkMonitor();
     };
     
     class NetworkNotifier: virtual Notification{
