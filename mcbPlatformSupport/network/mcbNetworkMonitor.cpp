@@ -21,6 +21,9 @@ namespace mcb{namespace PlatformSupport{namespace network{
         return NetworkMonitor::sharedInstance()->connectionType();
     }
     NetworkNotifier::NetworkNotifier(){
+        //make sure we init it
+        NetworkMonitor::sharedInstance();
+        
         addNotificationHandler(kConnectionTypeChangedNotificationName, [=](){
             connectionStatusChanged(connectionType());
         });
