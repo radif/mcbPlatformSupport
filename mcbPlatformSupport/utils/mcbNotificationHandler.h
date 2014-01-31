@@ -43,10 +43,13 @@ namespace mcb{ namespace PlatformSupport{
                 _handlers.erase(it);
             }
         }
-        virtual ~NotificationHandler(){
+        void removeAllNotificationHandlers(){
             auto handlersCopy(_handlers);
             for (const auto &p : handlersCopy)
                 removeNotificationHandler(p.first);
+        }
+        virtual ~NotificationHandler(){
+            removeAllNotificationHandlers();
         }
     };
     
@@ -62,6 +65,9 @@ namespace mcb{ namespace PlatformSupport{
         }
         virtual void removeNotificationHandler(const std::string & name){
             _notificationHandler->removeNotificationHandler(name);
+        }
+        virtual void removeAllNotificationHandlers(){
+            _notificationHandler->removeAllNotificationHandlers();
         }
     };
 
