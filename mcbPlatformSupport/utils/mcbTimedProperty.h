@@ -35,11 +35,7 @@ namespace mcb{ namespace PlatformSupport{
                 _activeUntil=kNever;
             return retVal;
         }
-        time_t isActiveFor() const{
-            if (!isActive())
-                return kNever;
-            return _activeUntil-now();
-        }
+        time_t isActiveFor() const{if (!isActive()) return kNever;return _activeUntil-now();}
         bool isSuspended() const{return _suspendedTime!=kNever;}
         void setSuspended(bool suspended){
             if (suspended==isSuspended())
@@ -69,12 +65,8 @@ namespace mcb{ namespace PlatformSupport{
         void deactivate(){_currentDuration=-HUGE_VALF;}
         operator bool() const{return isActive();}
         bool isActive() const{return _elapsedTime<=_currentDuration;}
-        float isActiveFor() const{
-            if (!isActive())
-                return 0.f;
-            return _currentDuration-_elapsedTime;
-        }
-        void tick(float deltaTime){if(!_isSuspended) _elapsedTime+=deltaTime;}
+        float isActiveFor() const{if (!isActive()) return 0.f;return _currentDuration-_elapsedTime;}
+        void tick(const float deltaTime){if(!_isSuspended)_elapsedTime+=deltaTime;}
         bool isSuspended() const{return _isSuspended;}
         void setSuspended(bool suspended){_isSuspended=suspended;}
     };
