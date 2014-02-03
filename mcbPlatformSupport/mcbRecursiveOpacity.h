@@ -19,7 +19,7 @@ namespace mcb{namespace PlatformSupport{
         
         void runVeilInAction(const float duration, const std::function<void()> & completion=nullptr, const cocos2d::ccColor4B & color={0,0,0,255}, const int zOrder=99999);
         void runVeilOutAction(const float duration, const std::function<void()> & completion=nullptr);
-        void addVeil(const cocos2d::ccColor4B & color={0,0,0,255}, const int zOrder=99999);
+        void addVeil(const cocos2d::ccColor4B & color={0,0,0,255}, const int zOrder=9999999);
         void removeVeil();
         cocos2d::CCLayerColor * getVeil(){return _veil;}
         
