@@ -111,5 +111,8 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     
     std::string generateRandomAlphanumericString(const int length=16, const bool appendTimestamp=true);
     
+    //node geometry
+    bool isVisibleOnScreen(cocos2d::CCNode *node);//I have CCSprite in mind in 99% of the cases
+    
 }}}
 #endif /* defined(__mcb__mcbPlatformSupportFunctions__) */

@@ -447,5 +447,28 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
                 removeFile(path);
         }
     }
+#pragma mark node geopmetry
+    bool isVisibleOnScreen(cocos2d::CCNode *node){
+        if (!node->getParent())
+            return false;
+        
+        const CCPoint & pos(node->getPosition());
+        const CCSize & sz(node->getContentSize());
+        const CCPoint & ap(node->getAnchorPoint());
+        
+        CCPoint lowerLeft({pos.x - sz.width * ap.x, pos.y - sz.height * ap.y});
+        CCPoint upperRight({lowerLeft.x + sz.width, lowerLeft.y + sz.height});
+        lowerLeft=node->convertToWorldSpaceAR(lowerLeft);
+        upperRight=node->convertToWorldSpaceAR(upperRight);
+        
+        CCRect visibleRect(getVisibleScreenRect());
+        if(!(visibleRect.getMaxX() < lowerLeft.x ||
+             upperRight.x < visibleRect.getMinX() ||
+             visibleRect.getMaxY() < lowerLeft.y ||
+             upperRight.y < visibleRect.getMinY()))
+            return true;
+        
+        return false;
+    }
 
 }}}
