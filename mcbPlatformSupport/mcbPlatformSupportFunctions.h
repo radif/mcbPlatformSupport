@@ -113,6 +113,8 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     
     //node geometry
     bool isVisibleOnScreen(cocos2d::CCNode *node);//I have CCSprite in mind in 99% of the cases
+    bool isVisibleOnScreen(cocos2d::CCNode *node, cocos2d::CCPoint & bottomLeft, cocos2d::CCPoint & topRight);//I have CCSprite in mind in 99% of the cases
+
     
 }}}
 #endif /* defined(__mcb__mcbPlatformSupportFunctions__) */

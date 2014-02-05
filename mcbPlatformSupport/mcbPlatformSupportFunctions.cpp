@@ -449,6 +449,10 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     }
 #pragma mark node geopmetry
     bool isVisibleOnScreen(cocos2d::CCNode *node){
+        CCPoint lowerLeft, upperRight;
+        return isVisibleOnScreen(node, lowerLeft, upperRight);
+    }
+    bool isVisibleOnScreen(cocos2d::CCNode *node, cocos2d::CCPoint & lowerLeft, cocos2d::CCPoint & upperRight){
         if (!node->getParent())
             return false;
         
@@ -456,8 +460,8 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         const CCSize & sz(node->getContentSize());
         const CCPoint & ap(node->getAnchorPoint());
         
-        CCPoint lowerLeft({pos.x - sz.width * ap.x, pos.y - sz.height * ap.y});
-        CCPoint upperRight({lowerLeft.x + sz.width, lowerLeft.y + sz.height});
+        lowerLeft={pos.x - sz.width * ap.x, pos.y - sz.height * ap.y};
+        upperRight={lowerLeft.x + sz.width, lowerLeft.y + sz.height};
         lowerLeft=node->convertToWorldSpaceAR(lowerLeft);
         upperRight=node->convertToWorldSpaceAR(upperRight);
         
