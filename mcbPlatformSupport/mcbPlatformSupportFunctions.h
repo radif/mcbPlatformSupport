@@ -17,6 +17,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     cocos2d::CCPoint relativeCoordinatesFromAbsolute(cocos2d::CCPoint absoluteCoordinates);
     cocos2d::CCPoint relativeScaleFromAbsolute(cocos2d::CCPoint absoluteScale);
     float normalizeAngle(float angle);
+    float normalizeAngleRad(float angle);
     
     std::string formattedTimeFromSeconds(const float seconds, bool alwaysShowsHour=false, bool showsHundredth=false, bool hasSpaces=true);
     

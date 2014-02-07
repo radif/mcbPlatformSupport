@@ -43,11 +43,19 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         absoluteScale.y=absoluteScale.y/screenSize.height*visibleRect.size.height;
         return absoluteScale;
     }
+    
     float normalizeAngle(float angle){
         if (angle > 0)
             angle = fmodf(angle, 360.0f);
         else
             angle = fmodf(angle, -360.0f);
+        return angle;
+    }
+    float normalizeAngleRad(float angle){
+        if (angle > 0)
+            angle = fmodf(angle, 2.f*M_PI);
+        else
+            angle = fmodf(angle, -2.f*M_PI);
         return angle;
     }
     
