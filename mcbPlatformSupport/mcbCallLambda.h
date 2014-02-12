@@ -97,6 +97,7 @@ namespace mcb{namespace PlatformSupport{
     namespace ProgressCurveFunctions{
         static float inline linearToEaseOut(const float progress){return 1.f-cosf(progress*M_PI_2);}
         static float inline linearToEaseIn(const float progress){return sinf(progress*M_PI_2);}
+        static float inline linearToEaseInOut(const float progress){return linearToEaseOut(linearToEaseIn(progress));}
         float linearToBackInOut(float progress, float multiplier=1.f, float rate=1.5f);
         float linearToBackIn(float progress, float rate=1.5f);
         float linearToBackOut(float progress, float rate=1.5f);
