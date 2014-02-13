@@ -24,8 +24,8 @@ namespace mcb{namespace PlatformSupport{
             _prevAccel.x = (pAccelerationValue->x*_filteringFactor)+(_prevAccel.x*(1.f-_filteringFactor));
             _prevAccel.y = (pAccelerationValue->y*_filteringFactor)+(_prevAccel.y*(1.f-_filteringFactor));
             
-            _offset.x=((_prevAccel.x+_accelerationOffset.x)*_multiplier.x+_offset.x)*.5f;
-            _offset.y=((_prevAccel.y+_accelerationOffset.y)*_multiplier.y+_offset.y)*.5f;
+            _offset.x=(_prevAccel.x+_accelerationOffset.x)*_multiplier.x;
+            _offset.y=(_prevAccel.y+_accelerationOffset.y)*_multiplier.y;
             
             super::setPosition(ccpAdd(_realPosition, _offset));
         });
