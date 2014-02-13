@@ -101,6 +101,36 @@ namespace mcb{namespace PlatformSupport{
         float linearToBackInOut(float progress, float multiplier=1.f, float rate=1.5f);
         float linearToBackIn(float progress, float rate=1.5f);
         float linearToBackOut(float progress, float rate=1.5f);
+        
+        class Bezier;
+        typedef std::shared_ptr<Bezier> pBezier;
+        struct BezierConfig {
+            //! Bezier control point 1
+            cocos2d::CCPoint controlPt1;
+            //! Bezier control point 2
+            cocos2d::CCPoint controlPt2;
+            //! end position of the bezier
+            cocos2d::CCPoint endPos;
+        };
+        
+        typedef std::vector<BezierConfig> bezier_configs_t;
+        class Bezier{
+            cocos2d::CCPoint _startPosition;
+            bezier_configs_t _configs;
+        public:
+            static pBezier create();
+            static pBezier create(const cocos2d::CCPoint & startPos, const bezier_configs_t & configs);
+            void setStartPosition(const cocos2d::CCPoint & startPos){_startPosition=startPos;}
+            bezier_configs_t & configs(){return _configs;}
+            void clearConfigs(){_configs.clear();}
+            void setConfigs(const bezier_configs_t & configs);
+            void addConfig(const BezierConfig & config);
+            void addConfig(const cocos2d::CCPoint & pt1, const cocos2d::CCPoint & pt2, const cocos2d::CCPoint & pt3);
+            
+            cocos2d::CCPoint pointAt(float progress);
+        };
+
+        
     }
 }}
 
