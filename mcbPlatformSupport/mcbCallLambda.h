@@ -104,18 +104,20 @@ namespace mcb{namespace PlatformSupport{
         
         class Bezier;
         typedef std::shared_ptr<Bezier> pBezier;
-        struct BezierConfig {
-            //! Bezier control point 1
-            cocos2d::CCPoint controlPt1;
-            //! Bezier control point 2
-            cocos2d::CCPoint controlPt2;
-            //! end position of the bezier
-            cocos2d::CCPoint endPos;
-        };
         
-        typedef std::vector<BezierConfig> bezier_configs_t;
         class Bezier{
             cocos2d::CCPoint _startPosition;
+        public:
+            struct Config {
+                //! Bezier control point 1
+                cocos2d::CCPoint controlPt1;
+                //! Bezier control point 2
+                cocos2d::CCPoint controlPt2;
+                //! end position of the bezier
+                cocos2d::CCPoint endPos;
+            };
+            typedef std::vector<Bezier::Config> bezier_configs_t;
+        private:
             bezier_configs_t _configs;
         public:
             static pBezier create();
@@ -124,7 +126,7 @@ namespace mcb{namespace PlatformSupport{
             bezier_configs_t & configs(){return _configs;}
             void clearConfigs(){_configs.clear();}
             void setConfigs(const bezier_configs_t & configs);
-            void addConfig(const BezierConfig & config);
+            void addConfig(const Bezier::Config & config);
             void addConfig(const cocos2d::CCPoint & pt1, const cocos2d::CCPoint & pt2, const cocos2d::CCPoint & pt3);
             
             cocos2d::CCPoint pointAt(float progress);

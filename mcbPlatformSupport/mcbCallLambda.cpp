@@ -151,11 +151,11 @@ namespace mcb{namespace PlatformSupport{
             retVal->_configs=configs;
             return retVal;
         }
-        void Bezier::addConfig(const BezierConfig & config){
+        void Bezier::addConfig(const Bezier::Config & config){
             _configs.emplace_back(config);
         }
         void Bezier::addConfig(const cocos2d::CCPoint & pt1, const cocos2d::CCPoint & pt2, const cocos2d::CCPoint & pt3){
-            _configs.emplace_back(BezierConfig{pt1,pt2,pt3});
+            _configs.emplace_back(Bezier::Config{pt1,pt2,pt3});
         }
         void Bezier::setConfigs(const bezier_configs_t & configs){
             _configs=configs;
@@ -164,7 +164,7 @@ namespace mcb{namespace PlatformSupport{
             const float configIndexF(_configs.size()*progress);
             const int configIndex(configIndexF);
             const float time(configIndexF-configIndex);
-            const BezierConfig & conf(_configs.at(configIndex));
+            const Bezier::Config & conf(_configs.at(configIndex));
             
             //get the step
             const cocos2d::CCPoint startPos(configIndex==0? _startPosition: _configs.at(configIndex-1).endPos);
