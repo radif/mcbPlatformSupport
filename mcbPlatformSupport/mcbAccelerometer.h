@@ -16,7 +16,14 @@ namespace mcb{namespace PlatformSupport{
     
     class Accelerometer : public PlatformSupport::SingletonFactory<Accelerometer> , public cocos2d::CCAccelerometerDelegate{
         friend PlatformSupport::SingletonFactory<Accelerometer>;
-        cocos2d::CCAcceleration _lastAcceleration;
+        class{
+            bool _initialized=false;
+            cocos2d::CCAcceleration value;
+        public:
+            void set(cocos2d::CCAcceleration * pAcceleration){value=*pAcceleration;_initialized=true;}
+            cocos2d::CCAcceleration * get(){return &value;}
+            bool isInitialized() const{return _initialized;}
+        }_lastAcceleration;
     public:
         typedef std::function<void(cocos2d::CCAcceleration* pAccelerationValue)> listener_t;
         void addListener(AccelerometerListener * listener, const listener_t & listenerBlock);
