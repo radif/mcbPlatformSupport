@@ -18,7 +18,7 @@ namespace mcb{namespace PlatformSupport{
         friend PlatformSupport::SingletonFactory<Accelerometer>;
         class{
             bool _initialized=false;
-            cocos2d::CCAcceleration value;
+            cocos2d::CCAcceleration value={0.f,0.f,0.f};
         public:
             void set(cocos2d::CCAcceleration * pAcceleration){value=*pAcceleration;_initialized=true;}
             cocos2d::CCAcceleration * get(){return &value;}
