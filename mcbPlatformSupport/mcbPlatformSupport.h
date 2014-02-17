@@ -34,10 +34,7 @@ namespace mcb{namespace PlatformSupport{
     
     void setVisibleScreenRect(const cocos2d::CCRect & rect);
     cocos2d::CCRect getVisibleScreenRect();
-    
-    bool getRetinaEnabled();
-    void setRetinaEnabled(bool isRetinaEnabled);
-    
+        
     float getScreenScaleRatio();
     void setScreenScaleRatio(float screenScaleRatio);
     
