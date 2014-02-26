@@ -16,6 +16,7 @@ namespace mcb{namespace PlatformSupport{namespace utils{
     void openURL(const std::string & urlString);
     bool openURL(std::string urlString, std::string alertTitle, std::string alertText, std::string yesButton, std::string noButton);
 
+    void share(const std::string & body, bool addAppIcon=false, bool addScreenshot=false);
     void mailto(const std::vector<std::string> & recepients, const std::string & subject, const std::string & body, bool addDeviceInfo);
 }}}
 #endif /* defined(__SoundSurfer__mcbOpenURL__) */

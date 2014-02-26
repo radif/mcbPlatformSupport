@@ -18,7 +18,7 @@ typedef void (^MCBGeneralPurposeBlock)();
 
 
 namespace mcb{namespace PlatformSupport{namespace utils{namespace iOS{
-    UIViewController * rootViewControler();
+    UIViewController * rootViewController();
     
     std::string platform();
     std::string buildVersion();
@@ -28,6 +28,9 @@ namespace mcb{namespace PlatformSupport{namespace utils{namespace iOS{
     
     struct MemoryInfoInGB{std::string totalMemory, usedMemory, freeMemory;};
     MemoryInfoInGB memoryInGB();
+    
+    UIImage* takeScreenshot();
+    UIImage *scaleImageToSize(UIImage * image, CGSize newSize);
     
 }}}}
 #endif//__mcb__mcbIOSUtils__

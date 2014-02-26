@@ -9,8 +9,10 @@
 #import "mcbIOSUtils.h"
 #include <sys/types.h>
 #include <sys/sysctl.h>
+#include "CCRenderTextureEx.h"
+
 namespace mcb{namespace PlatformSupport{namespace utils{namespace iOS{
-    UIViewController * rootViewControler(){
+    UIViewController * rootViewController(){
         UIViewController *rootViewController = nil;
         id appDelegate = [[UIApplication sharedApplication] delegate];
         if ([appDelegate respondsToSelector:@selector(viewController)])
@@ -66,5 +68,30 @@ namespace mcb{namespace PlatformSupport{namespace utils{namespace iOS{
         NSString* memUsed = [NSString stringWithFormat:@"%ld", lroundf(usedSpace)];
         NSString* memFree = [NSString stringWithFormat:@"%ld", lroundf(freeSpace)];
         return MemoryInfoInGB{[memCapacity UTF8String], [memUsed UTF8String], [memFree UTF8String]};
+    }
+    
+    UIImage *scaleImageToSize(UIImage * image, CGSize newSize) {
+        //UIGraphicsBeginImageContext(newSize);
+        // In next line, pass 0.0 to use the current device's pixel scaling factor (and thus account for Retina resolution).
+        // Pass 1.0 to force exact pixel size.
+        UIGraphicsBeginImageContextWithOptions(newSize, NO, 1.0);
+        [image drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+        UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        return newImage;
+    }
+    
+    UIImage* takeScreenshot(){
+        cocos2d::CCDirector* director =  cocos2d::CCDirector::sharedDirector();
+        cocos2d::CCSize size = director->getWinSize();
+        
+        
+        cocos2d::CCRenderTextureEx *renderer = cocos2d::CCRenderTextureEx::create(size.width, size.height);
+        renderer->beginWithClear(0, 0, 0, 0);
+        director->getRunningScene()->visit();
+        renderer->end();
+        
+        UIImage *result = renderer->getUIImage();
+        return result;
     }
 }}}}

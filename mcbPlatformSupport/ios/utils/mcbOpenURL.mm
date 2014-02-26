@@ -11,6 +11,8 @@
 #import "mcbAlertView.h"
 #import <MessageUI/MessageUI.h>
 #import "mcbIOSUtils.h"
+#include "mcbPlatformSupport.h"
+#include "mcbLogger.h"
 
 @interface mcbMailComposerDelegate : NSObject <MFMailComposeViewControllerDelegate>
 +(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error;
@@ -60,6 +62,35 @@ namespace mcb{namespace PlatformSupport{namespace utils{
         
         return true;
     }
+    void share(const std::string & body, bool addAppIcon, bool addScreenshot){
+        
+        NSMutableArray * toShare([[@[@(body.c_str())] mutableCopy] autorelease]);
+        
+        if (addAppIcon)
+            [toShare addObject:[UIImage imageNamed:@"icon_152.png"]];
+        
+        if (addScreenshot) {
+            UIImage * imageToSend(iOS::takeScreenshot());
+            if (mcb::PlatformSupport::getScreenScaleRatio()>1.f)
+                imageToSend=iOS::scaleImageToSize(imageToSend, CGSizeMake(imageToSend.size.width, imageToSend.size.height));
+            [toShare addObject:imageToSend];
+        }
+        
+        UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:toShare applicationActivities:nil];
+        activityVC.completionHandler=^(NSString *activityType, BOOL completed){
+            std::string activity_type("nil");
+            if (activityType)
+                activity_type=[activityType UTF8String];
+            if (completed)
+                Log::mcbLog(PlatformSupport::LogLevelAnalytics, "share", "Shared on activity type \""+activity_type+"\" sheet for: \"" +body+"\"");
+            else
+                Log::mcbLog(PlatformSupport::LogLevelAnalytics, "share", "Cancelled out of \""+activity_type+"\" share sheet for: \"" +body+"\"");
+        };
+        activityVC.excludedActivityTypes = @[UIActivityTypePrint, UIActivityTypeCopyToPasteboard, UIActivityTypeAssignToContact, UIActivityTypeSaveToCameraRoll, UIActivityTypeAirDrop];
+        [iOS::rootViewController() presentViewController:activityVC animated:YES completion:nil];
+        [activityVC release];
+        Log::mcbLog(PlatformSupport::LogLevelAnalytics, "share", "Presented share sheet for: \"" +body+"\"");
+    }
     void mailto(const std::vector<std::string> & recepients, const std::string & subject, const std::string & body, bool addDeviceInfo){
         if (![MFMailComposeViewController canSendMail]){
             [[[[mcbAlertView alloc] initWithTitle:@"Please, setup email on your device first"
@@ -97,7 +128,7 @@ namespace mcb{namespace PlatformSupport{namespace utils{
             [mailComposeController setMessageBody:@(body.c_str()) isHTML:FALSE];
         
         
-        [iOS::rootViewControler() presentViewController:mailComposeController animated:TRUE completion:NULL];
+        [iOS::rootViewController() presentViewController:mailComposeController animated:TRUE completion:NULL];
     }
 
 }}}
