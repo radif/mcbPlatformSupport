@@ -38,7 +38,7 @@ namespace mcb{namespace PlatformSupport{namespace network{
         virtual ~NetworkMonitor();
     };
     
-    class NetworkNotifier: virtual Notification{
+    class NetworkNotifier: protected virtual Notification{
     protected:
         NetworkMonitor::ConnectionType connectionType() const;
         bool isConnected() const;
