@@ -14,6 +14,8 @@
 #include "CCImage.h"
 #include <AudioToolbox/AudioToolbox.h>
 #include "CCNotificationCenter.h"
+#include "mcbPlatformSupportFunctions.h"
+
 namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
     void copyMPMediaItemToLibrary(MPMediaItem * item, std::function<void(const std::string & copiedItemPath)> completion=nullptr);
 }}}
@@ -400,6 +402,16 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
         return _cache.copiedFilePath;
     }
     
+    long MediaItem::hashL() const{
+        std::string identifier(title()+artist()+albumArtist()+albumTitle()+ Functions::t_to_string(int(duration()/2)));
+        long h(1125899906842597L); // prime
+        int len(identifier.length());
+        
+        for (int i(0);i<len;i++)
+            h = 31*h + identifier.at(i);
+        
+        return h;
+    }
     MediaItem::MediaItem(): _isLocal(false), _localPath(""){}
     
     MediaItem::MediaItem(const std::string & localFilePath): _isLocal(true), _localPath(localFilePath){

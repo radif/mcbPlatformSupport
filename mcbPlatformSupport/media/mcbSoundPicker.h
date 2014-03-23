@@ -76,6 +76,8 @@ namespace mcb{namespace PlatformSupport{namespace SoundPicker{
         
         void copyToLibrary(const std::function<void(const std::string & copiedItemPath)> & completion) const;
         
+        long hashL() const;
+        
         MediaItem();
         MediaItem(const std::string & localFilePath);
 
