@@ -60,11 +60,14 @@ namespace mcb{namespace PlatformSupport{
     public:
         static C * sharedInstance(){
             static C * sharedInstance(nullptr);
-            static std::once_flag onceFlag;
-            std::call_once(onceFlag,[](){
+            if(!sharedInstance){
+                //CLANG BUG - needed to remove thread safety with std::once
+                //                static std::once_flag onceFlag;
+                //                std::call_once(onceFlag,[](){
                 sharedInstance=new C;
                 sharedInstance->init();
-            });
+                //                });
+            }
             return sharedInstance;
         }
     protected:
