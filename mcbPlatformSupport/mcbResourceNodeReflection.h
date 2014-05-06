@@ -9,9 +9,10 @@
 #ifndef __mcb__mcbResourceNodeReflection_h
 #define __mcb__mcbResourceNodeReflection_h
 
-namespace mcb{namespace PlatformSupport{
 #include <string>
 #include <map>
+
+namespace mcb{namespace PlatformSupport{
     
 #define REGISTER_RESOURCE_NODE_CLASS_FOR_REFLECTION_H(classNameAsInPlist) \
 static mcb::PlatformSupport::DerivedResourceNodeRegister<classNameAsInPlist> reg;\
@@ -24,16 +25,10 @@ mcb::PlatformSupport::DerivedResourceNodeRegister<classNameAsInPlist> classNameA
     
     class ResourceNode;
     typedef std::map<std::string, ResourceNode*(*)()> layer_map_type;
-    static layer_map_type * _mcbReflectionNodeMap(nullptr);
     
     class ResourceNodeFactory {
         friend class ResourceNode;
-        static ResourceNode * createInstance(const std::string & s) {
-            auto it(_reflectionMap()->find(s));
-            if(it!=_reflectionMap()->end())
-                return it->second();
-            return nullptr;
-        }
+        static ResourceNode * createInstance(const std::string & s);
         
         template<typename T>
         static ResourceNode * createResourceNode() {
@@ -48,17 +43,7 @@ mcb::PlatformSupport::DerivedResourceNodeRegister<classNameAsInPlist> classNameA
         }
        
     protected:
-        static layer_map_type * _reflectionMap() {
-
-            static std::once_flag onceFlag;
-            std::call_once(onceFlag,[](){
-                if(!_mcbReflectionNodeMap)
-                    _mcbReflectionNodeMap = new layer_map_type;
-            });
-            
-            return _mcbReflectionNodeMap;
-        }
-        
+        static layer_map_type * _reflectionMap();
     };
     
     template<typename T>
