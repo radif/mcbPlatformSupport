@@ -15,6 +15,7 @@
 #include <AudioToolbox/AudioToolbox.h>
 #include "CCNotificationCenter.h"
 #include "mcbPlatformSupportFunctions.h"
+#include "mcbSHA.h"
 
 namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
     void copyMPMediaItemToLibrary(MPMediaItem * item, std::function<void(const std::string & copiedItemPath)> completion=nullptr);
@@ -405,6 +406,7 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
     long MediaItem::hashL() const{
         std::string identifier(title()+artist()+ Functions::t_to_string(int(duration()/2)));
         std::transform(identifier.begin(), identifier.end(), identifier.begin(), ::tolower);
+        identifier=crypto::sha512(identifier);
         long h(1125899906842597L); // prime
         int len(identifier.length());
         
