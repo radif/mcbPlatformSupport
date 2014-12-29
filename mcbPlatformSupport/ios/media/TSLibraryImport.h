@@ -30,7 +30,8 @@
 #define kTSUnknownError -65536
 #define kTSFileExistsError -48 //dupFNErr
 
-typedef NSInteger AVAssetExportSessionStatus;
+//typedef NSInteger AVAssetExportSessionStatus;
+#import <AVFoundation/AVFoundation.h>
 
 @class AVAssetExportSession;
 
