@@ -435,7 +435,8 @@ namespace mcb{namespace PlatformSupport{ namespace SoundPicker{
                     _cache.albumTitle=stringFromNSString(value);
                 else if ([key isEqualToString:MPMediaItemPropertyArtist])
                     _cache.artist=stringFromNSString(value);
-                else if ([key isEqualToString:MPMediaItemPropertyArtwork]){
+                else if (false &&
+                         [key isEqualToString:MPMediaItemPropertyArtwork]){
                     NSData *data = [(NSDictionary *)[item value] objectForKey:@"data"];
                     UIImage * image([UIImage imageWithData:data]);
                     //resize
