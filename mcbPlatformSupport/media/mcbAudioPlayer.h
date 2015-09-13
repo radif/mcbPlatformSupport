@@ -125,6 +125,7 @@ namespace mcb{namespace PlatformSupport{
         VarispeedPlayer(const std::string filePath, bool loop=false);
         virtual ~VarispeedPlayer();
         
+        std::function<void(VarispeedPlayer * player)> onPlayToEnd=nullptr;
         
         void prepare();
         void play();

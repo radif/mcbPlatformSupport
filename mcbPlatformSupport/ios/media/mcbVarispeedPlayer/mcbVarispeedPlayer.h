@@ -12,6 +12,8 @@
 @property (nonatomic, readonly) BOOL loop;
 @property (nonatomic, strong, nonnull, readonly)  NSString * audioPath;
 @property (nonatomic, assign) float rate;
+@property (nonatomic, readonly) BOOL isPlaying;
+@property (nonatomic, copy, nullable) void (^onPlayToEnd)( mcbVarispeedPlayer * _Nonnull  player);
 
 +(nonnull instancetype)playerWithAudioPath:(nonnull NSString*)audioPath loop:(BOOL)loop;
 

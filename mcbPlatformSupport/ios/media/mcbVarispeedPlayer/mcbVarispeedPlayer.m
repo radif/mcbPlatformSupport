@@ -46,6 +46,10 @@
                                  queue:nil
                             usingBlock:^(NSNotification *note) {
                                 if (note.object==weakPlayer.currentItem)
+                                
+                                    if (weakSelf.onPlayToEnd)
+                                        weakSelf.onPlayToEnd(weakSelf);
+                                
                                     if (weakSelf.loop) {
                                         [weakPlayer seekToTime:kCMTimeZero];
                                         [weakPlayer play];
@@ -61,14 +65,24 @@
     _player.rate=_rate;
 }
 -(void)pause{
+    bool oldLoop=_loop;
+    _loop=false;
     [_player pause];
+    _loop=oldLoop;
 }
 -(void)stop{
+    bool oldLoop=_loop;
+    _loop=false;
     [_player pause];
     [_player seekToTime:kCMTimeZero];
+    _loop=oldLoop;
+}
+-(BOOL)isPlaying{
+    return [_player rate] != 0.f;
 }
 -(void)setRate:(float)rate{
-    _player.rate=rate;
+    if (self.isPlaying)
+        _player.rate=rate;
     _rate=rate;
 }
 -(void)dealloc{

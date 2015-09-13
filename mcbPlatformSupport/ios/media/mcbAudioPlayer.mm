@@ -252,6 +252,10 @@ namespace mcb{namespace PlatformSupport{
     VarispeedPlayer::VarispeedPlayer(const std::string filePath, bool loop){
         mcbVarispeedPlayer * player=[mcbVarispeedPlayer playerWithAudioPath:@(filePath.c_str()) loop:loop];
         [player retain];
+        player.onPlayToEnd=^(mcbVarispeedPlayer * p){
+            if (onPlayToEnd)
+                onPlayToEnd(this);
+        };
         _nativeHandler=player;
     }
     VarispeedPlayer::~VarispeedPlayer(){
