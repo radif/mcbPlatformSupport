@@ -10,6 +10,7 @@
 #include "mcbMainThreadCaller.h"
 
 #import <AVFoundation/AVAudioPlayer.h>
+#import "mcbVarispeedPlayer.h"
 
 @interface IOSPlayerDelegate : NSObject<AVAudioPlayerDelegate>{
     @public
@@ -243,5 +244,48 @@ namespace mcb{namespace PlatformSupport{
                 m_playerCompletion(this);
         }
     }
+    
+    
+#pragma mark -
+#pragma mark VarispeedPlayer
+#define _nativeVarispeedPlayer ((mcbVarispeedPlayer *)_nativeHandler)
+    VarispeedPlayer::VarispeedPlayer(const std::string filePath, bool loop){
+        mcbVarispeedPlayer * player=[mcbVarispeedPlayer playerWithAudioPath:@(filePath.c_str()) loop:loop];
+        [player retain];
+        _nativeHandler=player;
+    }
+    VarispeedPlayer::~VarispeedPlayer(){
+        if (_nativeVarispeedPlayer) {
+            [_nativeVarispeedPlayer release];
+        }
+    }
+    
+    void VarispeedPlayer::prepare(){
+        [_nativeVarispeedPlayer prepare];
+    }
+    void VarispeedPlayer::play(){
+        [_nativeVarispeedPlayer play];
+    }
+    void VarispeedPlayer::pause(){
+        [_nativeVarispeedPlayer pause];
+    }
+    void VarispeedPlayer::stop(){
+        [_nativeVarispeedPlayer stop];
+    }
+        
+    void VarispeedPlayer::setRate(const float rate){
+        [_nativeVarispeedPlayer setRate:rate];
+    }
+    float VarispeedPlayer::rate() const{
+        return [_nativeVarispeedPlayer rate];
+    }
+        
+    std::string VarispeedPlayer::audioPath() const{
+        return [[_nativeVarispeedPlayer audioPath] UTF8String];
+    }
+    bool VarispeedPlayer::loop() const{
+        return [_nativeVarispeedPlayer loop];
+    }
+   
 }}
 

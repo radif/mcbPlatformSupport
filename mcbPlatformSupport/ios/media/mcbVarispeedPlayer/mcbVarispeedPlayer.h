@@ -1,0 +1,24 @@
+//
+//  mcbVarispeedPlayer.h
+//  mcb
+//
+//  Created by Radif Sharafullin on 9/12/15.
+//  Copyright © 2015 Radif Sharafullin. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+@interface mcbVarispeedPlayer : NSObject
+
+@property (nonatomic, readonly) BOOL loop;
+@property (nonatomic, strong, nonnull, readonly)  NSString * audioPath;
+@property (nonatomic, assign) float rate;
+
++(nonnull instancetype)playerWithAudioPath:(nonnull NSString*)audioPath loop:(BOOL)loop;
+
+-(void)prepare;
+
+-(void)play;
+-(void)pause;
+-(void)stop;
+
+@end
