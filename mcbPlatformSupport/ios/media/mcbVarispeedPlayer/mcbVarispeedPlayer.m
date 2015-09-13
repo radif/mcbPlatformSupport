@@ -38,26 +38,22 @@
         [_player addObserver:self forKeyPath:@"status" options:0 context:nil];
 
         //loop
-        __weak typeof(_player) weakPlayer = _player;
-        __weak typeof(self) weakSelf = self;
-        NSNotificationCenter *noteCenter = [NSNotificationCenter defaultCenter];
-        [noteCenter addObserverForName:AVPlayerItemDidPlayToEndTimeNotification
-                                object:nil
-                                 queue:nil
-                            usingBlock:^(NSNotification *note) {
-                                if (note.object==weakPlayer.currentItem)
-                                
-                                    if (weakSelf.onPlayToEnd)
-                                        weakSelf.onPlayToEnd(weakSelf);
-                                
-                                    if (weakSelf.loop) {
-                                        [weakPlayer seekToTime:kCMTimeZero];
-                                        [weakPlayer play];
-                                        weakPlayer.rate=weakSelf.rate;
-                                    }
-                            }];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(playerDidPlayToEnd:) name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+       
     }
 }
+-(void)playerDidPlayToEnd:(NSNotification *)note{
+    if (note.object==_player.currentItem){
+        if (_onPlayToEnd)
+            _onPlayToEnd(self);
+        if (_loop) {
+            [_player seekToTime:kCMTimeZero];
+            [_player play];
+            _player.rate=_rate;
+        }
+    }
+}
+
 -(void)play{
     if (!_player)
         [self prepare];
