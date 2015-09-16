@@ -119,5 +119,27 @@ namespace mcb{namespace PlatformSupport{
     };
     typedef std::shared_ptr<EffectPlayer> pEffectPlayer;
     
+    class VarispeedPlayer{
+        void * _nativeHandler=nullptr;
+    public:
+        VarispeedPlayer(const std::string filePath, bool loop=false);
+        virtual ~VarispeedPlayer();
+        
+        std::function<void(VarispeedPlayer * player)> onPlayToEnd=nullptr;
+        
+        void prepare();
+        void play();
+        void pause();
+        void stop();
+        
+        void setRate(const float rate);
+        float rate() const;
+        
+        std::string audioPath() const;
+        bool loop() const;
+    };
+    typedef std::shared_ptr<VarispeedPlayer> pVarispeedPlayer;
+    
+    
 }}
 #endif /* defined(__mcb__AudioPlayer__) */
