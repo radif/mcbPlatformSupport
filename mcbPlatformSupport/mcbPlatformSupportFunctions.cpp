@@ -231,7 +231,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         }else{
             CCString * pString(dynamic_cast<CCString *>(obj));
             if (pString)
-                retVal=pString->intValue();
+                retVal=pString->floatValue();
         }
         return retVal;
     }
