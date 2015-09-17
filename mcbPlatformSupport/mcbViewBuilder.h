@@ -25,6 +25,23 @@ namespace mcb{namespace PlatformSupport{
             ButtonEventReceiver(callback_t callback);
             virtual ~ButtonEventReceiver();
         };
+        class OriginalDictionaryBinder{
+            class NodeToDictionaryBinding{
+                cocos2d::CCDictionary * _originalData=nullptr;
+                cocos2d::CCNode * _node=nullptr;
+            public:
+                NodeToDictionaryBinding(cocos2d::CCDictionary * originalData, cocos2d::CCNode * node);
+                virtual ~NodeToDictionaryBinding();
+                cocos2d::CCNode * node() const;
+                cocos2d::CCDictionary * data() const;
+            };
+            typedef std::shared_ptr<NodeToDictionaryBinding> pNodeToDictionaryBinding;
+            std::map<cocos2d::CCNode *, pNodeToDictionaryBinding> _binders;
+        public:
+            void setOriginalDictionaryToDerivativeNodeNode(cocos2d::CCDictionary * originalData, cocos2d::CCNode * node);
+            cocos2d::CCDictionary * originalDictionaryForNode(cocos2d::CCNode * node) const;
+        } _originalDictionaryBinder;
+        
     private:
         ButtonEventReceiver * const _buttonEventReceiver;
     protected:
@@ -35,10 +52,12 @@ namespace mcb{namespace PlatformSupport{
         void setFactoryForKey(const std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> & lambda, const std::string & key);
         std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> factoryForKey(const std::string & key);
         
+        cocos2d::CCDictionary * originalDataForChildNode(cocos2d::CCNode * node) const;
+        
         virtual void buildViewWithSceneData(cocos2d::CCDictionary * sceneData);
         virtual void buildViewWithData(cocos2d::CCDictionary * data);
         virtual void buttonWithTagPressed(cocos2d::CCMenuItem * button, int tag){}
-
+        
         
         ViewBuilder(cocos2d::CCNode *thisNode);//pass from a subclass. Subclass has to be a CCNode * instance
         virtual ~ViewBuilder();

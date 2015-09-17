@@ -194,6 +194,9 @@ namespace mcb{namespace PlatformSupport{
             
             if (childNode) {
                 
+                //binding dictionaries to nodes
+                _originalDictionaryBinder.setOriginalDictionaryToDerivativeNodeNode(child, childNode);
+                
                 Number * tag=(Number *)child->objectForKey("tag");
                 if (tag)
                     childNode->setTag(*tag);
@@ -227,5 +230,31 @@ namespace mcb{namespace PlatformSupport{
             return;
         buttonHandler(button, item->getTag());
     }
-
+    
+#pragma mark Original Data binders
+    cocos2d::CCDictionary * ViewBuilder::originalDataForChildNode(cocos2d::CCNode * node) const{
+        return _originalDictionaryBinder.originalDictionaryForNode(node);
+    }
+    ViewBuilder::OriginalDictionaryBinder::NodeToDictionaryBinding::NodeToDictionaryBinding(cocos2d::CCDictionary * originalData, cocos2d::CCNode * node){
+        _originalData=originalData;CC_SAFE_RETAIN(_originalData);_node=node;
+    }
+    ViewBuilder::OriginalDictionaryBinder::NodeToDictionaryBinding::~NodeToDictionaryBinding(){
+        CC_SAFE_RELEASE(_originalData);
+    }
+    cocos2d::CCNode * ViewBuilder::OriginalDictionaryBinder::NodeToDictionaryBinding::node() const{
+        return _node;
+    }
+    cocos2d::CCDictionary * ViewBuilder::OriginalDictionaryBinder::NodeToDictionaryBinding::data() const{
+        return _originalData;
+    }
+    void ViewBuilder::OriginalDictionaryBinder::setOriginalDictionaryToDerivativeNodeNode(cocos2d::CCDictionary * originalData, cocos2d::CCNode * node){
+        _binders[node]=std::make_shared<NodeToDictionaryBinding>(originalData, node);
+        
+    }
+    cocos2d::CCDictionary * ViewBuilder::OriginalDictionaryBinder::originalDictionaryForNode(cocos2d::CCNode * node) const{
+            auto it(_binders.find(node));
+            if (it!=_binders.end())
+                return it->second->data();
+            return nullptr;
+    }
 }}
