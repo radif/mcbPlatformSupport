@@ -134,6 +134,13 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         _removeLastSlashInPath(component);
         return path+"/"+component;
     }
+    bool stringHasEnding(std::string const &fullString, std::string const &ending){
+        if (fullString.length() >= ending.length()) {
+            return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+        } else {
+            return false;
+        }
+    }
     void _removeLastSlashInPath(std::string & path){
         if (path.empty())
             return;
