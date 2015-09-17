@@ -32,6 +32,8 @@ namespace mcb{ namespace PlatformSupport{namespace Constants{
     //files
     extern const char * kManifestDataFile;
     
+    //misc
+    extern const char * kContextString;
 
 }}}
 #endif /* defined(__mcb__PlatformSupportConstants__) */

@@ -57,6 +57,7 @@ namespace mcb{namespace PlatformSupport{
         virtual void buildViewWithSceneData(cocos2d::CCDictionary * sceneData);
         virtual void buildViewWithData(cocos2d::CCDictionary * data);
         virtual void buttonWithTagPressed(cocos2d::CCMenuItem * button, int tag){}
+        virtual void buttonWithContextPressed(cocos2d::CCMenuItem * button, cocos2d::CCDictionary * context, int tag){}
         
         
         ViewBuilder(cocos2d::CCNode *thisNode);//pass from a subclass. Subclass has to be a CCNode * instance

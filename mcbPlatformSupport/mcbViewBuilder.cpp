@@ -15,7 +15,7 @@
 
 using namespace cocos2d;
 namespace mcb{namespace PlatformSupport{
-    ViewBuilder::ViewBuilder(cocos2d::CCNode * thisNode):_thisNode(thisNode), _buttonEventReceiver(new ButtonEventReceiver([=](cocos2d::CCObject * button, const int & tag){buttonWithTagPressed((cocos2d::CCMenuItem *)button, tag);})){
+    ViewBuilder::ViewBuilder(cocos2d::CCNode * thisNode):_thisNode(thisNode), _buttonEventReceiver(new ButtonEventReceiver([=](cocos2d::CCObject * button, const int & tag){buttonWithTagPressed((cocos2d::CCMenuItem *)button, tag);buttonWithContextPressed((cocos2d::CCMenuItem *)button, (CCDictionary *) originalDataForChildNode(((cocos2d::CCMenuItem *)button)->getParent())->objectForKey(Constants::kContextString), tag);})){
         assert(_thisNode);
         assert(dynamic_cast<CCNode *>(_thisNode));
 
@@ -228,7 +228,7 @@ namespace mcb{namespace PlatformSupport{
         CCMenuItem * item(dynamic_cast<CCMenuItem *>(button));
         if (!item || !buttonHandler)
             return;
-        buttonHandler(button, item->getTag());
+        buttonHandler(item, item->getTag());
     }
     
 #pragma mark Original Data binders

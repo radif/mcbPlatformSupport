@@ -27,4 +27,7 @@ namespace mcb{ namespace PlatformSupport{namespace Constants{
     
     //files
     const char * kManifestDataFile("manifest.data");
+    
+    //misc
+    const char * kContextString("context");
 }}}
