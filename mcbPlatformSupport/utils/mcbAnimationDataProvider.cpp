@@ -41,6 +41,23 @@ namespace mcb{ namespace PlatformSupport{
             path=mcbPath(path);
             _frames.push_back(path->m_sString);
             mcbForEachEnd
+        }else{
+            CCString * framesConvention((CCString *)data->objectForKey("framesConvention"));
+            if (framesConvention) {
+                int maxFrameNumber(mcb::PlatformSupport::Functions::floatForObjectKey(data, "maxFrameNumber"));
+                
+                _frames.reserve(maxFrameNumber);
+                const std::string basePath(mcbPath(framesConvention->m_sString));
+                for (int frameNumber(0); frameNumber<=maxFrameNumber; ++frameNumber) {
+                    std::string path(basePath);
+                    char buffer [path.size()+10];
+                    sprintf(buffer, path.c_str(), frameNumber);
+                    path=buffer;
+                    _frames.push_back(path);
+                }
+                
+            }
+            
         }
     }
     void AnimationDataProvider::precacheTextures(){
