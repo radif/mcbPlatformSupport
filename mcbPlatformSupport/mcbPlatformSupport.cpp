@@ -40,6 +40,7 @@ namespace mcb{namespace PlatformSupport{
     static float _screenScaleRatio=1.0f;
     static DeviceType _devType=DeviceTypeUnknown;
 
+    static std::function<void(std::string & inPath)> _customResolvePathFunction=nullptr;
     
     void setVisibleScreenRect(const cocos2d::CCRect & rect){_visibleScreenRect=rect;}
     cocos2d::CCRect getVisibleScreenRect(){
@@ -151,9 +152,13 @@ namespace mcb{namespace PlatformSupport{
         PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(LOCAL)/..", pathWithDeletedLastComponent);
         PlatformSupport::Functions::replaceOccurrencesOfStringByString(inPath, "$(LOCAL)", localDirectory);
     }
-    
-    
+    void setCustomResolvePathFunction(const std::function<void(std::string & inPath)> & resolvePathFunction){
+        _customResolvePathFunction=resolvePathFunction;
+    }
     std::string resolvePath(std::string inPath, const std::string & localDirectory, std::map<std::string, std::string> * userTokens){
+        if (_customResolvePathFunction)
+            _customResolvePathFunction(inPath);
+        
         Functions::_removeLastSlashInPath(inPath);
         if (localDirectory.empty())
             _resolveSystemPaths(inPath);

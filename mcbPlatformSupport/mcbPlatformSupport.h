@@ -54,6 +54,7 @@ namespace mcb{namespace PlatformSupport{
     //paths
     typedef std::map<std::string, std::string> path_tokens_t;
     std::string resolvePath(std::string inPath, const std::string & localDirectory="", std::map<std::string, std::string> * userTokens=nullptr);
+    void setCustomResolvePathFunction(const std::function<void(std::string & inPath)> & resolvePathFunction);
     
     void setSharedBundlePath(const std::string & gbpath);
     void addTokenForPath(const std::string token, const std::string path);
