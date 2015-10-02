@@ -492,4 +492,23 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         return false;
     }
 
+#pragma mark actions
+    cocos2d::CCSequence *actionSequenceFromVector(const std::vector<cocos2d::CCAction *> & actions, const int tag){
+        cocos2d::CCSequence *retVal(nullptr);
+        
+        for (int i=0; i<actions.size(); i++) {
+            cocos2d::CCSequence *anAction = (cocos2d::CCSequence *)actions.at(i);
+            if (!retVal)
+                retVal = anAction;
+            else
+                retVal = cocos2d::CCSequence::createWithTwoActions(retVal, anAction);
+        }
+        
+        if (retVal)
+            retVal->setTag(tag);
+        
+        return retVal;
+        
+    }
+
 }}}

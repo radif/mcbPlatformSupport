@@ -39,6 +39,7 @@ namespace mcb{namespace PlatformSupport{
             std::map<cocos2d::CCNode *, pNodeToDictionaryBinding> _binders;
         public:
             void setOriginalDictionaryToDerivativeNodeNode(cocos2d::CCDictionary * originalData, cocos2d::CCNode * node);
+            std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> allChildrenWithOriginalData() const;
             std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> childrenWithOriginalDataForTag(const int tag) const;
             cocos2d::CCDictionary * originalDictionaryForNode(cocos2d::CCNode * node) const;
         } _originalDictionaryBinder;
@@ -53,6 +54,7 @@ namespace mcb{namespace PlatformSupport{
         void setFactoryForKey(const std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> & lambda, const std::string & key);
         std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> factoryForKey(const std::string & key);
         
+        std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> allChildrenWithOriginalData() const;
         std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> childrenWithOriginalDataForTag(const int tag) const;
         cocos2d::CCDictionary * originalDataForChildNode(cocos2d::CCNode * node) const;
         
