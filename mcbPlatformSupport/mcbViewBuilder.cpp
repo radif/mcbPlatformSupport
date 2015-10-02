@@ -235,6 +235,16 @@ namespace mcb{namespace PlatformSupport{
     cocos2d::CCDictionary * ViewBuilder::originalDataForChildNode(cocos2d::CCNode * node) const{
         return _originalDictionaryBinder.originalDictionaryForNode(node);
     }
+    std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> ViewBuilder::childrenWithOriginalDataForTag(const int tag) const{
+        return _originalDictionaryBinder.childrenWithOriginalDataForTag(tag);
+    }
+    std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> ViewBuilder::OriginalDictionaryBinder::childrenWithOriginalDataForTag(const int tag) const{
+        std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> retVal;
+        for (const auto &p : _binders)
+            if (p.first->getTag()==tag)
+                retVal.emplace_back(std::make_pair(p.first, p.second->data()));
+        return retVal;
+    }
     ViewBuilder::OriginalDictionaryBinder::NodeToDictionaryBinding::NodeToDictionaryBinding(cocos2d::CCDictionary * originalData, cocos2d::CCNode * node){
         _originalData=originalData;CC_SAFE_RETAIN(_originalData);_node=node;
     }
