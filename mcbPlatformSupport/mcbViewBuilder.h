@@ -52,6 +52,8 @@ namespace mcb{namespace PlatformSupport{
         
         std::map<std::string, std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)>> _generators;
         void setFactoryForKey(const std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> & lambda, const std::string & key);
+        template<class C>void setMCBNodeFactoryForKey(const std::string & key){setFactoryForKey([=](cocos2d::CCDictionary *data)->cocos2d::CCNode *{return C::createInstance(_localPath, data);}, key);}
+
         std::function<cocos2d::CCNode *(cocos2d::CCDictionary *)> factoryForKey(const std::string & key);
         
         std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> allChildrenWithOriginalData() const;
