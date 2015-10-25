@@ -85,6 +85,8 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     std::string stringForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, const std::string & defaultVal="");
     bool boolForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, bool defaultVal=false);
     float floatForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, float defaultVal=0.f);
+    cocos2d::CCDictionary * dictionaryForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCDictionary * defaultVal=nullptr);
+
     cocos2d::CCSize sizeForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCSize defaultVal={0.f,0.f});
     cocos2d::CCPoint pointForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCPoint defaultVal={0.f,0.f});
     cocos2d::CCRect rectForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCRect defaultVal={0.f,0.f,0.f,0.f});

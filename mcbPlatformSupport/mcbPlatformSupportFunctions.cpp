@@ -243,6 +243,13 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         return retVal;
     }
     
+    cocos2d::CCDictionary * dictionaryForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCDictionary * defaultVal){
+        cocos2d::CCDictionary * retVal(dynamic_cast<cocos2d::CCDictionary *>(dict->objectForKey(key)));
+        if (retVal)
+            return retVal;
+        return defaultVal;
+    }
+    
     cocos2d::CCSize sizeForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCSize defaultVal){
         CCPoint sizePoint(pointForObjectKey(dict, key, {defaultVal.width, defaultVal.height}));
         return {sizePoint.x, sizePoint.y};
