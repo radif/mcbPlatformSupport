@@ -42,6 +42,7 @@ namespace mcb{namespace PlatformSupport{
             std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> allChildrenWithOriginalData() const;
             std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> childrenWithOriginalDataForTag(const int tag) const;
             cocos2d::CCDictionary * originalDictionaryForNode(cocos2d::CCNode * node) const;
+            bool removeChildNodeWithOriginalData(cocos2d::CCNode * node, bool removeFromParent=true, bool cleanup=true);
         } _originalDictionaryBinder;
         
     private:
@@ -59,6 +60,9 @@ namespace mcb{namespace PlatformSupport{
         std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> allChildrenWithOriginalData() const;
         std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> childrenWithOriginalDataForTag(const int tag) const;
         cocos2d::CCDictionary * originalDataForChildNode(cocos2d::CCNode * node) const;
+        //this needs to be called in order to remove sprites created by view builder to prevent dead pointers in the bindlers and crashing on methids such as childrenWithOriginalDataForTag();
+        bool removeChildNodeWithOriginalData(cocos2d::CCNode * node, bool removeFromParent=true, bool cleanup=true);
+        
         
         virtual void buildViewWithSceneData(cocos2d::CCDictionary * sceneData);
         virtual void buildViewWithData(cocos2d::CCDictionary * data);

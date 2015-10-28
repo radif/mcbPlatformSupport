@@ -235,6 +235,9 @@ namespace mcb{namespace PlatformSupport{
     cocos2d::CCDictionary * ViewBuilder::originalDataForChildNode(cocos2d::CCNode * node) const{
         return _originalDictionaryBinder.originalDictionaryForNode(node);
     }
+    bool ViewBuilder::removeChildNodeWithOriginalData(cocos2d::CCNode * node, bool removeFromParent, bool cleanup){
+        return _originalDictionaryBinder.removeChildNodeWithOriginalData(node, removeFromParent, cleanup);
+    }
     std::vector<std::pair<cocos2d::CCNode *, cocos2d::CCDictionary *>> ViewBuilder::allChildrenWithOriginalData() const{
         return _originalDictionaryBinder.allChildrenWithOriginalData();
     }
@@ -276,5 +279,15 @@ namespace mcb{namespace PlatformSupport{
             if (it!=_binders.end())
                 return it->second->data();
             return nullptr;
+    }
+    bool ViewBuilder::OriginalDictionaryBinder::removeChildNodeWithOriginalData(cocos2d::CCNode * node, bool removeFromParent, bool cleanup){
+        auto it(_binders.find(node));
+        if (it!=_binders.end()){
+            _binders.erase(it);
+            if (removeFromParent)
+                node->removeFromParentAndCleanup(cleanup);
+            return true;
+        }
+        return false;
     }
 }}
