@@ -500,7 +500,7 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     }
 
 #pragma mark actions
-    cocos2d::CCSequence *actionSequenceFromVector(const std::vector<cocos2d::CCAction *> & actions, const int tag){
+    cocos2d::CCSequence *actionSequenceFromVector(const actions_t & actions, const int tag){
         cocos2d::CCSequence *retVal(nullptr);
         
         for (int i=0; i<actions.size(); i++) {

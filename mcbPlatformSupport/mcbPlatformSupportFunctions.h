@@ -120,7 +120,8 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     bool isVisibleOnScreen(cocos2d::CCNode *node, cocos2d::CCPoint & bottomLeft, cocos2d::CCPoint & topRight);//I have CCSprite in mind in 99% of the cases
 
     //actions
-    cocos2d::CCSequence *actionSequenceFromVector(const std::vector<cocos2d::CCAction *> & actions, const int tag=0);
+    typedef std::vector<cocos2d::CCAction *> actions_t;
+    cocos2d::CCSequence *actionSequenceFromVector(const actions_t & actions, const int tag=0);
     
 }}}
 #endif /* defined(__mcb__mcbPlatformSupportFunctions__) */
