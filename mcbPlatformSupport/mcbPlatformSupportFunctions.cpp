@@ -134,12 +134,15 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         _removeLastSlashInPath(component);
         return path+"/"+component;
     }
+    bool stringBeginsWith(std::string const &fullString, std::string const &prefix){
+        if (fullString.length() >= prefix.length())
+            return (fullString.compare(0, prefix.length(), prefix) == 0);
+        return false;
+    }
     bool stringHasEnding(std::string const &fullString, std::string const &ending){
-        if (fullString.length() >= ending.length()) {
+        if (fullString.length() >= ending.length())
             return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
-        } else {
-            return false;
-        }
+        return false;
     }
     bool stringIsNumber(const std::string & s){
         return !s.empty() && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();

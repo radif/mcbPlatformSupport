@@ -56,13 +56,15 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     //string manipulations
     void replaceOccurrencesOfStringByString(std::string& str, const std::string& from, const std::string& to);
     bool replaceFirstOccurrenceOfStringByString(std::string& str, const std::string& from, const std::string& to) ;
+    bool stringBeginsWith(std::string const &fullString, std::string const &prefix);
+    bool stringHasEnding(std::string const &fullString, std::string const &ending);
+    bool stringIsNumber(const std::string & s);
+    
     
     std::string lastPathComponent(const std::string & path);
     std::string stringByDeletingLastPathComponent(const std::string & path);
     std::string deletePathExtension(const std::string & path);
     std::string stringByAppendingPathComponent(std::string path, std::string component);
-    bool stringHasEnding(std::string const &fullString, std::string const &ending);
-    bool stringIsNumber(const std::string & s);
     //TODO: Canonical path
     void _removeLastSlashInPath(std::string & path);
     
