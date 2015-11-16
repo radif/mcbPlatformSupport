@@ -276,7 +276,10 @@ namespace mcb{namespace PlatformSupport{
     void VarispeedPlayer::stop(){
         [_nativeVarispeedPlayer stop];
     }
-        
+    
+    bool VarispeedPlayer::isPlaying() const{
+        return [_nativeVarispeedPlayer isPlaying];
+    }
     void VarispeedPlayer::setRate(const float rate){
         [_nativeVarispeedPlayer setRate:rate];
     }

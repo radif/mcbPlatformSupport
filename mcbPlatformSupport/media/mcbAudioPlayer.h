@@ -132,6 +132,8 @@ namespace mcb{namespace PlatformSupport{
         void pause();
         void stop();
         
+        bool isPlaying() const;
+        
         void setRate(const float rate);
         float rate() const;
         
