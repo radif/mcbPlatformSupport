@@ -635,6 +635,9 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(OALAudioSession);
 // iOS 6.0+ interrupt handling
 - (void) handleInterruption:(NSNotification*) notification
 {
+    //Radif hack:
+    //please call those from app controller didbecomeActive, resignActive, enterForeground, enterBackground!!!!
+    return;
     NSUInteger type = [[notification.userInfo objectForKey:@"AVAudioSessionInterruptionTypeKey"] unsignedIntegerValue];
     OAL_LOG_DEBUG(@"iOS 6+ interrupt type %d", type);
     switch(type)

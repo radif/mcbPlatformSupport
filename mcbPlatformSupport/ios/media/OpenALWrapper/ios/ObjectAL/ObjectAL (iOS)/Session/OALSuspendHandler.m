@@ -153,7 +153,11 @@
 			{
 				if(nil != suspendStatusChangeTarget)
 				{
-					objc_msgSend(suspendStatusChangeTarget, suspendStatusChangeSelector, manualSuspendLock);
+                    void (*suspendStatusChange)(id, SEL, bool);
+                    suspendStatusChange = (void (*)(id, SEL, bool))[suspendStatusChangeTarget methodForSelector:suspendStatusChangeSelector];
+                    suspendStatusChange(suspendStatusChangeTarget, suspendStatusChangeSelector, manualSuspendLock);
+                    
+					//objc_msgSend(suspendStatusChangeTarget, suspendStatusChangeSelector, manualSuspendLock);
 				}
 			}
 		}
@@ -218,7 +222,10 @@
 			{
 				if(nil != suspendStatusChangeTarget)
 				{
-					objc_msgSend(suspendStatusChangeTarget, suspendStatusChangeSelector, interruptLock);
+                    void (*suspendStatusChange)(id, SEL, bool);
+                    suspendStatusChange = (void (*)(id, SEL, bool))[suspendStatusChangeTarget methodForSelector:suspendStatusChangeSelector];
+                    suspendStatusChange(suspendStatusChangeTarget, suspendStatusChangeSelector, interruptLock);
+//					objc_msgSend(suspendStatusChangeTarget, suspendStatusChangeSelector, interruptLock);
 				}
 			}
 		}
