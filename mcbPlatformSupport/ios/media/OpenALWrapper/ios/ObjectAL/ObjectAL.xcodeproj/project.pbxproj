@@ -981,6 +981,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DSTROOT = /tmp/ObjectAL__iOS_.dst;
+				ENABLE_BITCODE = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ObjectAL (iOS)/ObjectAL (iOS)-Prefix.pch";
 				OTHER_LDFLAGS = "-ObjC";
@@ -996,6 +997,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				DSTROOT = /tmp/ObjectAL__iOS_.dst;
+				ENABLE_BITCODE = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ObjectAL (iOS)/ObjectAL (iOS)-Prefix.pch";
 				OTHER_LDFLAGS = "-ObjC";

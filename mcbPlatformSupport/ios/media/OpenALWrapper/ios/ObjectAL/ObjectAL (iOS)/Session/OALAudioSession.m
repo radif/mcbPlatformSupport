@@ -313,7 +313,17 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(OALAudioSession);
 - (NSString*) audioRoute
 {
 #if !TARGET_IPHONE_SIMULATOR
-	return [self getStringProperty:kAudioSessionProperty_AudioRoute];
+    
+    
+#if TARGET_OS_IOS
+    // iOS-specific code
+    return [self getStringProperty:kAudioSessionProperty_AudioRoute];
+#elif TARGET_OS_TV
+    // tvOS-specific code
+    return nil;
+#endif
+    
+    
 #else /* !TARGET_IPHONE_SIMULATOR */
 	return nil;
 #endif /* !TARGET_IPHONE_SIMULATOR */
@@ -515,43 +525,49 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(OALAudioSession);
 - (void) setAudioMode
 {
 	// Simulator doesn't support setting the audio session category.
+#if TARGET_OS_IOS
+    // iOS-specific code
 #if !TARGET_IPHONE_SIMULATOR
-	
-	NSString* actualCategory = audioSessionCategory;
-	
-	// Mixing uses software decoding and mixes with other apps.
-	bool mixing = allowIpod;
-	
-	// Ducking causes other app audio to lower in volume while this session is active.
-	bool ducking = ipodDucking;
-	
-	// If the hardware is available and we want it, take it.
-	if(mixing && useHardwareIfAvailable && !self.ipodPlaying)
-	{
-		mixing = NO;
-	}
-	
-	// Handle special case where useHardwareIfAvailable caused us to take the hardware.
-	if(!mixing && [AVAudioSessionCategoryAmbient isEqualToString:audioSessionCategory])
-	{
-		actualCategory = AVAudioSessionCategorySoloAmbient;
-	}
-	
-	[self setAudioCategory:actualCategory];
-	
-	if(!mixing)
-	{
-		// Setting OtherMixableAudioShouldDuck clears MixWithOthers.
-		[self setIntProperty:kAudioSessionProperty_OtherMixableAudioShouldDuck value:ducking];
-	}
-	
-	if(!ducking)
-	{
-		// Setting MixWithOthers clears OtherMixableAudioShouldDuck.
-		[self setIntProperty:kAudioSessionProperty_OverrideCategoryMixWithOthers value:mixing];
-	}
-	
+    
+    NSString* actualCategory = audioSessionCategory;
+    
+    // Mixing uses software decoding and mixes with other apps.
+    bool mixing = allowIpod;
+    
+    // Ducking causes other app audio to lower in volume while this session is active.
+    bool ducking = ipodDucking;
+    
+    // If the hardware is available and we want it, take it.
+    if(mixing && useHardwareIfAvailable && !self.ipodPlaying)
+    {
+        mixing = NO;
+    }
+    
+    // Handle special case where useHardwareIfAvailable caused us to take the hardware.
+    if(!mixing && [AVAudioSessionCategoryAmbient isEqualToString:audioSessionCategory])
+    {
+        actualCategory = AVAudioSessionCategorySoloAmbient;
+    }
+    
+    [self setAudioCategory:actualCategory];
+    
+    if(!mixing)
+    {
+        // Setting OtherMixableAudioShouldDuck clears MixWithOthers.
+        [self setIntProperty:kAudioSessionProperty_OtherMixableAudioShouldDuck value:ducking];
+    }
+    
+    if(!ducking)
+    {
+        // Setting MixWithOthers clears OtherMixableAudioShouldDuck.
+        [self setIntProperty:kAudioSessionProperty_OverrideCategoryMixWithOthers value:mixing];
+    }
+    
 #endif /* !TARGET_IPHONE_SIMULATOR */
+#elif TARGET_OS_TV
+    // tvOS-specific code
+#endif
+
 }
 
 - (bool) audioSessionActive
