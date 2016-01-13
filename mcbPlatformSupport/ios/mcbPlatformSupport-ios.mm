@@ -26,4 +26,13 @@ namespace mcb{namespace PlatformSupport{
         static std::string retVal([[[NSBundle mainBundle] resourcePath] UTF8String]);
         return retVal;
     }
+    bool isTVPlatform(){
+#if TARGET_OS_IOS
+        // iOS-specific code
+        return false;
+#elif TARGET_OS_TV
+        // tvOS-specific code
+        return true;
+#endif
+    }
 }}

@@ -146,78 +146,88 @@ static NSBundle* g_defaultBundle;
 					 function:(const char*) function
 				  description:(NSString*) description, ...
 {
+    
+#if TARGET_OS_IOS
+    // iOS-specific code
 #ifdef __IPHONE_OS_VERSION_MAX_ALLOWED
-	if(noErr != errorCode)
-	{
-		NSString* errorString;
-		bool postNotification = NO;
-		
-		switch(errorCode)
-		{
-			case kAudioSessionNotInitialized:
-				errorString = @"Audio session not initialized";
-				postNotification = YES;
-				break;
-			case kAudioSessionAlreadyInitialized:
-				errorString = @"Audio session already initialized";
-				postNotification = YES;
-				break;
-			case kAudioSessionInitializationError:
-				errorString = @"Audio sesion initialization error";
-				postNotification = YES;
-				break;
-			case kAudioSessionUnsupportedPropertyError:
-				errorString = @"Unsupported audio session property";
-				break;
-			case kAudioSessionBadPropertySizeError:
-				errorString = @"Bad audio session property size";
-				break;
-			case kAudioSessionNotActiveError:
-				errorString = @"Audio session is not active";
-				postNotification = YES;
-				break;
+    if(noErr != errorCode)
+    {
+        NSString* errorString;
+        bool postNotification = NO;
+        
+        switch(errorCode)
+        {
+            case kAudioSessionNotInitialized:
+                errorString = @"Audio session not initialized";
+                postNotification = YES;
+                break;
+            case kAudioSessionAlreadyInitialized:
+                errorString = @"Audio session already initialized";
+                postNotification = YES;
+                break;
+            case kAudioSessionInitializationError:
+                errorString = @"Audio sesion initialization error";
+                postNotification = YES;
+                break;
+            case kAudioSessionUnsupportedPropertyError:
+                errorString = @"Unsupported audio session property";
+                break;
+            case kAudioSessionBadPropertySizeError:
+                errorString = @"Bad audio session property size";
+                break;
+            case kAudioSessionNotActiveError:
+                errorString = @"Audio session is not active";
+                postNotification = YES;
+                break;
 #if 0 // Documented but not implemented on iOS
-			case kAudioSessionNoHardwareError:
-				errorString = @"Hardware not available for audio session";
-				postNotification = YES;
-				break;
+            case kAudioSessionNoHardwareError:
+                errorString = @"Hardware not available for audio session";
+                postNotification = YES;
+                break;
 #endif
 #ifdef __IPHONE_3_1
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_1
-			case kAudioSessionNoCategorySet:
-				errorString = @"No audio session category set";
-				postNotification = YES;
-				break;
-			case kAudioSessionIncompatibleCategory:
-				errorString = @"Incompatible audio session category";
-				postNotification = YES;
-				break;
+            case kAudioSessionNoCategorySet:
+                errorString = @"No audio session category set";
+                postNotification = YES;
+                break;
+            case kAudioSessionIncompatibleCategory:
+                errorString = @"Incompatible audio session category";
+                postNotification = YES;
+                break;
 #endif /* __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_3_1 */
 #endif /* __IPHONE_3_1 */
-			default:
-				errorString = @"Unknown audio session error";
-				postNotification = YES;
-		}
-
+            default:
+                errorString = @"Unknown audio session error";
+                postNotification = YES;
+        }
+        
 #if OBJECTAL_CFG_LOG_LEVEL > 0
-		va_list args;
-		va_start(args, description);
-		description = [[NSString alloc] initWithFormat:description arguments:args];
-		va_end(args);
-		OAL_LOG_ERROR_CONTEXT(function, @"%@ (error code 0x%08x: %@)", description, errorCode, errorString);
-		as_release(description);
+        va_list args;
+        va_start(args, description);
+        description = [[NSString alloc] initWithFormat:description arguments:args];
+        va_end(args);
+        OAL_LOG_ERROR_CONTEXT(function, @"%@ (error code 0x%08x: %@)", description, errorCode, errorString);
+        as_release(description);
 #else
-        #pragma unused(function)
-        #pragma unused(description)
-        #pragma unused(errorString)
+#pragma unused(function)
+#pragma unused(description)
+#pragma unused(errorString)
 #endif /* OBJECTAL_CFG_LOG_LEVEL > 0 */
-		
-		if(postNotification)
-		{
-			[[NSNotificationCenter defaultCenter] postNotificationName:OALAudioErrorNotification object:self];
-		}
-	}
+        
+        if(postNotification)
+        {
+            [[NSNotificationCenter defaultCenter] postNotificationName:OALAudioErrorNotification object:self];
+        }
+    }
+#endif
+    
+#elif TARGET_OS_TV
+    // tvOS-specific code
 #endif
 }
+
+    
+
 
 @end

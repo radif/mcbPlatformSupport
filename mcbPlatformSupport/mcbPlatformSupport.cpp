@@ -84,25 +84,49 @@ namespace mcb{namespace PlatformSupport{
     DeviceType getDeviceType(){
         
         if (_devType==DeviceTypeUnknown) {
-            TargetPlatform tp(CCApplication::sharedApplication()->getTargetPlatform());
-            switch (tp) {
-                case kTargetIpad:
-                    _devType=DeviceTypeTablet;
-                    break;
-                case kTargetIphone:
-                    _devType=DeviceTypeHandheld;
-                    break;
-                    
-                    //TODO: more logic
-                default:
-                    break;
+            if (isTVPlatform())
+                _devType=DeviceTypeTV;
+            else{
+            
+                TargetPlatform tp(CCApplication::sharedApplication()->getTargetPlatform());
+                switch (tp) {
+                    case kTargetIpad:
+                        _devType=DeviceTypeTablet;
+                        break;
+                    case kTargetIphone:
+                        _devType=DeviceTypeHandheld;
+                        break;
+                        
+                        //TODO: more logic
+                    default:
+                        break;
+                }
             }
         }
         return _devType;
         
     }
-    std::string getDeviceSuffix(){return _devType==DeviceTypeHandheld?"-hh":"-tb";}
-    
+    std::string getDeviceSuffix(){
+        switch (_devType) {
+            case DeviceTypeHandheld:
+                return "-hh";
+                break;
+            case DeviceTypeTablet:
+                return "-tb";
+                break;
+            case DeviceTypeTV:
+                return "-tv";
+                break;
+            default:
+                return "-tb";
+                break;
+        }
+        return "-tb";
+    }
+    bool isOn16x9Screen(){
+        const float screenRatio(_visibleScreenRect.size.height/_visibleScreenRect.size.width);
+        return screenRatio<.57f;
+    }
     cocos2d::CCPoint getScreenCenter(){return {_visibleScreenRect.origin.x+_visibleScreenRect.size.width*.5f, _visibleScreenRect.origin.y+_visibleScreenRect.size.height*.5f};}
     
     

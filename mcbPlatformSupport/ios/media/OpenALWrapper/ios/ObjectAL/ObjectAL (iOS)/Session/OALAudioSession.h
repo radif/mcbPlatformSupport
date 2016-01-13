@@ -36,11 +36,20 @@
 /**
  * Handles the audio session and interrupts.
  */
+
+#if TARGET_OS_IOS
+// iOS-specific code
 #ifdef __IPHONE_OS_VERSION_MAX_ALLOWED
 @interface OALAudioSession : NSObject <AVAudioSessionDelegate, OALSuspendManager>
 #else
 @interface OALAudioSession : NSObject <OALSuspendManager>
 #endif
+#elif TARGET_OS_TV
+// tvOS-specific code
+@interface OALAudioSession : NSObject <OALSuspendManager>
+#endif
+
+
 {
     /** The current audio session category */
 	NSString* audioSessionCategory;
@@ -140,7 +149,14 @@
 #ifdef __IPHONE_OS_VERSION_MAX_ALLOWED
 /** Delegate that will receive all audio session events (WEAK reference).
  */
+#if TARGET_OS_IOS
+// iOS-specific code
 @property(nonatomic,readwrite,assign) id<AVAudioSessionDelegate> audioSessionDelegate;
+#elif TARGET_OS_TV
+// tvOS-specific code
+@property(nonatomic,readwrite,assign) id audioSessionDelegate;
+#endif
+
 #endif
 
 /** The preferred I/O buffer duration, in seconds. Lower values give less

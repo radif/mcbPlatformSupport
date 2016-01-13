@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "003B4AFD1F91C4FD4945E106765CCD5731915DB9",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "003B4AFD1F91C4FD4945E106765CCD5731915DB9" : 0,
+    "1418EF5EEBFBACE8FD87EF96491888332731AB2A" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "622AD12C-F626-4A90-AE14-D2D99E030C8B",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "003B4AFD1F91C4FD4945E106765CCD5731915DB9" : "mcb\/",
+    "1418EF5EEBFBACE8FD87EF96491888332731AB2A" : "..\/..\/.."
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "ObjectAL",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "mcbPlatformSupport\/ios\/media\/OpenALWrapper\/ios\/ObjectAL\/ObjectAL.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:radif\/mcbPlatformSupport.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "003B4AFD1F91C4FD4945E106765CCD5731915DB9"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "bitbucket.org:originator\/endlesslearning.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "1418EF5EEBFBACE8FD87EF96491888332731AB2A"
+    }
+  ]
+}

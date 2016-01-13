@@ -27,10 +27,9 @@ namespace mcb{namespace PlatformSupport{
     typedef enum DeviceType{
         DeviceTypeUnknown=0,
         DeviceTypeTablet=1,
-        DeviceTypeHandheld=2
+        DeviceTypeHandheld=2,
+        DeviceTypeTV=3,
     }DeviceType;
-    
-   
     
     void setVisibleScreenRect(const cocos2d::CCRect & rect);
     cocos2d::CCRect getVisibleScreenRect();
@@ -43,6 +42,9 @@ namespace mcb{namespace PlatformSupport{
     
     void setDeviceType(const DeviceType & devType);
     DeviceType getDeviceType();
+    bool isTVPlatform();
+    bool isOn16x9Screen();
+    
     std::string getDeviceSuffix();
     
     cocos2d::CCPoint getScreenCenter();

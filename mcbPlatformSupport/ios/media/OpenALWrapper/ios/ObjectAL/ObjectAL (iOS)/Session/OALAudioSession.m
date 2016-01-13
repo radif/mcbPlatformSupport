@@ -46,6 +46,13 @@ SYNTHESIZE_SINGLETON_FOR_CLASS_PROTOTYPE(OALAudioSession);
 
 #ifdef __IPHONE_OS_VERSION_MAX_ALLOWED
 
+#if TARGET_OS_IOS
+// iOS-specific code
+#elif TARGET_OS_TV
+// tvOS-specific code
+typedef int AudioSessionPropertyID;
+#endif
+
 /** \cond */
 /**
  * (INTERNAL USE) Private methods for OALAudioSupport. 
@@ -269,18 +276,38 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(OALAudioSession);
 
 - (float) preferredIOBufferDuration
 {
+#if TARGET_OS_IOS
+    // iOS-specific code
     return [self getFloatProperty:kAudioSessionProperty_PreferredHardwareIOBufferDuration];
+
+#elif TARGET_OS_TV
+    // tvOS-specific code
+    return 0.f;
+#endif
 }
 
 - (void) setPreferredIOBufferDuration:(float)value
 {
+#if TARGET_OS_IOS
+    // iOS-specific code
     [self setFloatProperty:kAudioSessionProperty_PreferredHardwareIOBufferDuration
                      value:value];
+#elif TARGET_OS_TV
+    // tvOS-specific code
+#endif
+    
 }
 
 - (bool) ipodPlaying
 {
-	return 0 != [self getIntProperty:kAudioSessionProperty_OtherAudioIsPlaying];
+#if TARGET_OS_IOS
+    // iOS-specific code
+    	return 0 != [self getIntProperty:kAudioSessionProperty_OtherAudioIsPlaying];
+#elif TARGET_OS_TV
+    // tvOS-specific code
+    return false;
+#endif
+
 }
 
 - (NSString*) audioRoute
@@ -294,7 +321,14 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(OALAudioSession);
 
 - (float) hardwareVolume
 {
-	return [self getFloatProperty:kAudioSessionProperty_CurrentHardwareOutputVolume];
+#if TARGET_OS_IOS
+    // iOS-specific code
+    return [self getFloatProperty:kAudioSessionProperty_CurrentHardwareOutputVolume];
+
+#elif TARGET_OS_TV
+    // tvOS-specific code
+    return 1.f;
+#endif
 }
 
 - (bool) hardwareMuted
@@ -313,7 +347,13 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(OALAudioSession);
 	OSStatus result;
 	OPTIONALLY_SYNCHRONIZED(self)
 	{
-		result = AudioSessionGetProperty(property, &size, &value);
+#if TARGET_OS_IOS
+        // iOS-specific code
+        result = AudioSessionGetProperty(property, &size, &value);
+
+#elif TARGET_OS_TV
+        // tvOS-specific code
+#endif
 	}
 	REPORT_AUDIOSESSION_CALL(result, @"Failed to get int property %08x", property);
 	return value;
@@ -326,7 +366,13 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(OALAudioSession);
 	OSStatus result;
 	OPTIONALLY_SYNCHRONIZED(self)
 	{
-		result = AudioSessionGetProperty(property, &size, &value);
+#if TARGET_OS_IOS
+        // iOS-specific code
+        result = AudioSessionGetProperty(property, &size, &value);
+
+#elif TARGET_OS_TV
+        // tvOS-specific code
+#endif
 	}
 	REPORT_AUDIOSESSION_CALL(result, @"Failed to get float property %08x", property);
 	return value;
@@ -339,7 +385,13 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(OALAudioSession);
 	OSStatus result;
 	OPTIONALLY_SYNCHRONIZED(self)
 	{
-		result = AudioSessionGetProperty(property, &size, &value);
+#if TARGET_OS_IOS
+        // iOS-specific code
+        result = AudioSessionGetProperty(property, &size, &value);
+
+#elif TARGET_OS_TV
+        // tvOS-specific code
+#endif
 	}
 	REPORT_AUDIOSESSION_CALL(result, @"Failed to get string property %08x", property);
 	if(noErr == result)
@@ -355,7 +407,13 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(OALAudioSession);
 	OSStatus result;
 	OPTIONALLY_SYNCHRONIZED(self)
 	{
-		result = AudioSessionSetProperty(property, sizeof(value), &value);
+#if TARGET_OS_IOS
+        // iOS-specific code
+        result = AudioSessionSetProperty(property, sizeof(value), &value);
+
+#elif TARGET_OS_TV
+        // tvOS-specific code
+#endif
 	}
 	REPORT_AUDIOSESSION_CALL(result, @"Failed to get int property %08x", property);
 }
@@ -365,7 +423,13 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(OALAudioSession);
 	OSStatus result;
 	OPTIONALLY_SYNCHRONIZED(self)
 	{
-		result = AudioSessionSetProperty(property, sizeof(value), &value);
+#if TARGET_OS_IOS
+        // iOS-specific code
+        result = AudioSessionSetProperty(property, sizeof(value), &value);
+
+#elif TARGET_OS_TV
+        // tvOS-specific code
+#endif
 	}
 	REPORT_AUDIOSESSION_CALL(result, @"Failed to get int property %08x", property);
 }
@@ -408,12 +472,18 @@ SYNTHESIZE_SINGLETON_FOR_CLASS(OALAudioSession);
 		ipodDucking = NO;
 	}
 #if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_1
-	else if([AVAudioSessionCategoryAudioProcessing isEqualToString:audioSessionCategory])
-	{
-		honorSilentSwitch = NO;
-		allowIpod = NO;
-		ipodDucking = NO;
-	}
+#if TARGET_OS_IOS
+    // iOS-specific code
+    else if([AVAudioSessionCategoryAudioProcessing isEqualToString:audioSessionCategory])
+    {
+        honorSilentSwitch = NO;
+        allowIpod = NO;
+        ipodDucking = NO;
+    }
+#elif TARGET_OS_TV
+    // tvOS-specific code
+#endif
+	
 #endif /* __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_3_1 */
 	else
 	{
