@@ -45,6 +45,9 @@ namespace mcb{namespace PlatformSupport{
     bool isTVPlatform();
     bool isOn16x9Screen();
     
+    void setMenuButtonClosesApp(const bool menuButtonClosesApp);
+    bool menuButtonClosesApp();
+    
     std::string getDeviceSuffix();
     
     cocos2d::CCPoint getScreenCenter();

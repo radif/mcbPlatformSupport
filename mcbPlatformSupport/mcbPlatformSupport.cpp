@@ -39,7 +39,9 @@ namespace mcb{namespace PlatformSupport{
     static std::unique_ptr<path_tokens_t> _pathTokens=nullptr;
     static float _screenScaleRatio=1.0f;
     static DeviceType _devType=DeviceTypeUnknown;
-
+    
+    static bool _menuButtonClosesApp=true;
+    
     static std::function<void(std::string & inPath)> _customResolvePathFunction=nullptr;
     
     void setVisibleScreenRect(const cocos2d::CCRect & rect){_visibleScreenRect=rect;}
@@ -127,6 +129,13 @@ namespace mcb{namespace PlatformSupport{
         const float screenRatio(_visibleScreenRect.size.height/_visibleScreenRect.size.width);
         return screenRatio<.57f;
     }
+    
+    void setMenuButtonClosesApp(const bool menuButtonClosesApp){
+        _menuButtonClosesApp=menuButtonClosesApp;
+    }
+    bool menuButtonClosesApp(){return _menuButtonClosesApp;}
+
+    
     cocos2d::CCPoint getScreenCenter(){return {_visibleScreenRect.origin.x+_visibleScreenRect.size.width*.5f, _visibleScreenRect.origin.y+_visibleScreenRect.size.height*.5f};}
     
     
