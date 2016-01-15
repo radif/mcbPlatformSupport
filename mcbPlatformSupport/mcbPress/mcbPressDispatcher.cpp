@@ -14,69 +14,41 @@ namespace mcb{namespace PlatformSupport{
     void PressDispatcher::setMenuButtonClosesApp(const bool menuButtonClosesApp){
         _menuButtonClosesApp=menuButtonClosesApp;
     }
-    bool PressDispatcher::menuButtonClosesApp(){return _menuButtonClosesApp;}
+    bool PressDispatcher::menuButtonClosesApp() const{return _menuButtonClosesApp;}
+    
+    
 
+    void PressDispatcher::setRemoteControlInteractionEnabled(const bool remoteControlInteractionEnabled){
+        _remoteControlInteractionEnabled=remoteControlInteractionEnabled;
+    }
+    bool PressDispatcher::remoteControlInteractionEnabled() const{return _remoteControlInteractionEnabled;}
     
     void PressDispatcher::dispatchPressBegan(const p_Press & press){
-    
-        switch (press->type) {
-            case Press::TypeUpArrow:
-                cocos2d::CCLog("TypeUpArrow");
-                break;
-            case Press::TypeDownArrow:
-                cocos2d::CCLog("TypeDownArrow");
-                break;
-            case Press::TypeLeftArrow:
-                cocos2d::CCLog("TypeLeftArrow");
-                break;
-            case Press::TypeRightArrow:
-                cocos2d::CCLog("TypeRightArrow");
-                break;
-            case Press::TypeSelect:
-                cocos2d::CCLog("TypeSelect");
-                break;
-            case Press::TypeMenu:
-                cocos2d::CCLog("TypeMenu");
-                break;
-            case Press::TypePlayPause:
-                cocos2d::CCLog("TypePlayPause");
-                break;
-                
-                
-            default:
-                break;
-        }
+        if(_remoteControlInteractionEnabled)
+            std::for_each(_pressables.begin(), _pressables.end(), [&](Pressable *pressable){pressable->pressBegan(press);});
     }
-    void PressDispatcher::dispatchPressChanged(const p_Press & press){}
+    void PressDispatcher::dispatchPressChanged(const p_Press & press){
+        if(_remoteControlInteractionEnabled)
+            std::for_each(_pressables.begin(), _pressables.end(), [&](Pressable *pressable){pressable->pressChanged(press);});
+    }
     void PressDispatcher::dispatchPressEnded(const p_Press & press){
-        switch (press->type) {
-            case Press::TypeUpArrow:
-                cocos2d::CCLog("TypeUpArrow");
-                break;
-            case Press::TypeDownArrow:
-                cocos2d::CCLog("TypeDownArrow");
-                break;
-            case Press::TypeLeftArrow:
-                cocos2d::CCLog("TypeLeftArrow");
-                break;
-            case Press::TypeRightArrow:
-                cocos2d::CCLog("TypeRightArrow");
-                break;
-            case Press::TypeSelect:
-                cocos2d::CCLog("TypeSelect");
-                break;
-            case Press::TypeMenu:
-                cocos2d::CCLog("TypeMenu");
-                break;
-            case Press::TypePlayPause:
-                cocos2d::CCLog("TypePlayPause");
-                break;
-                
-                
-            default:
-                break;
-        }
+        if(_remoteControlInteractionEnabled)
+            std::for_each(_pressables.begin(), _pressables.end(), [&](Pressable *pressable){pressable->pressEnded(press);});
     }
-    void PressDispatcher::dispatchPressCancelled(const p_Press & press){}
+    void PressDispatcher::dispatchPressCancelled(const p_Press & press){
+        if(_remoteControlInteractionEnabled)
+            std::for_each(_pressables.begin(), _pressables.end(), [&](Pressable *pressable){pressable->pressCancelled(press);});
+    }
+    
+#pragma mark -
+#pragma mark add, remove pressables;
+    void PressDispatcher::_addPressable(Pressable * pressable){
+        _pressables.emplace(pressable);
+    }
+    void PressDispatcher::_removePressable(Pressable * pressable){
+        auto it(_pressables.find(pressable));
+        if (it!=_pressables.end())
+            _pressables.erase(it);
+    }
 
 }}
