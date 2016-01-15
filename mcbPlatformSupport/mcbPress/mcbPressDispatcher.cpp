@@ -11,6 +11,7 @@ namespace mcb{namespace PlatformSupport{
     void PressDispatcher::init(){
         
     }
+    
     void PressDispatcher::setMenuButtonClosesApp(const bool menuButtonClosesApp){
         _menuButtonClosesApp=menuButtonClosesApp;
     }
@@ -23,21 +24,31 @@ namespace mcb{namespace PlatformSupport{
     }
     bool PressDispatcher::remoteControlInteractionEnabled() const{return _remoteControlInteractionEnabled;}
     
+#pragma mark -
+    
     void PressDispatcher::dispatchPressBegan(const p_Press & press){
-        if(_remoteControlInteractionEnabled)
-            std::for_each(_pressables.begin(), _pressables.end(), [&](Pressable *pressable){pressable->pressBegan(press);});
+        if(_remoteControlInteractionEnabled){
+            auto pressables(_pressables);
+            std::for_each(pressables.begin(), pressables.end(), [&](Pressable *pressable){pressable->pressBegan(press);});
+        }
     }
     void PressDispatcher::dispatchPressChanged(const p_Press & press){
-        if(_remoteControlInteractionEnabled)
-            std::for_each(_pressables.begin(), _pressables.end(), [&](Pressable *pressable){pressable->pressChanged(press);});
+        if(_remoteControlInteractionEnabled){
+            auto pressables(_pressables);
+            std::for_each(pressables.begin(), pressables.end(), [&](Pressable *pressable){pressable->pressChanged(press);});
+        }
     }
     void PressDispatcher::dispatchPressEnded(const p_Press & press){
-        if(_remoteControlInteractionEnabled)
-            std::for_each(_pressables.begin(), _pressables.end(), [&](Pressable *pressable){pressable->pressEnded(press);});
+        if(_remoteControlInteractionEnabled){
+            auto pressables(_pressables);
+            std::for_each(pressables.begin(), pressables.end(), [&](Pressable *pressable){pressable->pressEnded(press);});
+        }
     }
     void PressDispatcher::dispatchPressCancelled(const p_Press & press){
-        if(_remoteControlInteractionEnabled)
-            std::for_each(_pressables.begin(), _pressables.end(), [&](Pressable *pressable){pressable->pressCancelled(press);});
+        if(_remoteControlInteractionEnabled){
+            auto pressables(_pressables);
+            std::for_each(pressables.begin(), pressables.end(), [&](Pressable *pressable){pressable->pressCancelled(press);});
+        }
     }
     
 #pragma mark -
