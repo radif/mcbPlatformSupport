@@ -20,7 +20,7 @@ namespace mcb{namespace PlatformSupport{
     protected:
         virtual void startListeningPresses();
         virtual void stopListeningPresses();
-        
+        virtual ~Pressable();
     };
 }}
 

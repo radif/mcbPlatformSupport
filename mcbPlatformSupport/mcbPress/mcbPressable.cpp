@@ -12,4 +12,7 @@
 namespace mcb{namespace PlatformSupport{
     void Pressable::startListeningPresses(){PressDispatcher::sharedInstance()->_addPressable(this);}
     void Pressable::stopListeningPresses(){PressDispatcher::sharedInstance()->_removePressable(this);}
+    Pressable::~Pressable(){
+        stopListeningPresses();
+    }
 }}
