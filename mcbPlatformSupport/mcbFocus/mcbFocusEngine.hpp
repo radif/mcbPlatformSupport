@@ -49,6 +49,13 @@ namespace mcb{namespace PlatformSupport{
         
         cocos2d::CCNode *_currentlySelectedNode=nullptr;
         
+        struct {
+            cocos2d::CCPoint lastSelectionLocation;
+            cocos2d::CCPoint currentLocation;
+            const float kJumpingSwipeDistance=60.0f;
+        } _swipeContext;
+        void _updateSelection();
+        
     public:
         virtual void init() override;
         virtual ~FocusEngine()=default;
@@ -61,13 +68,11 @@ namespace mcb{namespace PlatformSupport{
         
         void sortByCurrentPositions();//all nodes must have parents
         
-        float jumpingSwipeDistance=60.0f;
         
         //swipe touch methods
-        
-        //....
-        //TODO:
-        
+        void swipeBegan(const cocos2d::CCPoint & worldLocation);
+        void swipeMoved(const cocos2d::CCPoint & worldLocation);
+        void swipeEnded(const cocos2d::CCPoint & worldLocation);
         
         //focus shift
         cocos2d::CCNode * moveSelectionRight(bool animated=true);

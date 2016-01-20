@@ -25,6 +25,7 @@ namespace mcb{namespace PlatformSupport{
     }
     
     void FocusEngine::removeAllFocusableNodes(){
+        _currentlySelectedNode=nullptr;
         _focusables.erase(_focusables.begin(), _focusables.end());
     }
     
@@ -74,6 +75,51 @@ namespace mcb{namespace PlatformSupport{
                     it->second._upNode=nodeAtIndexL(i+1);
                 }
             }
+        }
+        
+    }
+    
+    
+    //swipe
+    void FocusEngine::swipeBegan(const cocos2d::CCPoint & worldLocation){
+        _swipeContext.lastSelectionLocation=worldLocation;
+    }
+    void FocusEngine::swipeMoved(const cocos2d::CCPoint & worldLocation){
+        _swipeContext.currentLocation=worldLocation;
+        _updateSelection();
+    }
+    void FocusEngine::swipeEnded(const cocos2d::CCPoint & worldLocation){
+        _swipeContext.currentLocation=worldLocation;
+        _updateSelection();
+    }
+
+    void FocusEngine::_updateSelection(){
+        const float distance(ccpDistance(_swipeContext.currentLocation, _swipeContext.lastSelectionLocation));
+
+        const float horizontalDistance(_swipeContext.currentLocation.x-_swipeContext.lastSelectionLocation.x);
+
+        const float verticalDistance(_swipeContext.currentLocation.y-_swipeContext.lastSelectionLocation.y);
+        
+        if (fabsf(horizontalDistance)>_swipeContext.kJumpingSwipeDistance) {
+            
+            if (_swipeContext.lastSelectionLocation.x<_swipeContext.currentLocation.x)
+                moveSelectionLeft();
+            else
+                moveSelectionRight();
+                
+            
+            //reset the horizontal distance
+            _swipeContext.lastSelectionLocation.x=_swipeContext.currentLocation.x;
+        }
+        if (fabsf(verticalDistance)>_swipeContext.kJumpingSwipeDistance) {
+            
+            if (_swipeContext.lastSelectionLocation.y<_swipeContext.currentLocation.y)
+                moveSelectionUp();
+            else
+                moveSelectionDown();
+            
+            //reset the horizontal distance
+            _swipeContext.lastSelectionLocation.y=_swipeContext.currentLocation.y;
         }
         
     }
