@@ -84,16 +84,19 @@ namespace mcb{namespace PlatformSupport{
     
     
     //swipe
-    void FocusEngine::swipeBegan(const cocos2d::CCPoint & worldLocation){
+    cocos2d::CCNode * FocusEngine::swipeBegan(const cocos2d::CCPoint & worldLocation){
         _swipeContext.lastSelectionLocation=worldLocation;
+        return _currentlySelectedNode;
     }
-    void FocusEngine::swipeMoved(const cocos2d::CCPoint & worldLocation){
+    cocos2d::CCNode * FocusEngine::swipeMoved(const cocos2d::CCPoint & worldLocation){
         _swipeContext.currentLocation=worldLocation;
         _updateSelection();
+        return _currentlySelectedNode;
     }
-    void FocusEngine::swipeEnded(const cocos2d::CCPoint & worldLocation){
+    cocos2d::CCNode * FocusEngine::swipeEnded(const cocos2d::CCPoint & worldLocation){
         _swipeContext.currentLocation=worldLocation;
         _updateSelection();
+        return _currentlySelectedNode;
     }
 
     void FocusEngine::_updateSelection(){
@@ -193,10 +196,11 @@ namespace mcb{namespace PlatformSupport{
     void FocusEngine::setCurrentlySelectedNode(cocos2d::CCNode *node, bool withFocusAction, bool animated){
         auto it(_focusables.find(node));
         if (it!=_focusables.end()) {
+            
             //unselect current node
-            std::for_each(_focusables.begin(), _focusables.end(), [&](const std::pair<cocos2d::CCNode *, Focusable> & p){
-                    p.second.focus(false, animated);
-            });
+            for (auto iter(_focusables.begin()); iter!=_focusables.end(); ++iter)
+                if (iter!=it)
+                    iter->second.focus(false, animated);
             
             //select current node
             _currentlySelectedNode=it->first;
@@ -214,7 +218,34 @@ namespace mcb{namespace PlatformSupport{
     
     void FocusEngine::triggerSelectionForNode(cocos2d::CCNode * node){
         auto it(_focusables.find(node));
-        if (it!=_focusables.end())
-            it->second.trigger();
+        if (it!=_focusables.end()){
+            //trigger can destroy - so it is passed by copy
+            auto triggerable(it->second.getTriggerable());
+            triggerable();
+        }
+    }
+    
+#pragma mark focusable
+    //ctor
+    FocusEngine::Focusable::Focusable(cocos2d::CCNode * node, const std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> & focusAction, const std::function<void(cocos2d::CCNode * node)> & triggerAction)
+    : _node(node)
+    , _focusAction(focusAction)
+    , _triggerAction(triggerAction)
+    {}
+
+    void FocusEngine::Focusable::focus(bool m_isFocused, bool animated) const{
+        if(m_isFocused!=_isFocused){
+            const_cast<Focusable *>(this)->_isFocused=m_isFocused;
+            if(_focusAction)
+                _focusAction(const_cast<cocos2d::CCNode *>(_node), _isFocused, animated);
+        }
+    }
+    const std::function<void()> FocusEngine::Focusable::getTriggerable() const{
+        CCNode * localNode(const_cast<cocos2d::CCNode *>(_node));
+        auto localTriggerAction(_triggerAction);
+        return [=]{
+        if(localTriggerAction)
+            localTriggerAction(localNode);
+        };
     }
 }}

@@ -13,36 +13,22 @@
 namespace mcb{namespace PlatformSupport{
     class FocusEngine : public SingletonFactory<FocusEngine>{
         struct Focusable{
-            const cocos2d::CCNode * node;
-            const std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> focusAction;
-            const std::function<void(cocos2d::CCNode * node)> triggerAction;
-            
             //ctor
-            Focusable(cocos2d::CCNode * node, const std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> & focusAction, const std::function<void(cocos2d::CCNode * node)> & triggerAction)
-            : node(node)
-            , focusAction(focusAction)
-            , triggerAction(triggerAction)
-            {}
-
-            //focused property managed by the wrapper class
-            bool isFocused=false;
+            Focusable(cocos2d::CCNode * node, const std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> & focusAction, const std::function<void(cocos2d::CCNode * node)> & triggerAction);
             
-            void focus(bool m_isFocused, bool animated) const{
-                if(m_isFocused!=isFocused){
-                    const_cast<Focusable *>(this)->isFocused=m_isFocused;
-                    if(focusAction)
-                        focusAction(const_cast<cocos2d::CCNode *>(node), isFocused, animated);
-                }
-            }
-            void trigger() const{
-            if(triggerAction)
-                triggerAction(const_cast<cocos2d::CCNode *>(node));
-            }
+            void focus(bool m_isFocused, bool animated) const;
+            const std::function<void()> getTriggerable() const;//cannot trigget directly since it can be distructive to this object, resulting in a crash
+            
             //updateable positions
             cocos2d::CCNode * _upNode=nullptr;
             cocos2d::CCNode * _downNode=nullptr;
             cocos2d::CCNode * _leftNode=nullptr;
             cocos2d::CCNode * _rightNode=nullptr;
+        private:
+            const cocos2d::CCNode * _node;
+            bool _isFocused=false;
+            const std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> _focusAction;
+            const std::function<void(cocos2d::CCNode * node)> _triggerAction;
         };
         
         std::map<cocos2d::CCNode *, Focusable> _focusables;
@@ -52,7 +38,7 @@ namespace mcb{namespace PlatformSupport{
         struct {
             cocos2d::CCPoint lastSelectionLocation;
             cocos2d::CCPoint currentLocation;
-            const float kJumpingSwipeDistance=60.0f;
+            const float kJumpingSwipeDistance=120.0f;
         } _swipeContext;
         void _updateSelection();
         
@@ -70,9 +56,9 @@ namespace mcb{namespace PlatformSupport{
         
         
         //swipe touch methods
-        void swipeBegan(const cocos2d::CCPoint & worldLocation);
-        void swipeMoved(const cocos2d::CCPoint & worldLocation);
-        void swipeEnded(const cocos2d::CCPoint & worldLocation);
+        cocos2d::CCNode * swipeBegan(const cocos2d::CCPoint & worldLocation);
+        cocos2d::CCNode * swipeMoved(const cocos2d::CCPoint & worldLocation);
+        cocos2d::CCNode * swipeEnded(const cocos2d::CCPoint & worldLocation);
         
         //focus shift
         cocos2d::CCNode * moveSelectionRight(bool animated=true);
