@@ -37,15 +37,15 @@ namespace mcb{namespace PlatformSupport{
         for (const auto & p : _focusables)
             nodes.emplace_back(WorldPositionNode{p.first, p.first->getParent()->convertToWorldSpace(p.first->getPosition())});
         
-        //nullable accessor if exceeds index, !!!does not check if less than 0!
+        //nullable accessor if out of range
         const auto nodeAtIndexL([&](const int index)->CCNode *{
-            if (index<nodes.size())
+            if (index>=0 && index<nodes.size())
                 return nodes[index].node;
             return nullptr;
         });
         
         //SORTING HORIZONTALLY (x)
-        std::sort(nodes.begin(), nodes.end(), [](const WorldPositionNode & node1, const WorldPositionNode & node2){return node1.worldPos.x>node2.worldPos.x;});
+        std::sort(nodes.begin(), nodes.end(), [](const WorldPositionNode & node1, const WorldPositionNode & node2){return node1.worldPos.x<node2.worldPos.x;});
         
         
         for (int i(0); i<nodes.size(); ++i) {
@@ -53,8 +53,7 @@ namespace mcb{namespace PlatformSupport{
             if (currNode) {
                 auto it(_focusables.find(currNode));
                 if (it!=_focusables.end()) {
-                    if (i==0)
-                        it->second._leftNode=nullptr;
+                    it->second._leftNode=nodeAtIndexL(i-1);
                     it->second._rightNode=nodeAtIndexL(i+1);
                 }
             }
@@ -62,7 +61,7 @@ namespace mcb{namespace PlatformSupport{
          
         
         //SORTING VERTICALLY (y)
-        std::sort(nodes.begin(), nodes.end(), [](const WorldPositionNode & node1, const WorldPositionNode & node2){return node1.worldPos.y>node2.worldPos.y;});
+        std::sort(nodes.begin(), nodes.end(), [](const WorldPositionNode & node1, const WorldPositionNode & node2){return node1.worldPos.y<node2.worldPos.y;});
         
         
         for (int i(0); i<nodes.size(); ++i) {
@@ -70,12 +69,16 @@ namespace mcb{namespace PlatformSupport{
             if (currNode) {
                 auto it(_focusables.find(currNode));
                 if (it!=_focusables.end()) {
-                    if (i==0)
-                        it->second._downNode=nullptr;
+                    it->second._downNode=nodeAtIndexL(i-1);
                     it->second._upNode=nodeAtIndexL(i+1);
                 }
             }
         }
+        
+        //set current node if not available
+        if (!_currentlySelectedNode && !nodes.empty())
+            setCurrentlySelectedNode(nodes.front().node, true, false);
+        
         
     }
     
@@ -102,7 +105,7 @@ namespace mcb{namespace PlatformSupport{
         
         if (fabsf(horizontalDistance)>_swipeContext.kJumpingSwipeDistance) {
             
-            if (_swipeContext.lastSelectionLocation.x<_swipeContext.currentLocation.x)
+            if (_swipeContext.lastSelectionLocation.x>_swipeContext.currentLocation.x)
                 moveSelectionLeft();
             else
                 moveSelectionRight();
@@ -189,10 +192,9 @@ namespace mcb{namespace PlatformSupport{
     
     void FocusEngine::setCurrentlySelectedNode(cocos2d::CCNode *node, bool withFocusAction, bool animated){
         auto it(_focusables.find(node));
-        if (it!=_focusables.end() && !it->second.isFocused && node!=_currentlySelectedNode && node!=nullptr) {
+        if (it!=_focusables.end()) {
             //unselect current node
             std::for_each(_focusables.begin(), _focusables.end(), [&](const std::pair<cocos2d::CCNode *, Focusable> & p){
-                    //unselect is always with focus action
                     p.second.focus(false, animated);
             });
             
