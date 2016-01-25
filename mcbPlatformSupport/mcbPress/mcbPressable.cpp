@@ -10,7 +10,7 @@
 #include "mcbPressDispatcher.hpp"
 
 namespace mcb{namespace PlatformSupport{
-    void Pressable::startListeningPresses(){PressDispatcher::sharedInstance()->_addPressable(this);}
+    void Pressable::startListeningPresses(const int priority, const bool swallowsPresses){PressDispatcher::sharedInstance()->_addPressable(this, priority, swallowsPresses);}
     void Pressable::stopListeningPresses(){PressDispatcher::sharedInstance()->_removePressable(this);}
     Pressable::~Pressable(){
         stopListeningPresses();

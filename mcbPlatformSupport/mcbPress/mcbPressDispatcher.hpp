@@ -17,10 +17,10 @@ namespace mcb{namespace PlatformSupport{
         friend class Pressable;
         bool _menuButtonClosesApp=true;
         bool _remoteControlInteractionEnabled=true;
-        std::set<Pressable *> _pressables;
+        std::vector<Pressable *> _pressables;
         
         //use pressable to start/stop listening presses
-        void _addPressable(Pressable * pressable);
+        void _addPressable(Pressable * pressable, const int priority, const bool swallowsPresses);
         void _removePressable(Pressable * pressable);
         
     public:
