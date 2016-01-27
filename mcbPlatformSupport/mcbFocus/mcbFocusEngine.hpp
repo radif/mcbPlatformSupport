@@ -9,9 +9,9 @@
 #ifndef mcbFocusEngine_hpp
 #define mcbFocusEngine_hpp
 
-#include "mcbFactory.h"
+#include "cocos2d.h"
 namespace mcb{namespace PlatformSupport{
-    class FocusEngine : public SingletonFactory<FocusEngine>{
+    class FocusEngine{
         struct Focusable{
             //ctor
             Focusable(cocos2d::CCNode * node, const std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> & focusAction, const std::function<void(cocos2d::CCNode * node)> & triggerAction);
@@ -42,8 +42,8 @@ namespace mcb{namespace PlatformSupport{
         } _swipeContext;
         void _updateSelection();
         
-    public:
-        virtual void init() override;
+    protected:
+        FocusEngine()=default;
         virtual ~FocusEngine()=default;
         
         void addFocusableNode(cocos2d::CCNode * node, const std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> & focusAction=nullptr, const std::function<void(cocos2d::CCNode * node)> & triggerAction=nullptr);
@@ -52,26 +52,26 @@ namespace mcb{namespace PlatformSupport{
         
         void removeAllFocusableNodes();//use this when the current scene exits
         
-        void sortByCurrentPositions();//all nodes must have parents
+        void sortFocusableNodesByCurrentPositions();//all nodes must have parents
         
         
         //swipe touch methods
-        cocos2d::CCNode * swipeBegan(const cocos2d::CCPoint & worldLocation);
-        cocos2d::CCNode * swipeMoved(const cocos2d::CCPoint & worldLocation);
-        cocos2d::CCNode * swipeEnded(const cocos2d::CCPoint & worldLocation);
+        cocos2d::CCNode * focusSwipeBegan(const cocos2d::CCPoint & worldLocation);
+        cocos2d::CCNode * focusSwipeMoved(const cocos2d::CCPoint & worldLocation);
+        cocos2d::CCNode * focusSwipeEnded(const cocos2d::CCPoint & worldLocation);
         
         //focus shift
-        cocos2d::CCNode * moveSelectionRight(bool animated=true);
-        cocos2d::CCNode * moveSelectionLeft(bool animated=true);
-        cocos2d::CCNode * moveSelectionUp(bool animated=true);
-        cocos2d::CCNode * moveSelectionDown(bool animated=true);
+        cocos2d::CCNode * moveFocusRight(bool animated=true);
+        cocos2d::CCNode * moveFocusLeft(bool animated=true);
+        cocos2d::CCNode * moveFocusUp(bool animated=true);
+        cocos2d::CCNode * moveFocusDown(bool animated=true);
         
-        cocos2d::CCNode * currentlySelectedNode(){return _currentlySelectedNode;}
-        void setCurrentlySelectedNode(cocos2d::CCNode * node, bool withFocusAction, bool animated);
+        cocos2d::CCNode * currentlyFocusedNode(){return _currentlySelectedNode;}
+        void setCurrentlyFocusedNode(cocos2d::CCNode * node, bool withFocusAction, bool animated);
         
-        cocos2d::CCNode * triggerCurrentSelection();
+        cocos2d::CCNode * triggerCurrentlyFocusedNode();
         
-        void triggerSelectionForNode(cocos2d::CCNode * node);
+        void triggerSelectionForFocusableNode(cocos2d::CCNode * node);
     };
 }}
 #endif /* mcbFocusEngine_hpp */
