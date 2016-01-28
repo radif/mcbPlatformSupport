@@ -9,7 +9,8 @@
 #ifndef mcbFocusEngine_hpp
 #define mcbFocusEngine_hpp
 
-#include "cocos2d.h"
+#include "mcbPress.hpp"
+
 namespace mcb{namespace PlatformSupport{
     class FocusEngine{
     protected:
@@ -48,7 +49,7 @@ namespace mcb{namespace PlatformSupport{
         struct {
             cocos2d::CCPoint lastSelectionLocation;
             cocos2d::CCPoint currentLocation;
-            const float kJumpingSwipeDistance=120.0f;
+            float kJumpingSwipeDistance=120.0f;
         } _swipeContext;
         void _updateSelection();
         
@@ -56,8 +57,7 @@ namespace mcb{namespace PlatformSupport{
         FocusEngine()=default;
         virtual ~FocusEngine()=default;
         
-        
-        
+        //managing focusables
         void addFocusableNode(cocos2d::CCNode * node, const focus_action_t & focusAction=nullptr, const trigger_action_t & triggerAction=nullptr);
         
         void removeFocusableNode(cocos2d::CCNode * node);//custom manupulation
@@ -66,11 +66,16 @@ namespace mcb{namespace PlatformSupport{
         
         void sortFocusableNodesByCurrentPositions();//all nodes must have parents
         
-        
         //swipe touch methods
+        void setJumpingSwipeDistance(const float jumpingSwipeDistance){_swipeContext.kJumpingSwipeDistance=jumpingSwipeDistance;}
+        const float jumpingSwipeDistance() const{return _swipeContext.kJumpingSwipeDistance;}
+
         cocos2d::CCNode * focusSwipeBegan(const cocos2d::CCPoint & worldLocation);
         cocos2d::CCNode * focusSwipeMoved(const cocos2d::CCPoint & worldLocation);
         cocos2d::CCNode * focusSwipeEnded(const cocos2d::CCPoint & worldLocation);
+        
+        //press methods
+        cocos2d::CCNode * processDirectionalPress(const Press::Type & type, const bool animated=true);
         
         //focus shift
         cocos2d::CCNode * moveFocusRight(bool animated=true);
@@ -81,7 +86,7 @@ namespace mcb{namespace PlatformSupport{
         cocos2d::CCNode * currentlyFocusedNode(){return _currentlyFocusedNode;}
         void setCurrentlyFocusedNode(cocos2d::CCNode * node, bool withFocusAction, bool animated);
 
-        cocos2d::CCNode * pressCurrentlyFocusedNode(bool pressed, bool animated=true);
+        cocos2d::CCNode * setCurrentlyFocusedNodePressed(bool pressed, bool animated=true);
         
         cocos2d::CCNode * triggerCurrentlyFocusedNode();
         

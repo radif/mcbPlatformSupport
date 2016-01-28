@@ -129,6 +129,26 @@ namespace mcb{namespace PlatformSupport{
     
     //selection
     
+    cocos2d::CCNode * FocusEngine::processDirectionalPress(const Press::Type & type, const bool animated){
+        switch (type) {
+            case Press::TypeLeftArrow:
+                moveFocusLeft();
+                break;
+            case Press::TypeRightArrow:
+                moveFocusRight();
+                break;
+            case Press::TypeUpArrow:
+                moveFocusUp();
+                break;
+            case Press::TypeDownArrow:
+                moveFocusDown();
+                break;
+            default:
+                break;
+        }
+        return _currentlyFocusedNode;
+    }
+    
     cocos2d::CCNode * FocusEngine::moveFocusRight(bool animated){
         if (_currentlyFocusedNode) {
             auto it(_focusables.find(_currentlyFocusedNode));
@@ -207,7 +227,7 @@ namespace mcb{namespace PlatformSupport{
         }else
             CCLog("Error! no such node registered!");
     }
-    cocos2d::CCNode * FocusEngine::pressCurrentlyFocusedNode(bool pressed, bool animated){
+    cocos2d::CCNode * FocusEngine::setCurrentlyFocusedNodePressed(bool pressed, bool animated){
         if (_currentlyFocusedNode){
             auto it(_focusables.find(_currentlyFocusedNode));
             if (it!=_focusables.end())
