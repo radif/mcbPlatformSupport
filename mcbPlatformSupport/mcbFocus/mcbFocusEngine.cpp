@@ -273,4 +273,77 @@ namespace mcb{namespace PlatformSupport{
             localTriggerAction(localNode);
         };
     }
+#pragma mark -
+#pragma mark managed remote control mode
+#pragma mark -
+    FocusEngine::MCBTouchablePressable::MCBTouchablePressable(FocusEngine * focusEngine, int priority, bool swallowsInput){
+        _focusEngine=focusEngine;
+        CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, -priority, swallowsInput);
+        startListeningPresses(priority, swallowsInput);
+    }
+    FocusEngine::MCBTouchablePressable::~MCBTouchablePressable(){
+        CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
+        stopListeningPresses();
+    }
+    
+    //presses for the remote
+    void FocusEngine::MCBTouchablePressable::pressBegan(const mcb::PlatformSupport::p_Press & press){_focusEngine->mcbPressBegan(press);}
+    void FocusEngine::MCBTouchablePressable::pressChanged(const mcb::PlatformSupport::p_Press & press){_focusEngine->mcbPressChanged(press);}
+    void FocusEngine::MCBTouchablePressable::pressEnded(const mcb::PlatformSupport::p_Press & press){_focusEngine->mcbPressEnded(press);}
+    void FocusEngine::MCBTouchablePressable::pressCancelled(const mcb::PlatformSupport::p_Press & press){_focusEngine->mcbPressCancelled(press);}
+    
+    
+    //touches for the focus engine
+    bool FocusEngine::MCBTouchablePressable::ccTouchBegan(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent){return _focusEngine->mcbTouchBegan(pTouch, pEvent);}
+    // optional
+    void FocusEngine::MCBTouchablePressable::ccTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent){_focusEngine->mcbTouchMoved(pTouch, pEvent);}
+    void FocusEngine::MCBTouchablePressable::ccTouchEnded(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent){_focusEngine->mcbTouchEnded(pTouch, pEvent);}
+    void FocusEngine::MCBTouchablePressable::ccTouchCancelled(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent){_focusEngine->mcbTouchCancelled(pTouch, pEvent);}
+    
+    
+#pragma mark -
+    
+    
+    void FocusEngine::beginManagedInput(int priority, bool swallowsInput){
+        _mcbTouchablePressable=std::make_shared<MCBTouchablePressable>(this, priority, swallowsInput);
+    }
+    void FocusEngine::endManagedInput(){
+        _mcbTouchablePressable=nullptr;
+    }
+    
+#pragma mark remote control event receivers (you need to call super once override for managed input to work)
+    
+    void FocusEngine::mcbPressBegan(const p_Press & press){
+        processDirectionalPress(press->type);
+        if(press->type==Press::TypeSelect)
+            setCurrentlyFocusedNodePressed(true, _managedInputAnimated);
+    }
+    void FocusEngine::mcbPressChanged(const p_Press & press){
+        
+    }
+    void FocusEngine::mcbPressEnded(const p_Press & press){
+        if(press->type==Press::TypeSelect){
+            setCurrentlyFocusedNodePressed(false, _managedInputAnimated);
+            triggerCurrentlyFocusedNode();
+        }
+    }
+    void FocusEngine::mcbPressCancelled(const p_Press & press){
+        if(press->type==Press::TypeSelect)
+            setCurrentlyFocusedNodePressed(false, _managedInputAnimated);
+    }
+    
+    bool FocusEngine::mcbTouchBegan(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent){
+        focusSwipeBegan(pTouch->getLocation());
+        return true;
+    }
+    void FocusEngine::mcbTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent){
+        focusSwipeMoved(pTouch->getLocation());
+    }
+    void FocusEngine::mcbTouchEnded(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent){
+        focusSwipeEnded(pTouch->getLocation());
+    }
+    void FocusEngine::mcbTouchCancelled(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent){
+        focusSwipeEnded(pTouch->getLocation());
+    }
+    
 }}
