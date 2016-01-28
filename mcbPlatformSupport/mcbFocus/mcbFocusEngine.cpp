@@ -22,7 +22,7 @@ namespace mcb{namespace PlatformSupport{
     }
     
     void FocusEngine::removeAllFocusableNodes(){
-        _currentlySelectedNode=nullptr;
+        _currentlyFocusedNode=nullptr;
         _focusables.erase(_focusables.begin(), _focusables.end());
     }
     
@@ -73,7 +73,7 @@ namespace mcb{namespace PlatformSupport{
         }
         
         //set current node if not available
-        if (!_currentlySelectedNode && !nodes.empty())
+        if (!_currentlyFocusedNode && !nodes.empty())
             setCurrentlyFocusedNode(nodes.front().node, true, false);
         
         
@@ -83,17 +83,17 @@ namespace mcb{namespace PlatformSupport{
     //swipe
     cocos2d::CCNode * FocusEngine::focusSwipeBegan(const cocos2d::CCPoint & worldLocation){
         _swipeContext.lastSelectionLocation=worldLocation;
-        return _currentlySelectedNode;
+        return _currentlyFocusedNode;
     }
     cocos2d::CCNode * FocusEngine::focusSwipeMoved(const cocos2d::CCPoint & worldLocation){
         _swipeContext.currentLocation=worldLocation;
         _updateSelection();
-        return _currentlySelectedNode;
+        return _currentlyFocusedNode;
     }
     cocos2d::CCNode * FocusEngine::focusSwipeEnded(const cocos2d::CCPoint & worldLocation){
         _swipeContext.currentLocation=worldLocation;
         _updateSelection();
-        return _currentlySelectedNode;
+        return _currentlyFocusedNode;
     }
 
     void FocusEngine::_updateSelection(){
@@ -130,8 +130,8 @@ namespace mcb{namespace PlatformSupport{
     //selection
     
     cocos2d::CCNode * FocusEngine::moveFocusRight(bool animated){
-        if (_currentlySelectedNode) {
-            auto it(_focusables.find(_currentlySelectedNode));
+        if (_currentlyFocusedNode) {
+            auto it(_focusables.find(_currentlyFocusedNode));
             if (it!=_focusables.end()) {
                 CCNode * nextNode(it->second._rightNode);
                 if (nextNode) {
@@ -145,8 +145,8 @@ namespace mcb{namespace PlatformSupport{
         return nullptr;
     }
     cocos2d::CCNode * FocusEngine::moveFocusLeft(bool animated){
-        if (_currentlySelectedNode) {
-            auto it(_focusables.find(_currentlySelectedNode));
+        if (_currentlyFocusedNode) {
+            auto it(_focusables.find(_currentlyFocusedNode));
             if (it!=_focusables.end()) {
                 CCNode * nextNode(it->second._leftNode);
                 if (nextNode) {
@@ -160,8 +160,8 @@ namespace mcb{namespace PlatformSupport{
         return nullptr;
     }
     cocos2d::CCNode * FocusEngine::moveFocusUp(bool animated){
-        if (_currentlySelectedNode) {
-            auto it(_focusables.find(_currentlySelectedNode));
+        if (_currentlyFocusedNode) {
+            auto it(_focusables.find(_currentlyFocusedNode));
             if (it!=_focusables.end()) {
                 CCNode * nextNode(it->second._upNode);
                 if (nextNode) {
@@ -175,8 +175,8 @@ namespace mcb{namespace PlatformSupport{
         return nullptr;
     }
     cocos2d::CCNode * FocusEngine::moveFocusDown(bool animated){
-        if (_currentlySelectedNode) {
-            auto it(_focusables.find(_currentlySelectedNode));
+        if (_currentlyFocusedNode) {
+            auto it(_focusables.find(_currentlyFocusedNode));
             if (it!=_focusables.end()) {
                 CCNode * nextNode(it->second._downNode);
                 if (nextNode) {
@@ -197,20 +197,28 @@ namespace mcb{namespace PlatformSupport{
             //unselect current node
             for (auto iter(_focusables.begin()); iter!=_focusables.end(); ++iter)
                 if (iter!=it)
-                    iter->second.focus(false, animated);
+                    iter->second.focus(FocusStateNormal, animated);
             
             //select current node
-            _currentlySelectedNode=it->first;
+            _currentlyFocusedNode=it->first;
             if (withFocusAction)
-                it->second.focus(true, animated);
+                it->second.focus(FocusStateFocused, animated);
             
         }else
             CCLog("Error! no such node registered!");
     }
+    cocos2d::CCNode * FocusEngine::pressCurrentlyFocusedNode(bool pressed, bool animated){
+        if (_currentlyFocusedNode){
+            auto it(_focusables.find(_currentlyFocusedNode));
+            if (it!=_focusables.end())
+                it->second.focus(pressed? FocusStatePressed: FocusStateFocused, animated);
+        }
+        return _currentlyFocusedNode;
+    }
     cocos2d::CCNode * FocusEngine::triggerCurrentlyFocusedNode(){
-        if (_currentlySelectedNode)
-            triggerSelectionForFocusableNode(_currentlySelectedNode);
-        return _currentlySelectedNode;
+        if (_currentlyFocusedNode)
+            triggerSelectionForFocusableNode(_currentlyFocusedNode);
+        return _currentlyFocusedNode;
     }
     
     void FocusEngine::triggerSelectionForFocusableNode(cocos2d::CCNode * node){
@@ -230,11 +238,11 @@ namespace mcb{namespace PlatformSupport{
     , _triggerAction(triggerAction)
     {}
 
-    void FocusEngine::Focusable::focus(bool m_isFocused, bool animated) const{
-        if(m_isFocused!=_isFocused){
-            const_cast<Focusable *>(this)->_isFocused=m_isFocused;
+    void FocusEngine::Focusable::focus(FocusState focusState, bool animated) const{
+        if(focusState!=_focusState){
+            const_cast<Focusable *>(this)->_focusState=focusState;
             if(_focusAction)
-                _focusAction(const_cast<cocos2d::CCNode *>(_node), _isFocused, animated);
+                _focusAction(const_cast<cocos2d::CCNode *>(_node), _focusState, animated);
         }
     }
     const std::function<void()> FocusEngine::Focusable::getTriggerable() const{

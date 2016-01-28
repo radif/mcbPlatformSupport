@@ -13,14 +13,20 @@
 namespace mcb{namespace PlatformSupport{
     class FocusEngine{
     protected:
-        typedef std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> focus_action_t;
+        typedef enum FocusState{
+            FocusStateUndefined=-1,
+            FocusStateNormal=0,
+            FocusStateFocused=1,
+            FocusStatePressed=2,
+        }FocusState;
+        typedef std::function<void(cocos2d::CCNode * node, const FocusState focusState, bool animated)> focus_action_t;
         typedef std::function<void(cocos2d::CCNode * node)> trigger_action_t;
     private:
         struct Focusable{
             //ctor
             Focusable(cocos2d::CCNode * node, const focus_action_t & focusAction, const trigger_action_t & triggerAction);
             
-            void focus(bool m_isFocused, bool animated) const;
+            void focus(FocusState focusState, bool animated) const;
             const std::function<void()> getTriggerable() const;//cannot trigget directly since it can be distructive to this object, resulting in a crash
             
             //updateable positions
@@ -30,14 +36,14 @@ namespace mcb{namespace PlatformSupport{
             cocos2d::CCNode * _rightNode=nullptr;
         private:
             const cocos2d::CCNode * _node;
-            bool _isFocused=false;
+            FocusState _focusState=FocusStateUndefined;
             const focus_action_t _focusAction;
             const trigger_action_t _triggerAction;
         };
         
         std::map<cocos2d::CCNode *, Focusable> _focusables;
         
-        cocos2d::CCNode *_currentlySelectedNode=nullptr;
+        cocos2d::CCNode *_currentlyFocusedNode=nullptr;
         
         struct {
             cocos2d::CCPoint lastSelectionLocation;
@@ -72,8 +78,10 @@ namespace mcb{namespace PlatformSupport{
         cocos2d::CCNode * moveFocusUp(bool animated=true);
         cocos2d::CCNode * moveFocusDown(bool animated=true);
         
-        cocos2d::CCNode * currentlyFocusedNode(){return _currentlySelectedNode;}
+        cocos2d::CCNode * currentlyFocusedNode(){return _currentlyFocusedNode;}
         void setCurrentlyFocusedNode(cocos2d::CCNode * node, bool withFocusAction, bool animated);
+
+        cocos2d::CCNode * pressCurrentlyFocusedNode(bool pressed, bool animated=true);
         
         cocos2d::CCNode * triggerCurrentlyFocusedNode();
         
