@@ -125,12 +125,15 @@ namespace mcb{namespace PlatformSupport{
         void setManagedInputAnimated(bool animated){_managedInputAnimated=animated;}
         bool isManagedInputAnimated() const{return _managedInputAnimated;}
         
-        //remote control event receivers (you need to call super once override for managed input to work)
+        //remote control event receivers and overrides (you need to call super once override for managed input to work)
         
         virtual void mcbPressBegan(const p_Press & press);
         virtual void mcbPressChanged(const p_Press & press);
         virtual void mcbPressEnded(const p_Press & press);
         virtual void mcbPressCancelled(const p_Press & press);
+        
+        //convenience: don't need to call super
+        virtual void mcbRemoteButtonPressed(const p_Press & press){}
         
         virtual bool mcbTouchBegan(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent);
         virtual void mcbTouchMoved(cocos2d::CCTouch *pTouch, cocos2d::CCEvent *pEvent);

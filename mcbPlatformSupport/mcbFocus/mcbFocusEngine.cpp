@@ -317,6 +317,7 @@ namespace mcb{namespace PlatformSupport{
         processDirectionalPress(press->type);
         if(press->type==Press::TypeSelect)
             setCurrentlyFocusedNodePressed(true, _managedInputAnimated);
+        mcbRemoteButtonPressed(press);
     }
     void FocusEngine::mcbPressChanged(const p_Press & press){
         
