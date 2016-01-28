@@ -9,7 +9,8 @@
 #include "mcbFocusEngine.hpp"
 namespace mcb{namespace PlatformSupport{
     using namespace cocos2d;
-    void FocusEngine::addFocusableNode(cocos2d::CCNode * node, const std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> & focusAction, const std::function<void(cocos2d::CCNode * node)> & triggerAction){
+    
+    void FocusEngine::addFocusableNode(cocos2d::CCNode * node, const focus_action_t & focusAction, const trigger_action_t & triggerAction){
         removeFocusableNode(node);
         _focusables.insert({node, Focusable{node, focusAction, triggerAction}});
     }
@@ -223,7 +224,7 @@ namespace mcb{namespace PlatformSupport{
     
 #pragma mark focusable
     //ctor
-    FocusEngine::Focusable::Focusable(cocos2d::CCNode * node, const std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> & focusAction, const std::function<void(cocos2d::CCNode * node)> & triggerAction)
+    FocusEngine::Focusable::Focusable(cocos2d::CCNode * node, const focus_action_t & focusAction, const trigger_action_t & triggerAction)
     : _node(node)
     , _focusAction(focusAction)
     , _triggerAction(triggerAction)

@@ -12,9 +12,13 @@
 #include "cocos2d.h"
 namespace mcb{namespace PlatformSupport{
     class FocusEngine{
+    protected:
+        typedef std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> focus_action_t;
+        typedef std::function<void(cocos2d::CCNode * node)> trigger_action_t;
+    private:
         struct Focusable{
             //ctor
-            Focusable(cocos2d::CCNode * node, const std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> & focusAction, const std::function<void(cocos2d::CCNode * node)> & triggerAction);
+            Focusable(cocos2d::CCNode * node, const focus_action_t & focusAction, const trigger_action_t & triggerAction);
             
             void focus(bool m_isFocused, bool animated) const;
             const std::function<void()> getTriggerable() const;//cannot trigget directly since it can be distructive to this object, resulting in a crash
@@ -27,8 +31,8 @@ namespace mcb{namespace PlatformSupport{
         private:
             const cocos2d::CCNode * _node;
             bool _isFocused=false;
-            const std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> _focusAction;
-            const std::function<void(cocos2d::CCNode * node)> _triggerAction;
+            const focus_action_t _focusAction;
+            const trigger_action_t _triggerAction;
         };
         
         std::map<cocos2d::CCNode *, Focusable> _focusables;
@@ -46,7 +50,9 @@ namespace mcb{namespace PlatformSupport{
         FocusEngine()=default;
         virtual ~FocusEngine()=default;
         
-        void addFocusableNode(cocos2d::CCNode * node, const std::function<void(cocos2d::CCNode * node, const bool isFocused, bool animated)> & focusAction=nullptr, const std::function<void(cocos2d::CCNode * node)> & triggerAction=nullptr);
+        
+        
+        void addFocusableNode(cocos2d::CCNode * node, const focus_action_t & focusAction=nullptr, const trigger_action_t & triggerAction=nullptr);
         
         void removeFocusableNode(cocos2d::CCNode * node);//custom manupulation
         
