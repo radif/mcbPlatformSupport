@@ -210,8 +210,12 @@ namespace mcb{namespace PlatformSupport{
                 
                 
                 CCArray * m_children=(CCArray *)child->objectForKey("children");
-                if (m_children)
-                    _populateChildren(m_children, childNode);
+                if (m_children){
+                    if (dynamic_cast<CCMenu *>(childNode)!=nullptr)
+                        _populateChildren(m_children, (CCNode *)(childNode->getChildren()->objectAtIndex(0)));
+                    else
+                        _populateChildren(m_children, childNode);
+                }
             }
             
         }
