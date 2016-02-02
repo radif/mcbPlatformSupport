@@ -135,6 +135,10 @@ namespace mcb{namespace PlatformSupport{
         virtual cocos2d::CCNode * moveFocusLeft(bool animated=true);
         
         virtual cocos2d::CCNode * currentlyFocusedNode(){return _currentlyFocusedNode;}
+        
+        virtual std::string focusIDForNode(cocos2d::CCNode * node);//available if has focus context, otherwise returns an empty string
+        virtual cocos2d::CCNode * nodeWithFocusID(const std::string & focusID);
+        
         virtual void setCurrentlyFocusedNode(cocos2d::CCNode * node, bool withFocusAction, bool animated);
 
         virtual cocos2d::CCNode * setCurrentlyFocusedNodePressed(bool pressed, bool animated=true);

@@ -271,7 +271,22 @@ namespace mcb{namespace PlatformSupport{
                 return _moveFocusToNode([](Focusable * currentlyFocusedNode){return currentlyFocusedNode->_leftNode;});
     }
    
-    
+    std::string FocusEngine::focusIDForNode(cocos2d::CCNode * node){
+        auto it(_focusables.find(node));
+        if (it!=_focusables.end()) {
+            const auto focusContext(it->second._focusContext);
+            if (focusContext)
+                return focusContext->focusID;
+        }
+        return "";
+    }
+    cocos2d::CCNode * FocusEngine::nodeWithFocusID(const std::string & focusID){
+        for (const auto & p : _focusables) {
+            if (p.second._focusContext && p.second._focusContext->focusID==focusID)
+                return p.first;
+        }
+        return nullptr;
+    }
     void FocusEngine::setCurrentlyFocusedNode(cocos2d::CCNode *node, bool withFocusAction, bool animated){
         auto it(_focusables.find(node));
         if (it!=_focusables.end()) {
