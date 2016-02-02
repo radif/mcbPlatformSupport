@@ -7,6 +7,8 @@
 //
 
 #include "mcbFocusEngine.hpp"
+#include "mcbPlatformSupportFunctions.h"
+
 namespace mcb{namespace PlatformSupport{
     using namespace cocos2d;
     
@@ -28,11 +30,49 @@ namespace mcb{namespace PlatformSupport{
     
     
     //soring by context
-    void FocusEngine::sortFocusableNodesByFocusContent(){
+    void FocusEngine::sortFocusableNodesByFocusContext(){
+        //create a map for faster access
+        std::map<std::string, cocos2d::CCNode *> focusablesByFocusID;
+        for (const auto & p : _focusables)
+            if (p.second._focusContext)
+                focusablesByFocusID[p.second._focusContext->focusID]=p.first;
+        
+        const auto nodeByFocusID([&](const std::string &focusID)->CCNode *{
+            auto it(focusablesByFocusID.find(focusID));
+            if (it!=focusablesByFocusID.end())
+                return it->second;
+            
+            return nullptr;
+        });
+        
+        
+        CCNode * nodeToFocus(nullptr);
+        
+        for (auto & p : _focusables)
+            if (p.second._focusContext){
+                if (p.second._focusContext->isFocused)
+                    nodeToFocus=p.first;
+                
+                //mapping
+                const Focusable::pFocusContext & focusContext(p.second._focusContext);
+                
+                p.second._upNode=nodeByFocusID(focusContext->up);
+                p.second._upLeftNode=nodeByFocusID(focusContext->upLeft);
+                p.second._upRightNode=nodeByFocusID(focusContext->upRight);
+                p.second._downNode=nodeByFocusID(focusContext->down);
+                p.second._downLeftNode=nodeByFocusID(focusContext->downLeft);
+                p.second._downRightNode=nodeByFocusID(focusContext->downRight);
+                p.second._leftNode=nodeByFocusID(focusContext->left);
+                p.second._rightNode=nodeByFocusID(focusContext->right);
+            }
+        
+        
+        if (nodeToFocus)
+            setCurrentlyFocusedNode(nodeToFocus, true, false);
         
     }
     //sorting the matrix
-    void FocusEngine::sortFocusableNodesByCurrentPositions(){
+    void FocusEngine::sortFocusableNodesByCurrentPositions(bool isHorizontalLayout){
         struct WorldPositionNode{CCNode *node;CCPoint worldPos;};
         std::vector<WorldPositionNode> nodes;
         nodes.reserve(_focusables.size());
@@ -57,6 +97,14 @@ namespace mcb{namespace PlatformSupport{
                 if (it!=_focusables.end()) {
                     it->second._leftNode=nodeAtIndexL(i-1);
                     it->second._rightNode=nodeAtIndexL(i+1);
+                    
+                    if (isHorizontalLayout) {
+                        it->second._upLeftNode=nodeAtIndexL(i-1);
+                        it->second._downLeftNode=nodeAtIndexL(i-1);
+                        
+                        it->second._upRightNode=nodeAtIndexL(i+1);
+                        it->second._downRightNode=nodeAtIndexL(i+1);
+                    }
                 }
             }
         }
@@ -73,6 +121,14 @@ namespace mcb{namespace PlatformSupport{
                 if (it!=_focusables.end()) {
                     it->second._downNode=nodeAtIndexL(i-1);
                     it->second._upNode=nodeAtIndexL(i+1);
+                    
+                    if (!isHorizontalLayout) {
+                        it->second._downLeftNode=nodeAtIndexL(i-1);
+                        it->second._downRightNode=nodeAtIndexL(i-1);
+                        
+                        it->second._upLeftNode=nodeAtIndexL(i+1);
+                        it->second._upRightNode=nodeAtIndexL(i+1);
+                    }
                 }
             }
         }
@@ -262,7 +318,29 @@ namespace mcb{namespace PlatformSupport{
     : _node(node)
     , _focusAction(focusAction)
     , _triggerAction(triggerAction)
-    {}
+    {
+    
+        if (focusContext) {
+            
+            using namespace mcb::PlatformSupport::Functions;
+            
+            _focusContext=pFocusContext(new FocusContext{
+                                             stringForObjectKey(focusContext, "focusID"),
+                                             boolForObjectKey(focusContext, "isFocused"),
+                                             
+                                             stringForObjectKey(focusContext, "up"),
+                                             stringForObjectKey(focusContext, "upLeft"),
+                                             stringForObjectKey(focusContext, "upRight"),
+                                             stringForObjectKey(focusContext, "down"),
+                                             stringForObjectKey(focusContext, "downLeft"),
+                                             stringForObjectKey(focusContext, "downRight"),
+                                             stringForObjectKey(focusContext, "left"),
+                                             stringForObjectKey(focusContext, "right")
+            });
+            
+        }
+    
+    }
 
     void FocusEngine::Focusable::focus(FocusState focusState, bool animated) const{
         if(focusState!=_focusState){

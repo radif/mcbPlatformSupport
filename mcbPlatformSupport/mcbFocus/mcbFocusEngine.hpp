@@ -63,7 +63,17 @@ namespace mcb{namespace PlatformSupport{
             cocos2d::CCNode * _downRightNode=nullptr;
             cocos2d::CCNode * _leftNode=nullptr;
             cocos2d::CCNode * _rightNode=nullptr;
+            
+            //focus context
+            struct FocusContext{
+                std::string focusID;
+                bool isFocused;
+                std::string up, upLeft, upRight, down, downLeft, downRight, left, right;
+            };
+            typedef std::shared_ptr<FocusContext> pFocusContext;
+            pFocusContext _focusContext=nullptr;
         private:
+            
             const cocos2d::CCNode * _node;
             FocusState _focusState=FocusStateUndefined;
             const focus_action_t _focusAction;
@@ -96,8 +106,10 @@ namespace mcb{namespace PlatformSupport{
         virtual void removeAllFocusableNodes();//use this when the current scene exits
         
         //sorting
-        virtual void sortFocusableNodesByFocusContent();//all nodes must have parents
-        virtual void sortFocusableNodesByCurrentPositions();//all nodes must have parents
+        virtual void sortFocusableNodesByFocusContext();//all nodes must have parents
+        
+        //deprecated sorting - must be improved or removed!
+        virtual void sortFocusableNodesByCurrentPositions(bool isHorizontalLayout=true);//all nodes must have parents
         
 
         //manual remote control mode
