@@ -49,14 +49,18 @@ namespace mcb{namespace PlatformSupport{
     private:
         struct Focusable{
             //ctor
-            Focusable(cocos2d::CCNode * node, const focus_action_t & focusAction, const trigger_action_t & triggerAction);
+            Focusable(cocos2d::CCNode * node, const focus_action_t & focusAction, const trigger_action_t & triggerAction, cocos2d::CCDictionary * focusContext);
             
             void focus(FocusState focusState, bool animated) const;
             const std::function<void()> getTriggerable() const;//cannot trigget directly since it can be distructive to this object, resulting in a crash
             
             //updateable positions
             cocos2d::CCNode * _upNode=nullptr;
+            cocos2d::CCNode * _upLeftNode=nullptr;
+            cocos2d::CCNode * _upRightNode=nullptr;
             cocos2d::CCNode * _downNode=nullptr;
+            cocos2d::CCNode * _downLeftNode=nullptr;
+            cocos2d::CCNode * _downRightNode=nullptr;
             cocos2d::CCNode * _leftNode=nullptr;
             cocos2d::CCNode * _rightNode=nullptr;
         private:
@@ -77,17 +81,21 @@ namespace mcb{namespace PlatformSupport{
         } _swipeContext;
         void _updateSelection();
         
+        cocos2d::CCNode * _moveFocusToNode(const std::function<cocos2d::CCNode * (Focusable * currentlyFocusedNode)> & selectorHandle);
+        
     protected:
         FocusEngine()=default;
         virtual ~FocusEngine()=default;
         
         //managing focusables
-        virtual void addFocusableNode(cocos2d::CCNode * node, const focus_action_t & focusAction=nullptr, const trigger_action_t & triggerAction=nullptr);
+        virtual void addFocusableNode(cocos2d::CCNode * node, const focus_action_t & focusAction=nullptr, const trigger_action_t & triggerAction=nullptr, cocos2d::CCDictionary * focusContext=nullptr);
         
         virtual void removeFocusableNode(cocos2d::CCNode * node);//custom manupulation
         
         virtual void removeAllFocusableNodes();//use this when the current scene exits
         
+        //sorting
+        virtual void sortFocusableNodesByFocusContent();//all nodes must have parents
         virtual void sortFocusableNodesByCurrentPositions();//all nodes must have parents
         
 
@@ -104,10 +112,14 @@ namespace mcb{namespace PlatformSupport{
         virtual cocos2d::CCNode * processDirectionalPress(const Press::Type & type, const bool animated=true);
         
         //focus shift
+        virtual cocos2d::CCNode * moveFocusUp(bool animated=true);
+        virtual cocos2d::CCNode * moveFocusUpLeft(bool animated=true);
+        virtual cocos2d::CCNode * moveFocusUpRight(bool animated=true);
+        virtual cocos2d::CCNode * moveFocusDown(bool animated=true);
+        virtual cocos2d::CCNode * moveFocusDownLeft(bool animated=true);
+        virtual cocos2d::CCNode * moveFocusDownRight(bool animated=true);
         virtual cocos2d::CCNode * moveFocusRight(bool animated=true);
         virtual cocos2d::CCNode * moveFocusLeft(bool animated=true);
-        virtual cocos2d::CCNode * moveFocusUp(bool animated=true);
-        virtual cocos2d::CCNode * moveFocusDown(bool animated=true);
         
         virtual cocos2d::CCNode * currentlyFocusedNode(){return _currentlyFocusedNode;}
         virtual void setCurrentlyFocusedNode(cocos2d::CCNode * node, bool withFocusAction, bool animated);
