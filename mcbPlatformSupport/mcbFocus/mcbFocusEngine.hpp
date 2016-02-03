@@ -87,7 +87,7 @@ namespace mcb{namespace PlatformSupport{
         struct {
             cocos2d::CCPoint lastSelectionLocation;
             cocos2d::CCPoint currentLocation;
-            float kJumpingSwipeDistance=120.0f;
+            float kJumpingSwipeDistance=220.0f;
             const float kDiagonalDistanceMultiplier=.85f;
         } _swipeContext;
         void _updateSelection();
