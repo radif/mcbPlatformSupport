@@ -87,9 +87,9 @@ namespace mcb{namespace PlatformSupport{
         struct {
             cocos2d::CCPoint lastSelectionLocation;
             cocos2d::CCPoint currentLocation;
-            float kJumpingSwipeDistance=220.0f;
-            const float kDiagonalDistanceMultiplier=.85f;
-            float veritcalSwipeDistanceMultiplier=1.2f;
+            float kJumpingSwipeDistance=300.0f;
+            float kDiagonalDistanceMultiplier=.75f;
+            float veritcalSwipeDistanceMultiplier=1.7f;
         } _swipeContext;
         void _updateSelection();
         
@@ -120,6 +120,9 @@ namespace mcb{namespace PlatformSupport{
         
         virtual void setVeritcalSwipeDistanceMultiplier(const float veritcalSwipeDistanceMultiplier){_swipeContext.veritcalSwipeDistanceMultiplier=veritcalSwipeDistanceMultiplier;}
         virtual const float veritcalSwipeDistanceMultiplier() const{return _swipeContext.veritcalSwipeDistanceMultiplier;}
+        
+        virtual void setDiagonalDistanceMultiplier(const float diagonalDistanceMultiplier){_swipeContext.kDiagonalDistanceMultiplier=diagonalDistanceMultiplier;}
+        virtual const float diagonalDistanceMultiplier() const{return _swipeContext.kDiagonalDistanceMultiplier;}
 
 
         virtual cocos2d::CCNode * focusSwipeBegan(const cocos2d::CCPoint & worldLocation);

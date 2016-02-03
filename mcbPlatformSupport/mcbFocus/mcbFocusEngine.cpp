@@ -165,7 +165,24 @@ namespace mcb{namespace PlatformSupport{
         const float verticalDistance((_swipeContext.currentLocation.y-_swipeContext.lastSelectionLocation.y)*_swipeContext.veritcalSwipeDistanceMultiplier);
         
         
-        if (fabsf(horizontalDistance)>_swipeContext.kJumpingSwipeDistance) {
+        if (fabsf(distance * _swipeContext.kDiagonalDistanceMultiplier)>_swipeContext.kJumpingSwipeDistance) {
+            //diagonals:
+            
+            if (_swipeContext.lastSelectionLocation.y<_swipeContext.currentLocation.y){
+                if (_swipeContext.lastSelectionLocation.x>_swipeContext.currentLocation.x)
+                    moveFocusUpLeft();
+                else
+                    moveFocusUpRight();
+            }else{
+                if (_swipeContext.lastSelectionLocation.x>_swipeContext.currentLocation.x)
+                    moveFocusDownLeft();
+                else
+                    moveFocusDownRight();
+            }
+            
+            //reset the horizontal and vetical distances distance
+            _swipeContext.lastSelectionLocation=_swipeContext.currentLocation;
+        }else if (fabsf(horizontalDistance)>_swipeContext.kJumpingSwipeDistance) {
             
             if (_swipeContext.lastSelectionLocation.x>_swipeContext.currentLocation.x)
                 moveFocusLeft();
@@ -184,23 +201,6 @@ namespace mcb{namespace PlatformSupport{
             
             //reset the horizontal distance
             _swipeContext.lastSelectionLocation.y=_swipeContext.currentLocation.y;
-        }else if (fabsf(distance * _swipeContext.kDiagonalDistanceMultiplier)>_swipeContext.kJumpingSwipeDistance) {
-            //diagonals:
-            
-            if (_swipeContext.lastSelectionLocation.y<_swipeContext.currentLocation.y){
-                if (_swipeContext.lastSelectionLocation.x>_swipeContext.currentLocation.x)
-                    moveFocusUpLeft();
-                else
-                    moveFocusUpRight();
-            }else{
-                if (_swipeContext.lastSelectionLocation.x>_swipeContext.currentLocation.x)
-                    moveFocusDownLeft();
-                else
-                    moveFocusDownRight();
-            }
-            
-            //reset the horizontal and vetical distances distance
-            _swipeContext.lastSelectionLocation=_swipeContext.currentLocation;
         }
         
     }
