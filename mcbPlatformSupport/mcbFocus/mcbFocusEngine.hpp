@@ -89,6 +89,7 @@ namespace mcb{namespace PlatformSupport{
             cocos2d::CCPoint currentLocation;
             float kJumpingSwipeDistance=220.0f;
             const float kDiagonalDistanceMultiplier=.85f;
+            float veritcalSwipeDistanceMultiplier=1.2f;
         } _swipeContext;
         void _updateSelection();
         
@@ -116,6 +117,10 @@ namespace mcb{namespace PlatformSupport{
         //swipe touch methods
         virtual void setJumpingSwipeDistance(const float jumpingSwipeDistance){_swipeContext.kJumpingSwipeDistance=jumpingSwipeDistance;}
         virtual const float jumpingSwipeDistance() const{return _swipeContext.kJumpingSwipeDistance;}
+        
+        virtual void setVeritcalSwipeDistanceMultiplier(const float veritcalSwipeDistanceMultiplier){_swipeContext.veritcalSwipeDistanceMultiplier=veritcalSwipeDistanceMultiplier;}
+        virtual const float veritcalSwipeDistanceMultiplier() const{return _swipeContext.veritcalSwipeDistanceMultiplier;}
+
 
         virtual cocos2d::CCNode * focusSwipeBegan(const cocos2d::CCPoint & worldLocation);
         virtual cocos2d::CCNode * focusSwipeMoved(const cocos2d::CCPoint & worldLocation);

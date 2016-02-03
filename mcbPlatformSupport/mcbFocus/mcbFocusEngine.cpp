@@ -162,7 +162,7 @@ namespace mcb{namespace PlatformSupport{
 
         const float horizontalDistance(_swipeContext.currentLocation.x-_swipeContext.lastSelectionLocation.x);
 
-        const float verticalDistance(_swipeContext.currentLocation.y-_swipeContext.lastSelectionLocation.y);
+        const float verticalDistance((_swipeContext.currentLocation.y-_swipeContext.lastSelectionLocation.y)*_swipeContext.veritcalSwipeDistanceMultiplier);
         
         
         if (fabsf(horizontalDistance)>_swipeContext.kJumpingSwipeDistance) {
