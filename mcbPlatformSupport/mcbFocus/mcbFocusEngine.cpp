@@ -71,6 +71,47 @@ namespace mcb{namespace PlatformSupport{
             setCurrentlyFocusedNode(nodeToFocus, true, false);
         
     }
+    
+    void FocusEngine::sortFocusableNodesAsInOrder(const std::vector<cocos2d::CCNode *> & nodesInOrder, bool isHorizontally){
+        
+        //nullable accessor if out of range
+        const auto nodeAtIndexL([&](const int index)->CCNode *{
+            if (index>=0 && index<nodesInOrder.size())
+                return nodesInOrder[index];
+            return nullptr;
+        });
+
+        
+        for (int i(0); i<nodesInOrder.size(); ++i) {
+         
+            CCNode * currNode(nodeAtIndexL(i));
+            
+            auto it(_focusables.find(currNode));
+            if (it!=_focusables.end()) {
+                CCNode * prevNode(nodeAtIndexL(i-1));
+                CCNode * nextNode(nodeAtIndexL(i+1));
+                
+                if (isHorizontally) {
+                    //favor horizontal layout
+                    it->second._leftNode=prevNode;
+                    it->second._rightNode=nextNode;
+                    it->second._upLeftNode=prevNode;
+                    it->second._upRightNode=nextNode;
+                    it->second._downLeftNode=prevNode;
+                    it->second._downRightNode=nextNode;
+                }else{
+                    //favor verical layout
+                    it->second._downNode=prevNode;
+                    it->second._upNode=nextNode;
+                    it->second._downLeftNode=prevNode;
+                    it->second._upLeftNode=nextNode;
+                    it->second._downRightNode=prevNode;
+                    it->second._upRightNode=nextNode;
+                }
+            }
+        }
+    }
+    
     //sorting the matrix
     void FocusEngine::sortFocusableNodesByCurrentPositions(bool isHorizontalLayout){
         struct WorldPositionNode{CCNode *node;CCPoint worldPos;};
