@@ -30,7 +30,7 @@ namespace mcb{namespace PlatformSupport{
     
     
     //soring by context
-    void FocusEngine::sortFocusableNodesByFocusContext(){
+    void FocusEngine::sortFocusableNodesByFocusContext(bool animateInitialFocus){
         //create a map for faster access
         std::map<std::string, cocos2d::CCNode *> focusablesByFocusID;
         for (const auto & p : _focusables)
@@ -68,7 +68,7 @@ namespace mcb{namespace PlatformSupport{
         
         
         if (nodeToFocus)
-            setCurrentlyFocusedNode(nodeToFocus, true, false);
+            setCurrentlyFocusedNode(nodeToFocus, true, animateInitialFocus);
         
     }
     
@@ -113,7 +113,7 @@ namespace mcb{namespace PlatformSupport{
     }
     
     //sorting the matrix
-    void FocusEngine::sortFocusableNodesByCurrentPositions(bool isHorizontalLayout){
+    void FocusEngine::sortFocusableNodesByCurrentPositions(bool isHorizontalLayout, bool animateInitialFocus){
         struct WorldPositionNode{CCNode *node;CCPoint worldPos;};
         std::vector<WorldPositionNode> nodes;
         nodes.reserve(_focusables.size());
@@ -176,7 +176,7 @@ namespace mcb{namespace PlatformSupport{
         
         //set current node if not available
         if (!_currentlyFocusedNode && !nodes.empty())
-            setCurrentlyFocusedNode(nodes.front().node, true, false);
+            setCurrentlyFocusedNode(nodes.front().node, true, animateInitialFocus);
         
         
     }
