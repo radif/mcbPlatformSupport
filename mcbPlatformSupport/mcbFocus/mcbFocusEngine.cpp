@@ -113,7 +113,7 @@ namespace mcb{namespace PlatformSupport{
     }
     
     //sorting the matrix
-    void FocusEngine::sortFocusableNodesByCurrentPositions(bool isHorizontalLayout, bool animateInitialFocus){
+    void FocusEngine::sortFocusableNodesByCurrentPositions(bool isHorizontalLayout, bool animateInitialFocus, bool isOneDimensional){
         struct WorldPositionNode{CCNode *node;CCPoint worldPos;};
         std::vector<WorldPositionNode> nodes;
         nodes.reserve(_focusables.size());
@@ -172,6 +172,20 @@ namespace mcb{namespace PlatformSupport{
                     }
                 }
             }
+        }
+        
+        if (isOneDimensional) {
+            if (isHorizontalLayout)
+                for (auto & focusable : _focusables){
+                    focusable.second._upNode=nullptr;
+                    focusable.second._downNode=nullptr;
+                }
+            
+            else
+                for (auto & focusable : _focusables){
+                    focusable.second._leftNode=nullptr;
+                    focusable.second._rightNode=nullptr;
+                }
         }
         
         //set current node if not available

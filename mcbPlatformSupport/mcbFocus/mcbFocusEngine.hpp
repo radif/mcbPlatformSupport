@@ -111,7 +111,7 @@ namespace mcb{namespace PlatformSupport{
         virtual void sortFocusableNodesAsInOrder(const std::vector<cocos2d::CCNode *> & nodesInOrder, bool isHorizontally=true);//all nodes must have parents
         
         //deprecated sorting - must be improved or removed!
-        virtual void sortFocusableNodesByCurrentPositions(bool isHorizontalLayout=true, bool animateInitialFocus=false);//all nodes must have parents
+        virtual void sortFocusableNodesByCurrentPositions(bool isHorizontalLayout=true, bool animateInitialFocus=false, bool isOneDimensional=false);//all nodes must have parents
         
 
         //manual remote control mode
