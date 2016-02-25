@@ -23,6 +23,7 @@ namespace mcb{namespace PlatformSupport{
     protected:
         virtual void startListeningPresses(const int priority=0, const bool swallowsPresses=false);
         virtual void stopListeningPresses();
+        virtual bool isListeningPresses() const;
         virtual ~Pressable();
     };
 }}

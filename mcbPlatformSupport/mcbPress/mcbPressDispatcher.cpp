@@ -92,5 +92,8 @@ namespace mcb{namespace PlatformSupport{
         if (it!=_pressables.end())
             _pressables.erase(it);
     }
-
+    bool PressDispatcher::_isListeningPresses(Pressable * pressable){
+        auto it(std::find(_pressables.begin(), _pressables.end(), pressable));
+        return it!=_pressables.end();
+    }
 }}

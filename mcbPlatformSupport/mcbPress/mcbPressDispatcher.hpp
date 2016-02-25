@@ -22,7 +22,7 @@ namespace mcb{namespace PlatformSupport{
         //use pressable to start/stop listening presses
         void _addPressable(Pressable * pressable, const int priority, const bool swallowsPresses);
         void _removePressable(Pressable * pressable);
-        
+        bool _isListeningPresses(Pressable * pressable);
     public:
         void setMenuButtonClosesApp(const bool menuButtonClosesApp);
         bool menuButtonClosesApp() const;
