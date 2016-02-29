@@ -199,11 +199,13 @@ namespace mcb{namespace PlatformSupport{
     //swipe
     cocos2d::CCNode * FocusEngine::focusSwipeBegan(const cocos2d::CCPoint & worldLocation){
         _swipeContext.lastSelectionLocation=worldLocation;
+        _swipeContext.swipeEnabled=true;
         return _currentlyFocusedNode;
     }
     cocos2d::CCNode * FocusEngine::focusSwipeMoved(const cocos2d::CCPoint & worldLocation){
         _swipeContext.currentLocation=worldLocation;
-        _updateSelection();
+        if (_swipeContext.swipeEnabled)
+            _updateSelection();
         return _currentlyFocusedNode;
     }
     cocos2d::CCNode * FocusEngine::focusSwipeEnded(const cocos2d::CCPoint & worldLocation){
@@ -290,6 +292,8 @@ namespace mcb{namespace PlatformSupport{
                 CCNode * nextNode(selectorHandle(&it->second));
                 if (nextNode) {
                     setCurrentlyFocusedNode(nextNode, true, true);
+                    if (_swipeContext.shoudDisableFurtherSwipesAfterFirstMoveOnSwipe)
+                        _swipeContext.swipeEnabled=false;
                     return nextNode;
                 }
             }
