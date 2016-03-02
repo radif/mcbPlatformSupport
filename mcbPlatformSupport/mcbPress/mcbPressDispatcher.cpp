@@ -30,11 +30,18 @@ namespace mcb{namespace PlatformSupport{
             auto pressables(_pressables);
             
             bool swallowsPress(false);
+            std::set<Press::Type> exceptionsToSwallows;
             for (Pressable *pressable : pressables) {
                 swallowsPress=pressable->__swallowsPresses;//local copy
+                if(swallowsPress)//local copy set only if swallows
+                    exceptionsToSwallows=pressable->__exceptionsToSwallows;
                 pressable->pressBegan(press);//possibly destructive to the pressable and changes the __pressables
-                if (swallowsPress)
-                    break;
+                if (swallowsPress){
+                    auto it(exceptionsToSwallows.find(press->type));
+                    if (it==exceptionsToSwallows.end())
+                        break;
+                }
+                
             }
         }
     }
@@ -43,11 +50,17 @@ namespace mcb{namespace PlatformSupport{
             auto pressables(_pressables);
 
             bool swallowsPress(false);
+            std::set<Press::Type> exceptionsToSwallows;
             for (Pressable *pressable : pressables) {
                 swallowsPress=pressable->__swallowsPresses;//local copy
+                if(swallowsPress)//local copy set only if swallows
+                    exceptionsToSwallows=pressable->__exceptionsToSwallows;
                 pressable->pressChanged(press);//possibly destructive to the pressable and changes the __pressables
-                if (swallowsPress)
-                    break;
+                if (swallowsPress){
+                    auto it(exceptionsToSwallows.find(press->type));
+                    if (it==exceptionsToSwallows.end())
+                        break;
+                }
             }
         }
     }
@@ -56,11 +69,17 @@ namespace mcb{namespace PlatformSupport{
             auto pressables(_pressables);
             
             bool swallowsPress(false);
+            std::set<Press::Type> exceptionsToSwallows;
             for (Pressable *pressable : pressables) {
                 swallowsPress=pressable->__swallowsPresses;//local copy
+                if(swallowsPress)//local copy set only if swallows
+                    exceptionsToSwallows=pressable->__exceptionsToSwallows;
                 pressable->pressEnded(press);//possibly destructive to the pressable and changes the __pressables
-                if (swallowsPress)
-                    break;
+                if (swallowsPress){
+                    auto it(exceptionsToSwallows.find(press->type));
+                    if (it==exceptionsToSwallows.end())
+                        break;
+                }
             }
         }
     }
@@ -69,20 +88,27 @@ namespace mcb{namespace PlatformSupport{
             auto pressables(_pressables);
             
             bool swallowsPress(false);
+            std::set<Press::Type> exceptionsToSwallows;
             for (Pressable *pressable : pressables) {
                 swallowsPress=pressable->__swallowsPresses;//local copy
+                if(swallowsPress)//local copy set only if swallows
+                    exceptionsToSwallows=pressable->__exceptionsToSwallows;
                 pressable->pressCancelled(press);//possibly destructive to the pressable and changes the __pressables
-                if (swallowsPress)
-                    break;
+                if (swallowsPress){
+                    auto it(exceptionsToSwallows.find(press->type));
+                    if (it==exceptionsToSwallows.end())
+                        break;
+                }
             }
         }
     }
     
 #pragma mark -
 #pragma mark add, remove pressables;
-    void PressDispatcher::_addPressable(Pressable * pressable, const int priority, const bool swallowsPresses){
+    void PressDispatcher::_addPressable(Pressable * pressable, const int priority, const bool swallowsPresses, const std::set<Press::Type> & exceptionsToSwallows){
         pressable->__priority=priority;
         pressable->__swallowsPresses=swallowsPresses;
+        pressable->__exceptionsToSwallows=exceptionsToSwallows;
         _pressables.emplace_back(pressable);
         std::sort(_pressables.begin(), _pressables.end(), [](Pressable *p1, Pressable *p2){return p1->__priority>p2->__priority;});
     }

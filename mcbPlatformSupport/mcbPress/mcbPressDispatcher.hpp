@@ -20,7 +20,7 @@ namespace mcb{namespace PlatformSupport{
         std::vector<Pressable *> _pressables;
         
         //use pressable to start/stop listening presses
-        void _addPressable(Pressable * pressable, const int priority, const bool swallowsPresses);
+        void _addPressable(Pressable * pressable, const int priority, const bool swallowsPresses, const std::set<Press::Type> & exceptionsToSwallows);
         void _removePressable(Pressable * pressable);
         bool _isListeningPresses(Pressable * pressable);
     public:

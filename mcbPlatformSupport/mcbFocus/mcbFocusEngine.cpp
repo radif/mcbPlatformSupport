@@ -434,10 +434,10 @@ namespace mcb{namespace PlatformSupport{
 #pragma mark -
 #pragma mark managed remote control mode
 #pragma mark -
-    FocusEngine::MCBTouchablePressable::MCBTouchablePressable(FocusEngine * focusEngine, int priority, bool swallowsInput){
+    FocusEngine::MCBTouchablePressable::MCBTouchablePressable(FocusEngine * focusEngine, int priority, bool swallowsInput, const std::set<Press::Type> & exceptionsToSwallows){
         _focusEngine=focusEngine;
         CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate(this, -priority, swallowsInput);
-        startListeningPresses(priority, swallowsInput);
+        startListeningPresses(priority, swallowsInput, exceptionsToSwallows);
     }
     FocusEngine::MCBTouchablePressable::~MCBTouchablePressable(){
         CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate(this);
@@ -462,8 +462,8 @@ namespace mcb{namespace PlatformSupport{
 #pragma mark -
     
     
-    void FocusEngine::beginManagedInput(int priority, bool swallowsInput){
-        _mcbTouchablePressable=std::make_shared<MCBTouchablePressable>(this, priority, swallowsInput);
+    void FocusEngine::beginManagedInput(int priority, bool swallowsInput, const std::set<Press::Type> & exceptionsToSwallows){
+        _mcbTouchablePressable=std::make_shared<MCBTouchablePressable>(this, priority, swallowsInput, exceptionsToSwallows);
     }
     void FocusEngine::endManagedInput(){
         _mcbTouchablePressable=nullptr;

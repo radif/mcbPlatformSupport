@@ -16,7 +16,7 @@ namespace mcb{namespace PlatformSupport{
         class MCBTouchablePressable: public cocos2d::CCObject, public cocos2d::CCTargetedTouchDelegate, public Pressable{
             FocusEngine * _focusEngine=nullptr;
         public:
-            MCBTouchablePressable(FocusEngine * focusEngine, int priority, bool swallowsInput);
+            MCBTouchablePressable(FocusEngine * focusEngine, int priority, bool swallowsInput, const std::set<Press::Type> & exceptionsToSwallows);
             virtual ~MCBTouchablePressable();
         protected:
             //presses for the remote
@@ -162,7 +162,7 @@ namespace mcb{namespace PlatformSupport{
         virtual void triggerSelectionForFocusableNode(cocos2d::CCNode * node);
         
         //managed remote control mode
-        virtual void beginManagedInput(int priority=100, bool swallowsInput=true);
+        virtual void beginManagedInput(int priority=100, bool swallowsInput=true, const std::set<Press::Type> & exceptionsToSwallows={});
         virtual void endManagedInput();
         
         void setManagedInputAnimated(bool animated){_managedInputAnimated=animated;}
