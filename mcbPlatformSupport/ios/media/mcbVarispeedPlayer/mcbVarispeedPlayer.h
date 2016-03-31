@@ -19,6 +19,9 @@
 
 -(void)prepare;
 
+-(void)setVolume:(const float)volume;
+-(float)volume;
+
 -(void)play;
 -(void)pause;
 -(void)stop;

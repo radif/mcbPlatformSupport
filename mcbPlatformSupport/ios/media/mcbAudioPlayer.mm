@@ -280,6 +280,12 @@ namespace mcb{namespace PlatformSupport{
     bool VarispeedPlayer::isPlaying() const{
         return [_nativeVarispeedPlayer isPlaying];
     }
+    void VarispeedPlayer::setVolume(const float volume){
+        [_nativeVarispeedPlayer setVolume:volume];
+    }
+    float VarispeedPlayer::volume() const{
+        return [_nativeVarispeedPlayer volume];
+    }
     void VarispeedPlayer::setRate(const float rate){
         [_nativeVarispeedPlayer setRate:rate];
     }

@@ -73,6 +73,12 @@
     [_player seekToTime:kCMTimeZero];
     _loop=oldLoop;
 }
+-(void)setVolume:(const float)volume{
+    [_player setVolume:volume];
+}
+-(float)volume{
+    return [_player volume];
+}
 -(BOOL)isPlaying{
     return [_player rate] != 0.f;
 }

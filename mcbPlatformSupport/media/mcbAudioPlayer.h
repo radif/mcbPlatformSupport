@@ -134,6 +134,9 @@ namespace mcb{namespace PlatformSupport{
         
         bool isPlaying() const;
         
+        void setVolume(const float volume);
+        float volume() const;
+        
         void setRate(const float rate);
         float rate() const;
         
