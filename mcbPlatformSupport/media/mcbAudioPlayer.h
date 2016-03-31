@@ -140,6 +140,8 @@ namespace mcb{namespace PlatformSupport{
         void setRate(const float rate);
         float rate() const;
         
+        void seekToTime(const float time);
+        
         std::string audioPath() const;
         bool loop() const;
         

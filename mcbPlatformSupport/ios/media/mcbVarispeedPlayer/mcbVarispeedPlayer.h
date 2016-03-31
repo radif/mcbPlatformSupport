@@ -26,6 +26,8 @@
 -(void)pause;
 -(void)stop;
 
+-(void)seekToTime:(float)time;
+
 -(float)currentTime;
 -(float)duration;
 

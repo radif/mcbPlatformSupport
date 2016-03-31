@@ -292,7 +292,10 @@ namespace mcb{namespace PlatformSupport{
     float VarispeedPlayer::rate() const{
         return [_nativeVarispeedPlayer rate];
     }
-        
+    
+    void VarispeedPlayer::seekToTime(const float time){
+        [_nativeVarispeedPlayer seekToTime:time];
+    }
     std::string VarispeedPlayer::audioPath() const{
         return [[_nativeVarispeedPlayer audioPath] UTF8String];
     }

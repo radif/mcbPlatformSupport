@@ -83,9 +83,11 @@
     return [_player rate] != 0.f;
 }
 -(void)setRate:(float)rate{
-    if (self.isPlaying)
-        _player.rate=rate;
+    _player.rate=rate;
     _rate=rate;
+}
+-(void)seekToTime:(float)time{
+    [_player seekToTime:CMTimeMakeWithSeconds(time, NSEC_PER_SEC)];
 }
 
 -(float)currentTime{
