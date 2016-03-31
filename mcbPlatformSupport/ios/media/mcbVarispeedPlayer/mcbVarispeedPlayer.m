@@ -87,6 +87,14 @@
         _player.rate=rate;
     _rate=rate;
 }
+
+-(float)currentTime{
+    return CMTimeGetSeconds(_player.currentTime);
+}
+-(float)duration{
+    return CMTimeGetSeconds(_player.currentItem.duration);
+}
+
 -(void)dealloc{
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [_player removeObserver:self forKeyPath:@"status"];

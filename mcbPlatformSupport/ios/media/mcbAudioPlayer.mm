@@ -299,6 +299,15 @@ namespace mcb{namespace PlatformSupport{
     bool VarispeedPlayer::loop() const{
         return [_nativeVarispeedPlayer loop];
     }
+    
+#pragma mark playback props
+    float VarispeedPlayer::currentTime() const{
+        return [_nativeVarispeedPlayer currentTime];
+    }
+    float VarispeedPlayer::duration() const{
+        return [_nativeVarispeedPlayer duration];
+    }
+
    
 }}
 

@@ -142,6 +142,10 @@ namespace mcb{namespace PlatformSupport{
         
         std::string audioPath() const;
         bool loop() const;
+        
+        //playback props
+        float currentTime() const;
+        float duration() const;
     };
     typedef std::shared_ptr<VarispeedPlayer> pVarispeedPlayer;
     
