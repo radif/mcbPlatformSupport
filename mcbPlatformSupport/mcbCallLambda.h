@@ -94,6 +94,24 @@ namespace mcb{namespace PlatformSupport{
         virtual ~ScheduleTimerLambda()=default;
     };
     
+    class TruTimerLambda : public cocos2d::CCActionInstant{
+        typedef cocos2d::CCActionInstant super;
+        std::function<void(const float deltaTime, const float progress, bool & stop)> _lambda=nullptr;
+        std::function<void()> _finally=nullptr;
+        virtual void update(float deltaTime) {execute(deltaTime);}
+        bool _isDone=false;
+        const float _duration;
+        long long _startTime=0;
+        virtual bool isDone(){return _isDone;}
+        virtual void step(float dt){update(dt);}
+    public:
+        static TruTimerLambda * create(const float duration, std::function<void(const float deltaTime, const float progress, bool & stop)> && lambda, std::function<void()> && finally=nullptr, int tag=0);
+        virtual void execute(float deltaTime);
+    protected:
+        TruTimerLambda(const float & duration): _duration(duration){}
+        virtual ~TruTimerLambda()=default;
+    };
+    
     namespace ProgressCurveFunctions{
         static float inline linearToEaseOut(const float progress){return 1.f-cosf(progress*M_PI_2);}
         static float inline linearToEaseIn(const float progress){return sinf(progress*M_PI_2);}

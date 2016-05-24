@@ -13,6 +13,8 @@
 #include <libxml/tree.h>
 #include "mcbPlatformSupportFunctions.h"
 
+#include <chrono>
+
 
 /*
  *To compile this file using gcc you can type
@@ -309,6 +311,11 @@ namespace mcb{namespace PlatformSupport{
         xmlCleanupParser();
         
         return d;
+    }
+    
+    long long hostTime(){
+        auto duration = std::chrono::system_clock::now().time_since_epoch();
+        return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
     }
     
 }}

@@ -7,11 +7,10 @@
 //
 
 #include "mcbCallLambda.h"
+#include "mcbPlatformSupport.h"
 
 namespace mcb{namespace PlatformSupport{
-    
     //mcbCallLambda
-    
     void CallLambda::execute(){
         if (_lambda)
             _lambda();
@@ -64,6 +63,36 @@ namespace mcb{namespace PlatformSupport{
             _actionTime+=deltaTime;
             float progress(_actionTime/_duration);
             if (progress>=1.f) {
+                _isDone=true;
+                if (_finally)
+                    _finally();
+                return;
+            }
+            _lambda(deltaTime, progress ,_isDone);
+        }
+    }
+    
+    //TruTimerLambda
+    TruTimerLambda * TruTimerLambda::create(const float duration, std::function<void(const float deltaTime, const float progres, bool & stop)> && lambda, std::function<void()> && finally, int tag){
+        TruTimerLambda *retVal = new TruTimerLambda(duration);
+        if (retVal){
+            retVal->_lambda=std::forward<decltype(lambda)>(lambda);
+            retVal->_finally=std::forward<decltype(finally)>(finally);
+            retVal->setTag(tag);
+            retVal->autorelease();
+            retVal->_startTime=mcb::PlatformSupport::hostTime();
+            return retVal;
+        }
+        CC_SAFE_DELETE(retVal);
+        return nullptr;
+    }
+    
+    void TruTimerLambda::execute(float deltaTime){
+        if (_lambda){
+            long long elapsedUnits(mcb::PlatformSupport::hostTime() - _startTime);
+            double actionTime(elapsedUnits/1000.0);
+            double progress(actionTime/_duration);
+            if (progress>=1.0) {
                 _isDone=true;
                 if (_finally)
                     _finally();

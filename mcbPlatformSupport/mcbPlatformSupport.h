@@ -67,5 +67,8 @@ namespace mcb{namespace PlatformSupport{
     std::string _platformSpecificCachesPath();
     std::string _platformSpecificLibPath();
     std::string _platformSpecificBundlePath();
+    
+    //time
+    long long hostTime();
 }}
 #endif /* defined(__mcb__PlatformSupport__) */
