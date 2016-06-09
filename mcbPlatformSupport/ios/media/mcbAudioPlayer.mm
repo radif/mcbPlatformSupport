@@ -89,7 +89,8 @@ namespace mcb{namespace PlatformSupport{
              @property BOOL enableRate NS_AVAILABLE(10_8, 5_0);  You must set enableRate to YES for the rate property to take effect. You must set this before calling prepareToPlay.
              
              */
-            player.enableRate=TRUE;
+            if (_supportsRate)
+              player.enableRate=TRUE;
             
         }
         

@@ -18,14 +18,15 @@ namespace mcb{namespace PlatformSupport{
 #if defined(PLAYER_DEBUG_INSTANCE_COUNTING) && PLAYER_DEBUG_INSTANCE_COUNTING==1
     static int instanceCounter=0;
 #endif
-    AudioPlayer::AudioPlayer(const std::string & audioFile, const int & numberOfLoops)
-    : AudioPlayer("", audioFile, 0.f,1.f,numberOfLoops)
+    AudioPlayer::AudioPlayer(const std::string & audioFile, const int & numberOfLoops, const bool supportsRate)
+    : AudioPlayer("", audioFile, 0.f,1.f,numberOfLoops, supportsRate)
     {
         
     }
-    AudioPlayer::AudioPlayer(const std::string & soundId, const std::string & audioFile, const float & time, const float & volume, const int & numberOfLoops)
+    AudioPlayer::AudioPlayer(const std::string & soundId, const std::string & audioFile, const float & time, const float & volume, const int & numberOfLoops, const bool supportsRate)
     : _soundId(soundId)
     , _audioFile(audioFile)
+    , _supportsRate(supportsRate)
     {
 #if defined(PLAYER_DEBUG_INSTANCE_COUNTING) && PLAYER_DEBUG_INSTANCE_COUNTING==1
         instanceCounter++;

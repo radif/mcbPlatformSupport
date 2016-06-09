@@ -18,7 +18,7 @@ namespace mcb{namespace PlatformSupport{
     class AudioPlayer{
         const std::string _soundId;
         const std::string _audioFile;
-        
+        const bool _supportsRate;
         bool _wasPlayingBeforeSuspension=false;
         bool _isSuspended=false;
         void * __platformSpecificPlayerPointer=nullptr;
@@ -30,8 +30,8 @@ namespace mcb{namespace PlatformSupport{
         void _callPlayerCompletion();
     public:
         //lifecycle
-        AudioPlayer(const std::string & soundId, const std::string & audioFile, const float & time, const float & volume, const int & numberOfLoops);
-        AudioPlayer(const std::string & audioFile, const int & numberOfLoops=0);
+        AudioPlayer(const std::string & soundId, const std::string & audioFile, const float & time, const float & volume, const int & numberOfLoops, const bool supportsRate=true);
+        AudioPlayer(const std::string & audioFile, const int & numberOfLoops=0, const bool supportsRate=true);
         virtual ~AudioPlayer();
         
         
