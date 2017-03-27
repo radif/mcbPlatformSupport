@@ -68,6 +68,8 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     //TODO: Canonical path
     void _removeLastSlashInPath(std::string & path);
     
+    //unicode escape string
+    void unicodeEscapeString(std::string & unicodeString);
     
     //filesystem
     bool fileExists(const std::string& filePath);

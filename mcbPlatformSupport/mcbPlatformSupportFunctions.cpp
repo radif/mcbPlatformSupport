@@ -147,6 +147,28 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     bool stringIsNumber(const std::string & s){
         return !s.empty() && std::find_if(s.begin(), s.end(), [](char c) { return !std::isdigit(c); }) == s.end();
     }
+    void unicodeEscapeString(std::string & unicodeString){
+        static const std::vector<std::pair<std::string, std::string>> kUnicodeEscapeSets{
+            {"á", "aACUTE"},
+            {"Á","AACUTE"},
+            {"é","eACUTE"},
+            {"É","EACUTE"},
+            {"í","iACUTE"},
+            {"Í","IACUTE"},
+            {"ñ","nTILDE"},
+            {"Ñ","NTILDE"},
+            {"ó","oACUTE"},
+            {"Ó","OACUTE"},
+            {"ú","uACUTE"},
+            {"Ú","UACUTE"},
+            {"ü", "uUMLAUT"},
+            {"Ü", "UUMLAUT"},
+        };
+        
+        for (const std::pair<std::string, std::string> & p : kUnicodeEscapeSets)
+            replaceOccurrencesOfStringByString(unicodeString, p.first, p.second);
+    }
+
     void _removeLastSlashInPath(std::string & path){
         if (path.empty())
             return;
