@@ -30,7 +30,11 @@ namespace mcb{namespace PlatformSupport{
         DeviceTypeHandheld=2
     }DeviceType;
     
-   
+    void setIsIPhoneX(bool isIPhoneX);
+    bool isIPhoneX();
+    
+    void setIPhoneXScaleMultiplier(float iPhopneXScaleMultiplier);
+    float iPhoneXScaleMultiplier();
     
     void setVisibleScreenRect(const cocos2d::CCRect & rect);
     cocos2d::CCRect getVisibleScreenRect();

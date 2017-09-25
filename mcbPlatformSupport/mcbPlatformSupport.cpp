@@ -39,7 +39,9 @@ namespace mcb{namespace PlatformSupport{
     static std::unique_ptr<path_tokens_t> _pathTokens=nullptr;
     static float _screenScaleRatio=1.0f;
     static DeviceType _devType=DeviceTypeUnknown;
-
+    static bool _isIPhoneX = false;
+    static float _iPhoneXScaleMultiplier = 1.f;
+    
     static std::function<void(std::string & inPath)> _customResolvePathFunction=nullptr;
     
     void setVisibleScreenRect(const cocos2d::CCRect & rect){_visibleScreenRect=rect;}
@@ -55,7 +57,13 @@ namespace mcb{namespace PlatformSupport{
     float getScreenScaleRatio(){return _screenScaleRatio;}
     void setScreenScaleRatio(float screenScaleRatio){_screenScaleRatio=screenScaleRatio;}
     
+    void setIsIPhoneX(bool isIPhoneX){_isIPhoneX = isIPhoneX;}
+    bool isIPhoneX(){ return _isIPhoneX;}
     
+    void setIPhoneXScaleMultiplier(float iPhopneXScaleMultiplier){
+        _iPhoneXScaleMultiplier = iPhopneXScaleMultiplier;
+    }
+    float iPhoneXScaleMultiplier(){ return _iPhoneXScaleMultiplier; }
     
     void setDeviceIdiom(const std::string & newDeviceIdiom){_deviceIdiom=newDeviceIdiom;}
     std::string getDeviceIdiom(){
