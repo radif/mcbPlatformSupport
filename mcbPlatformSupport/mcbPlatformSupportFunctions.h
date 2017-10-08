@@ -14,8 +14,8 @@
 #include <locale>
 
 namespace mcb{namespace PlatformSupport{namespace Functions{
-    cocos2d::CCPoint relativeCoordinatesFromAbsolute(cocos2d::CCPoint absoluteCoordinates);
-    cocos2d::CCPoint relativeScaleFromAbsolute(cocos2d::CCPoint absoluteScale);
+    cocos2d::CCPoint relativeCoordinatesFromAbsolute(cocos2d::CCPoint absoluteCoordinates, bool usesEdgeProtectedArea = false);
+    cocos2d::CCPoint relativeScaleFromAbsolute(cocos2d::CCPoint absoluteScale, bool usesEdgeProtectedArea = false);
     float normalizeAngle(float angle);
     float normalizeAngleRad(float angle);
     
@@ -85,8 +85,8 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     
     //TODO: use std::optional or boost::optional for return types and default vals
     
-    cocos2d::CCPoint ccpFromString(const std::string & ccpString);
-    cocos2d::CCRect ccRectFromString(const std::string & ccRectString);
+    cocos2d::CCPoint ccpFromString(const std::string & ccpString, bool usesEdgeProtectedArea = false);
+    cocos2d::CCRect ccRectFromString(const std::string & ccRectString, bool usesEdgeProtectedArea = false);
     std::string stringForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, const std::string & defaultVal="");
     bool boolForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, bool defaultVal=false);
     float floatForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, float defaultVal=0.f);
