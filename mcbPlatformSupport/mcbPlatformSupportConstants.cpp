@@ -16,7 +16,7 @@ namespace mcb{ namespace PlatformSupport{namespace Constants{
     
     //positions
     const char * kRelativePointOnScreen("r{");
-    const char * kAbsoluteRelativePointOnScreen("a{");
+    const char * kEdgeProtectedRelativePointOnScreen("e{");
     const char * kRelativePositionFromAbsoluteString("rpos{");
     const char * kRelativePositionFromCenter("c{");
 

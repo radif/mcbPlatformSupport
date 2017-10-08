@@ -31,14 +31,14 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
     
     cocos2d::CCPoint relativeCoordinatesFromAbsolute(cocos2d::CCPoint absoluteCoordinates){
         cocos2d::CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
-        cocos2d::CCRect visibleRect(mcb::PlatformSupport::getEdgeProtectedScreenRect());
+        cocos2d::CCRect visibleRect(mcb::PlatformSupport::getVisibleScreenRect());
         absoluteCoordinates.x=absoluteCoordinates.x/screenSize.width*visibleRect.size.width+visibleRect.origin.x;
         absoluteCoordinates.y=absoluteCoordinates.y/screenSize.height*visibleRect.size.height+visibleRect.origin.y;
         return absoluteCoordinates;
     }
     cocos2d::CCPoint relativeScaleFromAbsolute(cocos2d::CCPoint absoluteScale){
         cocos2d::CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
-        cocos2d::CCRect visibleRect(mcb::PlatformSupport::getEdgeProtectedScreenRect());
+        cocos2d::CCRect visibleRect(mcb::PlatformSupport::getVisibleScreenRect());
         absoluteScale.x=absoluteScale.x/screenSize.width*visibleRect.size.width;
         absoluteScale.y=absoluteScale.y/screenSize.height*visibleRect.size.height;
         return absoluteScale;
@@ -205,20 +205,20 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         cocos2d::CCSize screenSize = CCDirector::sharedDirector()->getWinSize();
         
         size_t loc = ccpString.find(Constants::kRelativePointOnScreen);
-        size_t locA = ccpString.find(Constants::kAbsoluteRelativePointOnScreen);
+        size_t locA = ccpString.find(Constants::kEdgeProtectedRelativePointOnScreen);
         size_t loc1 = ccpString.find(Constants::kRelativePositionFromAbsoluteString);
         size_t loc2 = ccpString.find(Constants::kRelativePositionFromCenter);
         
         if (loc != ccpString.npos) {
             std::string point = ccpString.substr(loc+1);
             p = cocos2d::CCPoint(CCPointFromString(point.c_str()));
-            cocos2d::CCRect visibleRect(mcb::PlatformSupport::getEdgeProtectedScreenRect());
+            cocos2d::CCRect visibleRect(mcb::PlatformSupport::getVisibleScreenRect());
             p.x=p.x*visibleRect.size.width+visibleRect.origin.x;
             p.y=p.y*visibleRect.size.height+visibleRect.origin.y;
         }else if (locA != ccpString.npos) {
             std::string point = ccpString.substr(locA+1);
             p = cocos2d::CCPoint(CCPointFromString(point.c_str()));
-            cocos2d::CCRect visibleRect(mcb::PlatformSupport::getVisibleScreenRect());
+            cocos2d::CCRect visibleRect(mcb::PlatformSupport::getEdgeProtectedScreenRect());
             p.x=p.x*visibleRect.size.width+visibleRect.origin.x;
             p.y=p.y*visibleRect.size.height+visibleRect.origin.y;
         }else if (loc1 != ccpString.npos) {
