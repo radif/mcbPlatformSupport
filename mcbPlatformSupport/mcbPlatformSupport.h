@@ -33,7 +33,11 @@ namespace mcb{namespace PlatformSupport{
     
     void setVisibleScreenRect(const cocos2d::CCRect & rect);
     cocos2d::CCRect getVisibleScreenRect();
-        
+    
+    cocos2d::CCRect getEdgeProtectedScreenRect();
+    void setEdgeProtectedScreenRect(cocos2d::CCRect rect);
+    
+    
     float getScreenScaleRatio();
     void setScreenScaleRatio(float screenScaleRatio);
     
@@ -44,7 +48,12 @@ namespace mcb{namespace PlatformSupport{
     DeviceType getDeviceType();
     bool isTVPlatform();
     bool isOn16x9Screen();
-        
+    
+    void setIsIPhoneX(bool isIPhoneX);
+    bool isIPhoneX();
+    void setIPhoneXScaleMultiplier(float iPhoneXScaleMultiplier);
+    float iPhoneXScaleMultiplier();
+    
     std::string getDeviceSuffix();
     
     cocos2d::CCPoint getScreenCenter();

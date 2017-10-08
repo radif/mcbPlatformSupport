@@ -20,6 +20,7 @@ namespace mcb{ namespace PlatformSupport{namespace Constants{
     
     //positions
     extern const char * kRelativePointOnScreen;
+    extern const char * kAbsoluteRelativePointOnScreen;
     extern const char * kRelativePositionFromAbsoluteString;
     extern const char * kRelativePositionFromCenter;
 

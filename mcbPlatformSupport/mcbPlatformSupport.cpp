@@ -36,12 +36,16 @@ using namespace cocos2d;
 
 namespace mcb{namespace PlatformSupport{
     static cocos2d::CCRect _visibleScreenRect=cocos2d::CCRectZero;
+    static cocos2d::CCRect _edgeProtectedScreenRect=cocos2d::CCRectZero;
     static std::string _deviceIdiom;
     static std::string _sharedBundlePath;
     static std::unique_ptr<path_tokens_t> _pathTokens=nullptr;
     static float _screenScaleRatio=1.0f;
     static DeviceType _devType=DeviceTypeUnknown;
-        
+    
+    bool _isiPhoneX = false;
+    float _iPhoneXScaleMultiplier = 1.f;
+    
     static std::function<void(std::string & inPath)> _customResolvePathFunction=nullptr;
     
     void setVisibleScreenRect(const cocos2d::CCRect & rect){_visibleScreenRect=rect;}
@@ -53,11 +57,17 @@ namespace mcb{namespace PlatformSupport{
         return _visibleScreenRect;
     }
     
+    cocos2d::CCRect getEdgeProtectedScreenRect(){ return _edgeProtectedScreenRect; }
+    void setEdgeProtectedScreenRect(cocos2d::CCRect rect){_edgeProtectedScreenRect=rect;}
+    
     
     float getScreenScaleRatio(){return _screenScaleRatio;}
     void setScreenScaleRatio(float screenScaleRatio){_screenScaleRatio=screenScaleRatio;}
     
-    
+    void setIsIPhoneX(bool isIPhoneX){_isiPhoneX = isIPhoneX;}
+    bool isIPhoneX(){return _isiPhoneX;}
+    void setIPhoneXScaleMultiplier(float iPhoneXScaleMultiplier){_iPhoneXScaleMultiplier = iPhoneXScaleMultiplier;}
+    float iPhoneXScaleMultiplier(){return _iPhoneXScaleMultiplier;}
     
     void setDeviceIdiom(const std::string & newDeviceIdiom){_deviceIdiom=newDeviceIdiom;}
     std::string getDeviceIdiom(){
@@ -111,6 +121,8 @@ namespace mcb{namespace PlatformSupport{
     std::string getDeviceSuffix(){
         switch (_devType) {
             case DeviceTypeHandheld:
+                if(_isiPhoneX)
+                    return "-X";
                 return "-hh";
                 break;
             case DeviceTypeTablet:
