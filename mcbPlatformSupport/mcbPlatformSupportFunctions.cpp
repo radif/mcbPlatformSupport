@@ -296,20 +296,20 @@ namespace mcb{namespace PlatformSupport{namespace Functions{
         CCPoint sizePoint(pointForObjectKey(dict, key, {defaultVal.width, defaultVal.height}));
         return {sizePoint.x, sizePoint.y};
     }
-    cocos2d::CCPoint pointForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCPoint defaultVal){
+    cocos2d::CCPoint pointForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCPoint defaultVal, bool usesEdgeProtectedArea){
         CCPoint retVal(defaultVal);
         CCObject * obj(dict->objectForKey(key.c_str()));
         CCString * pString(dynamic_cast<CCString *>(obj));
         if (pString)
-            retVal=PlatformSupport::Functions::ccpFromString(pString->m_sString);
+            retVal=PlatformSupport::Functions::ccpFromString(pString->m_sString, usesEdgeProtectedArea);
         return retVal;
     }
-    cocos2d::CCRect rectForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCRect defaultVal){
+    cocos2d::CCRect rectForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::CCRect defaultVal, bool usesEdgeProtectedArea){
         CCRect retVal(defaultVal);
         CCObject * obj(dict->objectForKey(key.c_str()));
         CCString * pString(dynamic_cast<CCString *>(obj));
         if (pString)
-            retVal=PlatformSupport::Functions::ccRectFromString(pString->m_sString);
+            retVal=PlatformSupport::Functions::ccRectFromString(pString->m_sString, usesEdgeProtectedArea);
         return retVal;
     }
     cocos2d::ccColor3B colorForObjectKey(cocos2d::CCDictionary *dict, const std::string & key, cocos2d::ccColor3B defaultVal){
