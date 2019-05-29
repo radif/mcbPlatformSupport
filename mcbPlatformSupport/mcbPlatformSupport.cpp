@@ -42,7 +42,7 @@ namespace mcb{namespace PlatformSupport{
     static std::unique_ptr<path_tokens_t> _pathTokens=nullptr;
     static float _screenScaleRatio=1.0f;
     static DeviceType _devType=DeviceTypeUnknown;
-    
+    static bool _isLowPerformingDevice = false;
     bool _isiPhoneX = false;
     float _iPhoneXScaleMultiplier = 1.f;
     
@@ -63,6 +63,9 @@ namespace mcb{namespace PlatformSupport{
     
     float getScreenScaleRatio(){return _screenScaleRatio;}
     void setScreenScaleRatio(float screenScaleRatio){_screenScaleRatio=screenScaleRatio;}
+    
+    void setIsLowPerformingDevice(bool isLowPerformingDevice){_isLowPerformingDevice = isLowPerformingDevice;}
+    bool isLowPerformingDevice(){return isLowPerformingDevice;}
     
     void setIsIPhoneX(bool isIPhoneX){_isiPhoneX = isIPhoneX;}
     bool isIPhoneX(){return _isiPhoneX;}

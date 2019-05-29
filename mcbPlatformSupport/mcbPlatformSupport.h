@@ -49,6 +49,9 @@ namespace mcb{namespace PlatformSupport{
     bool isTVPlatform();
     bool isOn16x9Screen();
     
+    void setIsLowPerformingDevice(bool isLowPerformingDevice);
+    bool isLowPerformingDevice();
+    
     void setIsIPhoneX(bool isIPhoneX);
     bool isIPhoneX();
     void setIPhoneXScaleMultiplier(float iPhoneXScaleMultiplier);
