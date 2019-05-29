@@ -65,7 +65,7 @@ namespace mcb{namespace PlatformSupport{
     void setScreenScaleRatio(float screenScaleRatio){_screenScaleRatio=screenScaleRatio;}
     
     void setIsLowPerformingDevice(bool isLowPerformingDevice){_isLowPerformingDevice = isLowPerformingDevice;}
-    bool isLowPerformingDevice(){return isLowPerformingDevice;}
+    bool isLowPerformingDevice(){return _isLowPerformingDevice;}
     
     void setIsIPhoneX(bool isIPhoneX){_isiPhoneX = isIPhoneX;}
     bool isIPhoneX(){return _isiPhoneX;}
